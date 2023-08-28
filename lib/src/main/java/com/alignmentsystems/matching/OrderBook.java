@@ -122,11 +122,8 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 	}
 
 
-
-
-
-
-	private  void runMatch() {
+	@Override
+	public void runMatch() {
 
 		InterfaceOrder topOfBuyBookPeek = buy.peek();
 		InterfaceOrder topOfSellBookPeek = sell.peek();

@@ -97,7 +97,10 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent {
 				String symbol = inSeq.getSymbol();
 
 				InterfaceOrderBook orderBook = orderBooks.getOrderBookForSymbol(symbol);
-				orderBook.addOrder(inSeq);
+				if(orderBook.addOrder(inSeq)) {
+					orderBook.runMatch();
+				}
+								
 				snapshotOrderBook(orderBook);
 
 			}else {

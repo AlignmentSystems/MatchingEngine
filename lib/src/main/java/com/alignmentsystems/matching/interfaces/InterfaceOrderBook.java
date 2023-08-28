@@ -14,6 +14,7 @@ import java.util.List;
 
 public interface InterfaceOrderBook {
 	public boolean addOrder(InterfaceOrder nos);
+	public void runMatch(); 
 	public boolean cancelOrder(InterfaceOrder nos);
 	public boolean cancelOrder(String orderId);
 	
