@@ -75,7 +75,6 @@ shadowJar {
 	}
 
 jar{
-	
 	autoIncrementBuildNumber()
     manifest {
         attributes("Implementation-Title": "Gradle",                   
