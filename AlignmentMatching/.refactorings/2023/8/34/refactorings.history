@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move element &apos;version.properties&apos; to &apos;lib&apos;&#x0A;- Original project: &apos;AlignmentMatching&apos;&#x0A;- Destination element: &apos;lib&apos;&#x0A;- Original element: &apos;version.properties&apos;&#x0A;- Update references to refactored element" description="Move file" destination="=lib" element1="version.properties" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.move" policy="org.eclipse.jdt.ui.moveResources" qualified="false" references="true" stamp="1692847054098" units="0" version="1.0"/>
+</session>
