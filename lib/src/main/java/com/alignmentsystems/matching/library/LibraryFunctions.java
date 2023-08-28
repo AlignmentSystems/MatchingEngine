@@ -192,10 +192,12 @@ public class LibraryFunctions {
 
 
 
+	
 	/**
 	 * 
-	 * @param property The property to get
-	 * @return String - The value of the property requested
+	 * @param actor The actor for whom properties are requested
+	 * @param configurationProperties The specific property requested
+	 * @return The value of the specific property requested
 	 */
 	protected static String getProperty(Actors actor, ConfigurationProperties configurationProperties) {
 		String targetProperty = null;
