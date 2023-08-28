@@ -10,18 +10,9 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
-import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.alignmentsystems.fix44.NewOrderSingle;
-import com.alignmentsystems.fix44.field.ClOrdID;
-import com.alignmentsystems.fix44.field.OrdType;
-import com.alignmentsystems.fix44.field.OrderQty;
-import com.alignmentsystems.fix44.field.Price;
-import com.alignmentsystems.fix44.field.Side;
-import com.alignmentsystems.fix44.field.Symbol;
-import com.alignmentsystems.fix44.field.TransactTime;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.Actors;
 import com.alignmentsystems.matching.enumerations.MessageDirection;
