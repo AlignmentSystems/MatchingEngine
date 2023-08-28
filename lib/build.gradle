@@ -73,8 +73,17 @@ shadowJar {
 	archiveBaseName = 'AlignmentMatching'
 	archiveClassifier = ''
 	}
-	
 
+jar{
+	
+	autoIncrementBuildNumber()
+    manifest {
+        attributes("Implementation-Title": "Gradle",                   
+                   'Main-Class':'com.alignmentsystems.matching.App',
+					'class-path':'.' ,
+					'Version': classifier + '.' + versionBuild)
+    }
+}
 
 dependencies {
    implementation("ch.qos.logback:logback-classic:+")
