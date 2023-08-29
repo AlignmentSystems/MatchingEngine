@@ -58,7 +58,7 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 	@Override
 	public void onCreate(SessionID sessionId) {
 		// TODO Auto-generated method stub
-		final String METHODNAME = "onCreate";
+		final String METHODNAME = "onCreate".intern();
 
 
 		StringBuilder sb = new StringBuilder()
@@ -76,7 +76,7 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 	 */
 	@Override
 	public void onLogon(SessionID sessionId) {
-		final String METHODNAME = "onLogon";
+		final String METHODNAME = "onLogon".intern();
 
 		StringBuilder sb = new StringBuilder()
 				.append(sessionId.toString())
@@ -105,7 +105,7 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 	 */
 	@Override
 	public void onLogout(SessionID sessionId) {
-		final String METHODNAME = "onLogout";
+		final String METHODNAME = "onLogout".intern();
 
 		StringBuilder sb = new StringBuilder()
 				.append(sessionId.toString())
@@ -124,12 +124,10 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 	 */
 	@Override
 	public void toAdmin(Message message, SessionID sessionId) {
-		final String METHODNAME = "toAdmin";
-		final String DIRECTION = "SENT";
-
+		final String METHODNAME = "toAdmin".intern();
+		
 		Boolean errorEvent = Boolean.FALSE;
 		StringBuilder sb = new StringBuilder();
-
 
 		String thisMessageType = null;
 
@@ -153,7 +151,7 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 					.append(" MessageType=[") 
 					.append(thisMessageType)
 					.append("] ")
-					.append(DIRECTION)
+					.append(MessageDirection.SENT.value)
 					.append(" (") 
 					.append(message.getClass().getSimpleName())
 					.append(")") 				
@@ -172,7 +170,7 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 	@Override
 	public void fromAdmin(Message message, SessionID sessionId)
 			throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, RejectLogon {
-		final String METHODNAME = "fromAdmin";
+		final String METHODNAME = "fromAdmin".intern();
 
 		String thisMessageType = null;	
 
@@ -202,7 +200,7 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 	 */
 	@Override
 	public void toApp(Message message, SessionID sessionId) throws DoNotSend {
-		final String METHODNAME = "toApp";
+		final String METHODNAME = "toApp".intern();
 
 	}
 
@@ -222,7 +220,7 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 	public void fromApp(Message message, SessionID sessionId)
 			throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
 		// TODO Auto-generated method stub
-		final String METHODNAME = "fromApp";
+		final String METHODNAME = "fromApp".intern();
 		String thisMessageType = null;
 		StringBuilder sb = new StringBuilder();
 
@@ -261,12 +259,10 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 	 */
 	public void onMessage(com.alignmentsystems.fix44.NewOrderSingle message, SessionID sessionID) 			  
 			throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
-		final String METHODNAME = "onMessage";
-
+		final String METHODNAME = "onMessage".intern();
 		
 		OrderBookSide orderBookSide = LibraryOrders.getOrderBookSideFromFIXSide(message.getSide());
 
-		
 		AlignmentOrder ao = new AlignmentOrder(UUID.randomUUID().toString() , orderBookSide);
 		
 		StringBuilder sb = new StringBuilder()				
@@ -277,7 +273,6 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 		
 		ao.setNewOrderSingle(message, sessionID);
 		
-
 		try{
 			orderQueue.add(ao);
 			log.infoFIXSession(sb.toString(), sessionID, MessageDirection.RECEIVED, METHODNAME, message.getClass().getSimpleName(), actor);			
