@@ -58,10 +58,8 @@ public class OrderBooks implements InterfaceOrderBooks{
 			Runnable runnableOrderBook = (Runnable) orderBook;
 			
 			Thread newThread = new Thread(runnableOrderBook);
-			
-			newThread.setName(symbol);
-			
-			orderBook.setThread(newThread);
+						
+			orderBook.setThread(newThread).setName(symbol);
 			
 			orderBooks.put(symbol, orderBook);
 			
@@ -83,7 +81,6 @@ public class OrderBooks implements InterfaceOrderBooks{
 
 	@Override
 	public Set<Thread> getOrderBookThreads() {
-
 		return this.orderBookThreads;
 	}
 }

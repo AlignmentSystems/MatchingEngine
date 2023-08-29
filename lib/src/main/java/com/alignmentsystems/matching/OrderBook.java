@@ -35,7 +35,6 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	private final static String CLASSNAME = OrderBook.class.getCanonicalName();
 	private Thread orderBookThread = null;
 
-	
 	private PriorityQueue<InterfaceOrder>  buy = new PriorityQueue<InterfaceOrder> (100, Collections.reverseOrder());
 	private PriorityQueue<InterfaceOrder>  sell = new PriorityQueue<InterfaceOrder> (100);
 	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
@@ -334,13 +333,21 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	}
 
 	@Override
-	public void setThread(Thread orderBookThread) {
+	public Thread setThread(Thread orderBookThread) {
 		this.orderBookThread  = orderBookThread;
+		return this.orderBookThread;
 		
 	}
 
 	@Override
 	public Thread getThread() {
 		return this.orderBookThread;
+	}
+
+	@Override
+	@NotYetImplemented
+	public List<String> getOrderBookVisualisation() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }	
