@@ -22,8 +22,9 @@ public enum Actors {
 		EXCHANGE("Exchange");
 		
 		public final String targetActor;
-		
+		//public final String targetActorProperties;
 		Actors(String actor){
-			this.targetActor = actor + Constants.DOTPROPERTIES;
+			this.targetActor = actor;
+			//this.targetActorProperties = actor + Constants.DOTPROPERTIES;
 		}
 	}

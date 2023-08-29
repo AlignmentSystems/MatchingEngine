@@ -28,6 +28,7 @@ import com.alignmentsystems.matching.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.matching.library.LibraryFunctions;
+import com.alignmentsystems.matching.library.LibraryOrders;
 
 import quickfix.FieldNotFound;
 
@@ -47,8 +48,8 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	private LogEncapsulation log = null;
 	private final int nanoSleep = 200;
 
-	
-	
+
+
 	public OrderBook(String symbol, LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced ) {
 		this.symbol = symbol;
 		this.log = log;
@@ -121,7 +122,7 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	}
 
 
-	
+
 	private void runMatch() {
 
 		InterfaceOrder topOfBuyBookPeek = buy.peek();
@@ -287,16 +288,16 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 
 	@Override
 	public void run() {
-		
+
 		running.set(true);
-		
-		
+
+
 		while (running.get()){
 			InterfaceOrder inSeq = inboundSequenced.peek();
 			if (inSeq!=null) {
 				if(inSeq.getSymbol()==this.symbol) {
 					inSeq = inboundSequenced.poll();
-										
+
 					if (inSeq.getOrderBookSide()==OrderBookSide.BUY) {
 						this.buy.add(inSeq);
 						this.buyOrderCount++;
@@ -306,22 +307,23 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 					}else {
 						//TODO Error - how do we handle this?
 					}
+					LibraryOrders.snapShotOrderBook(this, log);
 					runMatch();
-					
+
 				}//Else - this is not an instrument for this OrderBook, so leave the peek'd Object alone...
 			}else {
 				try {
 					Thread.currentThread();
 					Thread.sleep(0L , nanoSleep);
-					
+
 				}catch(InterruptedException e){
-					
+
 					running.set(false);
-					
+
 					Thread.currentThread().interrupt();
-					
+
 					System.err.println(e.getMessage());
-					
+
 					System.err.println(new StringBuilder()
 							.append(CLASSNAME)
 							.append(Constants.SPACE)
@@ -336,7 +338,7 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	public Thread setThread(Thread orderBookThread) {
 		this.orderBookThread  = orderBookThread;
 		return this.orderBookThread;
-		
+
 	}
 
 	@Override

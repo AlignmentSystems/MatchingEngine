@@ -14,6 +14,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 
+import com.alignmentsystems.matching.enumerations.Actors;
+
 /**
  * Constants - keep all re-used constants in one place...
  * @author John Greenan john.greenan@alignment-systems.com
@@ -36,9 +38,9 @@ public class Constants {
 		
 		public final static String DOTPROPERTIES = ".properties".intern();
 		
-		public final static String MEMBERASETTINGS = "MemberA.properties".intern();
-		public final static String MEMBERBSETTINGS = "MemberB.properties".intern();
-		public final static String EXCHANGESETTINGS = "Exchange.properties".intern();
+		public final static String MEMBERASETTINGS = Actors.A.targetActor + DOTPROPERTIES ;
+		public final static String MEMBERBSETTINGS = Actors.B.targetActor + DOTPROPERTIES ;
+		public final static String EXCHANGESETTINGS = Actors.EXCHANGE.targetActor + DOTPROPERTIES;
 		
 		public final static int NANOSLEEP = 100;
 
