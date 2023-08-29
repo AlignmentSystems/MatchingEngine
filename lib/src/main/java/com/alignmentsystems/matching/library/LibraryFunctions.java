@@ -36,6 +36,7 @@ import com.alignmentsystems.matching.constants.FailureConditionConstants;
 import com.alignmentsystems.matching.enumerations.Actors;
 import com.alignmentsystems.matching.enumerations.ConfigurationProperties;
 import com.alignmentsystems.matching.enumerations.OrderBookSide;
+import com.alignmentsystems.matching.enumerations.OrderBookState;
 import com.alignmentsystems.matching.enumerations.TimestampUsage;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 
@@ -56,6 +57,58 @@ import quickfix.ThreadedSocketInitiator;
  */
 public class LibraryFunctions {
 
+	
+	
+	/**
+	 * 
+	 * @param bookStateInt
+	 * @param stateToAccumulate
+	 * @return
+	 */
+	public static OrderBookState updateOrderBookState(OrderBookState oldState, OrderBookState stateToAccumulate) {
+		
+		OrderBookState internalOrderBookState;
+		int bookStateInt = oldState.getStateInt(); 
+		int stateToAccum = stateToAccumulate.getStateInt();
+		
+		switch (stateToAccum) {
+		case -1:
+			bookStateInt = stateToAccum;
+			break;
+		case 0:
+			bookStateInt = stateToAccum;
+			break;
+		case 6:
+			bookStateInt = stateToAccum;
+			break;
+		default:
+			bookStateInt = bookStateInt + stateToAccum;
+		}
+
+		switch (bookStateInt) {
+		case 0:
+			internalOrderBookState =  OrderBookState.Empty;			
+			break;
+		case 2:
+			internalOrderBookState = OrderBookState.BuySide;
+			break;
+		case 4:	
+			internalOrderBookState = OrderBookState.SellSide;
+			break;
+		case 6:	
+			internalOrderBookState = OrderBookState.TwoSided;
+			break;
+		default:
+			internalOrderBookState = OrderBookState.Error;	
+		}
+		
+		return internalOrderBookState;
+	}
+
+	
+	
+	
+	
 	/**
 	 * 
 	 * @param configFile

@@ -38,7 +38,7 @@ public class AlignmentOrder implements InterfaceOrder{
 	private Price limitPrice = null;
 	private SessionID sessionId = null;
 	private NewOrderSingle nos = null;
-	private OffsetDateTime ts = null;
+	private final OffsetDateTime ts;
 	private String counterparty = null;
 	private final ZoneOffset zo = Constants.HERE;
 	private List<ExecutionReport> executions =  new ArrayList<ExecutionReport>();

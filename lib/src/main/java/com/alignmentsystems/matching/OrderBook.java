@@ -20,6 +20,7 @@ import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.annotations.NotYetImplemented;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.OrderBookSide;
+import com.alignmentsystems.matching.enumerations.OrderBookState;
 import com.alignmentsystems.matching.interfaces.InterfaceAddedOrderToOrderBook;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
@@ -135,83 +136,110 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 		InterfaceOrder topOfBuyBookPeek = buy.peek();
 		InterfaceOrder topOfSellBookPeek = sell.peek();
 
-		Double topOfBuyBookPrice = topOfBuyBookPeek.getLimitPrice().getValue(); 
-		Double topOfSellBookPrice = topOfSellBookPeek.getLimitPrice().getValue();
-		Double tradedQuantity = 0d;
-		Double tradedPrice = 0d;
-		//If buy top of book price is greater than or equal to the sell top of book then we have got a buyer
-		//who has crossed the spread.  So we have a trade, yay!
-		if (topOfBuyBookPrice>=topOfSellBookPrice) {
+		OrderBookState  orderBookState = OrderBookState.Empty;
+		
+		if(topOfBuyBookPeek!=null) {
+			orderBookState = LibraryFunctions.updateOrderBookState(orderBookState, OrderBookState.BuySide);
+		}
+		
+		if(topOfSellBookPeek!=null) {
+			orderBookState = LibraryFunctions.updateOrderBookState(orderBookState, OrderBookState.SellSide);
+		}
+		
+		Double topOfBuyBookPrice = 0d;
+		Double topOfSellBookPrice = 0d;
+		
+		if(orderBookState.contains(OrderBookState.TwoSided)){
+			topOfBuyBookPrice = topOfBuyBookPeek.getLimitPrice().getValue();
+			topOfSellBookPrice = topOfSellBookPeek.getLimitPrice().getValue();
+			Double tradedQuantity = 0d;
+			Double tradedPrice = 0d;
+			//If buy top of book price is greater than or equal to the sell top of book then we have got a buyer
+			//who has crossed the spread.  So we have a trade, yay!
+			if (topOfBuyBookPrice>=topOfSellBookPrice) {
 
 
-			//The minimum of sell order quantity and buy order quantity can trade.
-			//Note - this is not correct, since you have to walk down the levels of depth
-			//and execute each price until the order that crossed the spread is full or no longer able to trade as the next]
-			//price level would not match
-			InterfaceOrder topOfBuyBook = buy.poll();
-			InterfaceOrder topOfSellBook = sell.poll();
+				//The minimum of sell order quantity and buy order quantity can trade.
+				//Note - this is not correct, since you have to walk down the levels of depth
+				//and execute each price until the order that crossed the spread is full or no longer able to trade as the next]
+				//price level would not match
+				InterfaceOrder topOfBuyBook = buy.poll();
+				InterfaceOrder topOfSellBook = sell.poll();
 
-			//Here is a question, who is the aggressor?
-			//Why do we need to know this? So you can work out who gets to trade at their preferred price...
-			OffsetDateTime topOfBuyBookTimestamp = topOfBuyBook.getTimestamp();
-			OffsetDateTime topOfSellBookTimestamp = topOfSellBook.getTimestamp();
-			Side aggressor = null;
-
-
-			if (topOfBuyBookTimestamp.compareTo(topOfSellBookTimestamp)<0) {
-				//Returns: the comparator value, negative if less, positive if greater
-				//Therefore topOfBuyBookTimestamp is less than topOfSellBookTimestamp
-				//So topOfBuyBookTimestamp came first and is therefore NOT the aggressor
-				aggressor = new Side(Side.SELL);
-			}else {
-				aggressor = new Side(Side.BUY);
-			}
-
-			Double topOfBuyBookQty = topOfBuyBook.getOrderQty().getValue();
-			Double topOfSellBookQty = topOfBuyBook.getOrderQty().getValue();
-
-			tradedQuantity = Math.min(topOfBuyBookQty, topOfSellBookQty);
+				//Here is a question, who is the aggressor?
+				//Why do we need to know this? So you can work out who gets to trade at their preferred price...
+				OffsetDateTime topOfBuyBookTimestamp = topOfBuyBook.getTimestamp();
+				OffsetDateTime topOfSellBookTimestamp = topOfSellBook.getTimestamp();
+				Side aggressor = null;
 
 
+				if (topOfBuyBookTimestamp.compareTo(topOfSellBookTimestamp)<0) {
+					//Returns: the comparator value, negative if less, positive if greater
+					//Therefore topOfBuyBookTimestamp is less than topOfSellBookTimestamp
+					//So topOfBuyBookTimestamp came first and is therefore NOT the aggressor
+					aggressor = new Side(Side.SELL);
+				}else {
+					aggressor = new Side(Side.BUY);
+				}
 
-			switch(aggressor.getValue()) {
-			case Side.SELL:
-				tradedPrice  = Math.max(topOfBuyBookPrice, topOfSellBookPrice);
-				break;
-			case Side.BUY:
-				tradedPrice  = Math.min(topOfBuyBookPrice, topOfSellBookPrice);
-				break;
-			}
-			OffsetDateTime executionTimestamp = OffsetDateTime.now(Constants.HERE);
+				Double topOfBuyBookQty = topOfBuyBook.getOrderQty().getValue();
+				Double topOfSellBookQty = topOfBuyBook.getOrderQty().getValue();
 
-			String buyClOrdID = null;
-			String sellClOrdID = null;
-			try {
-				buyClOrdID = topOfBuyBook.getClOrdID().getValue().toString();
-				sellClOrdID = topOfSellBook.getClOrdID().getValue().toString();
-			} catch (FieldNotFound e) {
-				log.error(e.getMessage() , e);
-			}
+				tradedQuantity = Math.min(topOfBuyBookQty, topOfSellBookQty);
 
-			String buyOrderID = topOfBuyBook.getOrderId();
-			String sellOrderID = topOfSellBook.getOrderId();
 
+
+				switch(aggressor.getValue()) {
+				case Side.SELL:
+					tradedPrice  = Math.max(topOfBuyBookPrice, topOfSellBookPrice);
+					break;
+				case Side.BUY:
+					tradedPrice  = Math.min(topOfBuyBookPrice, topOfSellBookPrice);
+					break;
+				}
+				OffsetDateTime executionTimestamp = OffsetDateTime.now(Constants.HERE);
+
+				String buyClOrdID = null;
+				String sellClOrdID = null;
+				try {
+					buyClOrdID = topOfBuyBook.getClOrdID().getValue().toString();
+					sellClOrdID = topOfSellBook.getClOrdID().getValue().toString();
+				} catch (FieldNotFound e) {
+					log.error(e.getMessage() , e);
+				}
+
+				String buyOrderID = topOfBuyBook.getOrderId();
+				String sellOrderID = topOfSellBook.getOrderId();
+
+				
+				
+				Match match = new Match(
+						tradedQuantity
+						, tradedPrice
+						, topOfBuyBook
+						, topOfSellBook
+						, aggressor
+						, executionTimestamp
+						, buyClOrdID
+						, sellClOrdID
+						, buyOrderID
+						, sellOrderID
+						);
+				
+				this.matchHappened(match);
 			
 			
-			Match match = new Match(
-					tradedQuantity
-					, tradedPrice
-					, topOfBuyBook
-					, topOfSellBook
-					, aggressor
-					, executionTimestamp
-					, buyClOrdID
-					, sellClOrdID
-					, buyOrderID
-					, sellOrderID
-					);
 			
-			this.matchHappened(match);
+			
+		}else if (orderBookState.contains(OrderBookState.BuySide)) {
+			//One sided market (buy orders only), so you cannot match here
+			log.info(orderBookState.getStateString());
+		}else if (orderBookState.contains(OrderBookState.SellSide)) {
+			//One sided market (sell orders only), so you cannot match here
+			log.info(orderBookState.getStateString());
+		}
+		 
+		
 			
 		}else {
 			//topOfBuyBookPrice < topOfSellBookPrice

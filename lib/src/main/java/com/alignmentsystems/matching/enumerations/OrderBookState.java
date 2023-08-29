@@ -1,0 +1,43 @@
+package com.alignmentsystems.matching.enumerations;
+/******************************************************************************
+ * 
+ *	Author			:	John Greenan 
+ *	Contact			:	sales@alignment-systems.com
+ *	Date            :	24th August 2023
+ *	Copyright       :	Alignment Systems Ltd 2023
+ *	Project			:	Alignment Matching Toy
+ *	Artefact		:	OrderBookSide
+ *	Description		:
+ *****************************************************************************/
+
+public enum OrderBookState {
+	Error("Error Order Book", -1 ),
+	Empty("Empty Order Book", 0 ),
+	BuySide("One Sided Book Buy" , 2),
+	SellSide("One Sided Book Sell", 4 ),
+	TwoSided("Two Sided Order Book", 6);
+
+	private String bookStateString;
+	private int bookStateInt;
+
+	public int getStateInt() {
+		return this.bookStateInt;
+	}
+
+	public String getStateString() {
+		return this.bookStateString;
+	}
+
+	public boolean contains(OrderBookState obs) {
+		if ((this.getStateInt() & obs.getStateInt())==obs.getStateInt()) {
+			return true;	
+		} else {
+			return false;
+		}
+	}
+
+	OrderBookState(String strState, int intState){
+		this.bookStateString = strState;
+		this.bookStateInt = intState;
+	}
+}
