@@ -11,11 +11,11 @@ package com.alignmentsystems.matching.enumerations;
  *****************************************************************************/
 
 public enum OperationEventType {
-MatchEvent("Match"),
-NewOrderEvent("NewOrder");
+	MATCHEVENT("Match"),
+	NEWORDEREVENT("NewOrder");
 
 
-public final String value;
+	public final String value;
 	OperationEventType(String value){
 		this.value = value;
 	}

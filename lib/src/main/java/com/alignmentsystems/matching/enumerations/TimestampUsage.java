@@ -15,7 +15,7 @@ package com.alignmentsystems.matching.enumerations;
 * @author John Greenan john.greenan@alignment-systems.com
 */
 public enum TimestampUsage {
-	FileName,
-	InFile
+	FILENAME,
+	INFILE
 }
 

@@ -87,19 +87,19 @@ public class LibraryFunctions {
 
 		switch (bookStateInt) {
 		case 0:
-			internalOrderBookState =  OrderBookState.Empty;			
+			internalOrderBookState =  OrderBookState.EMPTY;			
 			break;
 		case 2:
-			internalOrderBookState = OrderBookState.BuySide;
+			internalOrderBookState = OrderBookState.BUYSIDE;
 			break;
 		case 4:	
-			internalOrderBookState = OrderBookState.SellSide;
+			internalOrderBookState = OrderBookState.SELLSIDE;
 			break;
 		case 6:	
-			internalOrderBookState = OrderBookState.TwoSided;
+			internalOrderBookState = OrderBookState.TWOSIDED;
 			break;
 		default:
-			internalOrderBookState = OrderBookState.Error;	
+			internalOrderBookState = OrderBookState.ERROR;	
 		}
 		
 		return internalOrderBookState;
@@ -349,7 +349,7 @@ public class LibraryFunctions {
 			suffix = "+" + suffix;
 		}
 
-		fileNameDateTimePartToUse = getUTCTimestamp(runTime , TimestampUsage.FileName); 
+		fileNameDateTimePartToUse = getUTCTimestamp(runTime , TimestampUsage.FILENAME); 
 		//Does rawMessageLogFileDirectory exist?
 		Path path = Paths.get(rawMessageLogFileDirectory);
 		if (Files.exists(path)) {
@@ -372,7 +372,7 @@ public class LibraryFunctions {
 		StringBuilder sb = new StringBuilder();
 
 		switch(usage) {
-		case FileName:
+		case FILENAME:
 
 			sb.append(String.valueOf(runTime.getYear()))
 			.append(Constants.UNDERSCORE)
@@ -390,7 +390,7 @@ public class LibraryFunctions {
 			.append(Constants.SEMICOLON)
 			.append(String.format("%09d", runTime.getNano()).substring(0,3)) ;
 			return sb.toString();
-		case InFile:
+		case INFILE:
 
 			sb.append(String.valueOf(runTime.getYear()))
 			.append(Constants.DASH)

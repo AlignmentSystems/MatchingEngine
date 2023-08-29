@@ -233,7 +233,7 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 		}
 
 
-		log.infoFIXSession(message.toRawString(), sessionId, MessageDirection.Received, METHODNAME, this.className, this.actor);
+		log.infoFIXSession(message.toRawString(), sessionId, MessageDirection.RECEIVED, METHODNAME, this.className, this.actor);
 
 		try {
 			crack(message, sessionId);
@@ -270,7 +270,7 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 				.append(ao.getOrderId())
 				.append(") enqueueing to rawMessageQueue...")
 				;
-		log.infoFIXSession(sb.toString(), sessionID, MessageDirection.Received, METHODNAME, message.getClass().getSimpleName(), actor);
+		log.infoFIXSession(sb.toString(), sessionID, MessageDirection.RECEIVED, METHODNAME, message.getClass().getSimpleName(), actor);
 		
 				
 		ao.setNewOrderSingle(message, sessionID);

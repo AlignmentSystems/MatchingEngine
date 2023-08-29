@@ -11,11 +11,12 @@ package com.alignmentsystems.matching.enumerations;
  *****************************************************************************/
 
 public enum OrderBookSide {
-SELL("Sell"),
-BUY("Buy");
+	SELL("Sell"),
+	BUY("Buy");
 
-public final String value;
-	OrderBookSide(String value){
-		this.value = value;
+	public final String sideValue;
+	
+	OrderBookSide(String sideValue){
+		this.sideValue = sideValue;
 	}
 }

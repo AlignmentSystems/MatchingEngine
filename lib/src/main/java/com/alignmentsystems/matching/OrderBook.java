@@ -136,20 +136,20 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 		InterfaceOrder topOfBuyBookPeek = buy.peek();
 		InterfaceOrder topOfSellBookPeek = sell.peek();
 
-		OrderBookState  orderBookState = OrderBookState.Empty;
+		OrderBookState  orderBookState = OrderBookState.EMPTY;
 		
 		if(topOfBuyBookPeek!=null) {
-			orderBookState = LibraryFunctions.updateOrderBookState(orderBookState, OrderBookState.BuySide);
+			orderBookState = LibraryFunctions.updateOrderBookState(orderBookState, OrderBookState.BUYSIDE);
 		}
 		
 		if(topOfSellBookPeek!=null) {
-			orderBookState = LibraryFunctions.updateOrderBookState(orderBookState, OrderBookState.SellSide);
+			orderBookState = LibraryFunctions.updateOrderBookState(orderBookState, OrderBookState.SELLSIDE);
 		}
 		
 		Double topOfBuyBookPrice = 0d;
 		Double topOfSellBookPrice = 0d;
 		
-		if(orderBookState.contains(OrderBookState.TwoSided)){
+		if(orderBookState.contains(OrderBookState.TWOSIDED)){
 			topOfBuyBookPrice = topOfBuyBookPeek.getLimitPrice().getValue();
 			topOfSellBookPrice = topOfSellBookPeek.getLimitPrice().getValue();
 			Double tradedQuantity = 0d;
@@ -231,10 +231,10 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 			
 			
 			
-		}else if (orderBookState.contains(OrderBookState.BuySide)) {
+		}else if (orderBookState.contains(OrderBookState.BUYSIDE)) {
 			//One sided market (buy orders only), so you cannot match here
 			log.info(orderBookState.getStateString());
-		}else if (orderBookState.contains(OrderBookState.SellSide)) {
+		}else if (orderBookState.contains(OrderBookState.SELLSIDE)) {
 			//One sided market (sell orders only), so you cannot match here
 			log.info(orderBookState.getStateString());
 		}

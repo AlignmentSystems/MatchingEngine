@@ -11,11 +11,11 @@ package com.alignmentsystems.matching.enumerations;
  *****************************************************************************/
 
 public enum OrderBookState {
-	Error("Error Order Book", -1 ),
-	Empty("Empty Order Book", 0 ),
-	BuySide("One Sided Book Buy" , 2),
-	SellSide("One Sided Book Sell", 4 ),
-	TwoSided("Two Sided Order Book", 6);
+	ERROR("Error Order Book", -1 ),
+	EMPTY("Empty Order Book", 0 ),
+	BUYSIDE("One Sided Book Buy" , 2),
+	SELLSIDE("One Sided Book Sell", 4 ),
+	TWOSIDED("Two Sided Order Book", 6);
 
 	private String bookStateString;
 	private int bookStateInt;

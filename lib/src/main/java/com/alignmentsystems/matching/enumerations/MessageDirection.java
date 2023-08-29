@@ -12,8 +12,8 @@ package com.alignmentsystems.matching.enumerations;
 
 public enum MessageDirection {
 	
-		Sent("SENT"),
-		Received("RECD");
+		SENT("SENT"),
+		RECEIVED("RECD");
 
 
 		public final String value;

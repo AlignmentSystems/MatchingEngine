@@ -27,6 +27,7 @@ import com.alignmentsystems.fix44.field.OrderID;
 import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.OperationEventType;
+import com.alignmentsystems.matching.enumerations.OrderBookSide;
 import com.alignmentsystems.matching.interfaces.InterfaceInitialise;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
@@ -61,10 +62,9 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 
 		if (orderBook.getBuyOrderCount() == 0) {
 			stringCount = Integer.toString(orderBook.getBuyOrderCount());
-			log.debug( stringCount + Constants.TAB + "No orders");
+			log.debug( stringCount + Constants.TAB + "No orders for " + OrderBookSide.BUY.sideValue);
 		}else {
 			for (InterfaceOrder io : buys) {
-
 				log.debug( stringCount + Constants.TAB + io.toString());	
 			}
 		}
@@ -73,7 +73,7 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 
 		if (orderBook.getSellOrderCount() == 0) {
 			stringCount = Integer.toString(orderBook.getSellOrderCount());
-			log.debug( stringCount + Constants.TAB + "No orders");
+			log.debug( stringCount + Constants.TAB + "No orders for " + OrderBookSide.SELL.sideValue);
 		}else {
 
 			for (InterfaceOrder io : sells) {
@@ -126,7 +126,7 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 	public void matchHappened(Match match) {
 		final String methodName ="matchHappened";
 
-		log.infoMatchingEvent(OperationEventType.MatchEvent, match);
+		log.infoMatchingEvent(OperationEventType.MATCHEVENT, match);
 
 
 		NewOrderSingle buy = match.getBuyOrder().getNewOrderSingle();
