@@ -16,6 +16,8 @@ import com.alignmentsystems.matching.enumerations.OrderBookSide;
 
 public interface InterfaceOrderBook {
 	public List<InterfaceOrder> getOrdersBySide(OrderBookSide orderBookSide );
+	public void setThread(Thread orderBookThread);
+	public Thread getThread();
 	public int getOrderCountBySide(OrderBookSide orderBookSide );
 	public void addMatchEventListener(InterfaceMatchEvent toAdd);
 	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd);

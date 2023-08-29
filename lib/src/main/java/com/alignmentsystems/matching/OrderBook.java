@@ -33,6 +33,7 @@ import quickfix.FieldNotFound;
 
 public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
 	private final static String CLASSNAME = OrderBook.class.getCanonicalName();
+	private Thread orderBookThread = null;
 
 	
 	private PriorityQueue<InterfaceOrder>  buy = new PriorityQueue<InterfaceOrder> (100, Collections.reverseOrder());
@@ -327,5 +328,16 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 				
 			}
 		}
+	}
+
+	@Override
+	public void setThread(Thread orderBookThread) {
+		this.orderBookThread  = orderBookThread;
+		
+	}
+
+	@Override
+	public Thread getThread() {
+		return this.orderBookThread;
 	}
 }	

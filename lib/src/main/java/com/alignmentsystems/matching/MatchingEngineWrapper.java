@@ -25,7 +25,7 @@ import quickfix.Acceptor;
 import quickfix.Initiator;
 
 public class MatchingEngineWrapper {
-	private final String className = this.getClass().getCanonicalName();
+	private final String className = this.getClass().getSimpleName();
 
 	private List<ApplicationFIXEngine> engines = new ArrayList<ApplicationFIXEngine>();
 
@@ -46,8 +46,12 @@ public class MatchingEngineWrapper {
 		matchingEngine.Initialise();
 		
 		Thread matcher = new Thread(matchingEngine); 
-		 
 		
+		
+		//Set some descriptive thread names to help with debugging...
+		Thread.currentThread().setName(this.className);		
+		sequencer.setName(Sequence.class.getSimpleName());
+		matcher.setName(MatchingEngine.class.getSimpleName());
 		
 		
 		matcher.start();
@@ -98,6 +102,10 @@ public class MatchingEngineWrapper {
 			System.exit(FailureConditionConstants.ERROR_MEMBER_FIX_PROPERTIES_FILE);			
 		}
 		
+		
+		LibraryFunctions.threadStatusCheck(Thread.currentThread(), log);
+		LibraryFunctions.threadStatusCheck(matcher, log);
+		LibraryFunctions.threadStatusCheck(sequencer, log);
 		
 		
 		

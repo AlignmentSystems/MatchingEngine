@@ -20,6 +20,7 @@ import com.alignmentsystems.matching.exceptions.OrderBookNotFound;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBooks;
+import com.alignmentsystems.matching.library.LibraryFunctions;
 
 public class OrderBooks implements InterfaceOrderBooks{
 	private Map<String, InterfaceOrderBook> orderBooks = new HashMap<String, InterfaceOrderBook>();
@@ -60,6 +61,8 @@ public class OrderBooks implements InterfaceOrderBooks{
 			
 			newThread.setName(symbol);
 			
+			orderBook.setThread(newThread);
+			
 			orderBooks.put(symbol, orderBook);
 			
 			returnValue = orderBooks.get(symbol); 
@@ -68,6 +71,7 @@ public class OrderBooks implements InterfaceOrderBooks{
 						
 			newThread.start();	
 			
+			LibraryFunctions.threadStatusCheck(newThread, log);
 			
 		}
 		if (returnValue!=null) {
@@ -75,5 +79,10 @@ public class OrderBooks implements InterfaceOrderBooks{
 		}else {
 			throw new OrderBookNotFound(errString);
 		}
+	}
+
+	@Override
+	public Set<Thread> getOrderBookThreads() {
+		return this.orderBookThreads;
 	}
 }

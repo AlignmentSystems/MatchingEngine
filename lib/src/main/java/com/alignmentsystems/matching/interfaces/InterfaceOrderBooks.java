@@ -1,5 +1,7 @@
 package com.alignmentsystems.matching.interfaces;
 
+import java.util.Set;
+
 import com.alignmentsystems.matching.exceptions.OrderBookNotFound;
 
 /******************************************************************************
@@ -15,4 +17,5 @@ import com.alignmentsystems.matching.exceptions.OrderBookNotFound;
 
 public interface InterfaceOrderBooks {
 	public InterfaceOrderBook getOrderBookForSymbol(String symbol) throws OrderBookNotFound;	
+	public Set<Thread> getOrderBookThreads();
 }

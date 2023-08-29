@@ -418,10 +418,12 @@ public class LibraryFunctions {
 	 * @param thread The Thread to check
 	 * @param log The log file to which to write
 	 */
-	protected static void threadStatusCheck(Thread thread, Logger log) {
+	public static void threadStatusCheck(Thread thread, Logger log) {
 
 		String statusMessage  = new StringBuilder()
-				.append(thread.getClass().getSimpleName().toString())
+				.append(thread.getName())
+				.append(Constants.SPACE)
+				.append(thread.getClass().getCanonicalName().toString())
 				.append(" is alive?=")
 				.append(Boolean.toString(thread.isAlive()).toUpperCase())
 				.toString()
