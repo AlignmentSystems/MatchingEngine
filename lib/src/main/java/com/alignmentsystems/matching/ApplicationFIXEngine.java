@@ -270,10 +270,14 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 				.append(ao.getOrderId())
 				.append(") enqueueing to rawMessageQueue...")
 				;
-		log.infoFIXSession(sb.toString(), sessionID, MessageDirection.RECEIVED, METHODNAME, message.getClass().getSimpleName(), actor);
 		
-				
 		ao.setNewOrderSingle(message, sessionID);
-		orderQueue.add(ao);
+
+		try{
+			orderQueue.add(ao);
+			log.infoFIXSession(sb.toString(), sessionID, MessageDirection.RECEIVED, METHODNAME, message.getClass().getSimpleName(), actor);			
+		}catch(NullPointerException e) { 
+			log.errorFIXSession(sb.toString(), sessionID, MessageDirection.RECEIVED, METHODNAME, message.getClass().getSimpleName(), actor);
+		}
 	}
 }

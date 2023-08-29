@@ -24,22 +24,20 @@ import com.alignmentsystems.matching.library.LibraryFunctions;
 import quickfix.SessionID;
 
 public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
-private Logger innerLog = null;
-	
+	private Logger innerLog = null;
 
-/**
- * 
- * @param clazz
- */
+
+	/**
+	 * 
+	 * @param clazz
+	 */
 	public LogEncapsulation(Class<?> clazz) {
 		super();
 		innerLog = LoggerFactory.getLogger(clazz);
 	}
-	
-	
-	
-	@Override
-	public void infoFIXSession(String msg, SessionID sessionId, String methodName, String className, Actors actor) {
+
+
+	private String getInformation(String msg, SessionID sessionId, String methodName, String className, Actors actor) {
 		StringBuilder sb = new StringBuilder();
 		sb
 		.append(LibraryFunctions.wrapNameSquareBracketsAndSpaces(actor.targetActor))
@@ -51,15 +49,23 @@ private Logger innerLog = null;
 		.append(LibraryFunctions.wrapNameSquareBrackets(sessionId.toString()))
 		.append(Constants.TAB)
 		.append(msg);
-		
-		innerLog.info(sb.toString());
+		return sb.toString();	
 	}
 
-	
-	
+
 	@Override
-	public void infoFIXSession(String msg, SessionID sessionId, MessageDirection direction, String methodName, String className, Actors actor) {
-		
+	public void infoFIXSession(String msg, SessionID sessionId, String methodName, String className, Actors actor) {
+		String toWrite = getInformation(msg, sessionId, methodName, className, actor);
+		innerLog.info(toWrite);
+	}
+
+	@Override
+	public void errorFIXSession(String msg, SessionID sessionId, String methodName, String className, Actors actor) {
+		String toWrite = getInformation(msg, sessionId, methodName, className, actor);
+		innerLog.error(toWrite);
+	}
+
+	private String getInformation(String msg, SessionID sessionId, MessageDirection direction, String methodName, String className, Actors actor) {
 		StringBuilder sb = new StringBuilder();
 		sb
 		.append(LibraryFunctions.wrapNameSquareBracketsAndSpaces(actor.targetActor))
@@ -72,27 +78,52 @@ private Logger innerLog = null;
 		.append(Constants.TAB)		
 		.append(LibraryFunctions.wrapNameSquareBrackets(sessionId.toString()))
 		.append(Constants.TAB)
-		.append(msg);
-		
-		innerLog.info(sb.toString());
+		.append(msg)
+		;
+
+		return sb.toString();
+
+	}
+
+
+
+	@Override
+	public void infoFIXSession(String msg, SessionID sessionId, MessageDirection direction, String methodName, String className, Actors actor) {
+		String toWrite = getInformation(msg, sessionId, direction, methodName, className, actor);
+
+		innerLog.info(toWrite);
 	}
 	
+	
+	@Override
+	public void errorFIXSession(String msg, SessionID sessionId, MessageDirection direction, String methodName,
+			String className, Actors actor) {
+		String toWrite = getInformation(msg, sessionId, direction, methodName, className, actor);
+
+		innerLog.error(toWrite);
+
+	}
+
+
+
+
+
 	@Override
 	public void infoMatchingEvent(OperationEventType operationEventType, Match match) {
 		StringBuilder sb = new StringBuilder()
-		.append(LibraryFunctions.wrapNameSquareBrackets(operationEventType.value))
-		.append(Constants.TAB)
-		.append(match.toString())
-		;
+				.append(LibraryFunctions.wrapNameSquareBrackets(operationEventType.value))
+				.append(Constants.TAB)
+				.append(match.toString())
+				;
 		innerLog.info(sb.toString());
 	}
-	
-	
+
+
 
 	@Override
 	public String getName() {
 		return innerLog.getName();
-		
+
 	}
 
 	@Override
@@ -153,7 +184,7 @@ private Logger innerLog = null;
 	@Override
 	public void trace(Marker marker, String msg, Throwable t) {
 		innerLog.trace(marker, msg, t);
-		
+
 	}
 
 	@Override
@@ -244,7 +275,7 @@ private Logger innerLog = null;
 	@Override
 	public void info(String msg, Throwable t) {
 		innerLog.info(msg, t);
-		
+
 	}
 
 	@Override
@@ -396,5 +427,4 @@ private Logger innerLog = null;
 	public void error(Marker marker, String msg, Throwable t) {
 		innerLog.error(marker, msg, t);	
 	}
-
 }

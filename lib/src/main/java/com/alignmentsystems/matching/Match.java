@@ -71,7 +71,8 @@ public class Match implements InterfaceMatchTrade {
 
 	@Override
 	public String toString() {
-		return new StringBuilder().append("Match [matchQuantity=")
+		return new StringBuilder()
+				.append("Match [matchQuantity=")
 				.append(Double.toString(this.matchQuantity))
 				.append(", matchPrice=")
 				.append(Double.toString(this.matchPrice))
@@ -81,15 +82,17 @@ public class Match implements InterfaceMatchTrade {
 				.append(this.sellOrder)
 				.append(", aggressorSide=")
 				.append(this.aggressorSide)
+				.append(", buyClOrdId=")
+				.append(this.buyClOrdId) 
+				.append(", sellClOrdId=")
+				.append(this.sellClOrdId) 
+				.append(", buyOrderId=")
+				.append(this.buyOrderId) 
+				.append(", sellOrderId=")
+				.append(this.sellOrderId) 
 				.append( "]")
 				.toString()
 				;
-	}
-
-
-
-	public Match() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

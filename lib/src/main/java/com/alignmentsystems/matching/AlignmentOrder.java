@@ -123,7 +123,9 @@ public class AlignmentOrder implements InterfaceOrder{
 	public OffsetDateTime getTimestamp() {
 		return this.ts;
 	}
-	//	ompares this date-time to another date-time.
+	
+	
+	//	Compares this date-time to another date-time.
 	//	The comparison is based on the instant then on the local date-time. It is "consistent with equals", as defined by Comparable.
 	//
 	//	For example, the following is the comparator order:
@@ -204,7 +206,7 @@ public class AlignmentOrder implements InterfaceOrder{
 
 
 	@Override
-	public void setOrderId(String OrderId) {
+	public void setOrderId(String orderId) {
 		this.orderId = orderId;
 		
 	}

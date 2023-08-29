@@ -56,16 +56,6 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 	} 
 
 
-	@Override
-	public List<InterfaceOrder> getBuyOrders() {
-		return getTheseSortedOrders(OrderBookSide.BUY);
-	}
-
-
-	@Override
-	public List<InterfaceOrder> getSellOrders() {
-		return getTheseSortedOrders(OrderBookSide.SELL);
-	}
 
 
 	public OrderBook(String symbol, LogEncapsulation log) {
@@ -137,18 +127,18 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 		InterfaceOrder topOfSellBookPeek = sell.peek();
 
 		OrderBookState  orderBookState = OrderBookState.EMPTY;
-		
+
 		if(topOfBuyBookPeek!=null) {
 			orderBookState = LibraryFunctions.updateOrderBookState(orderBookState, OrderBookState.BUYSIDE);
 		}
-		
+
 		if(topOfSellBookPeek!=null) {
 			orderBookState = LibraryFunctions.updateOrderBookState(orderBookState, OrderBookState.SELLSIDE);
 		}
-		
+
 		Double topOfBuyBookPrice = 0d;
 		Double topOfSellBookPrice = 0d;
-		
+
 		if(orderBookState.contains(OrderBookState.TWOSIDED)){
 			topOfBuyBookPrice = topOfBuyBookPeek.getLimitPrice().getValue();
 			topOfSellBookPrice = topOfSellBookPeek.getLimitPrice().getValue();
@@ -211,8 +201,8 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 				String buyOrderID = topOfBuyBook.getOrderId();
 				String sellOrderID = topOfSellBook.getOrderId();
 
-				
-				
+
+
 				Match match = new Match(
 						tradedQuantity
 						, tradedPrice
@@ -225,22 +215,22 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 						, buyOrderID
 						, sellOrderID
 						);
-				
+
 				this.matchHappened(match);
-			
-			
-			
-			
-		}else if (orderBookState.contains(OrderBookState.BUYSIDE)) {
-			//One sided market (buy orders only), so you cannot match here
-			log.info(orderBookState.getStateString());
-		}else if (orderBookState.contains(OrderBookState.SELLSIDE)) {
-			//One sided market (sell orders only), so you cannot match here
-			log.info(orderBookState.getStateString());
-		}
-		 
-		
-			
+
+
+
+
+			}else if (orderBookState.contains(OrderBookState.BUYSIDE)) {
+				//One sided market (buy orders only), so you cannot match here
+				log.info(orderBookState.getStateString());
+			}else if (orderBookState.contains(OrderBookState.SELLSIDE)) {
+				//One sided market (sell orders only), so you cannot match here
+				log.info(orderBookState.getStateString());
+			}
+
+
+
 		}else {
 			//topOfBuyBookPrice < topOfSellBookPrice
 			//therefore no trade possible...
@@ -262,7 +252,7 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 
 	}
 
-	
+
 	@Override
 	public void matchHappened(Match match) {		
 		for (InterfaceMatchEvent hl : listenersMatchEvent)
@@ -275,15 +265,6 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 		this.listenersMatchEvent.add(toAdd);
 	}
 
-	@Override
-	public int getBuyOrderCount() {
-		return this.buyOrderCount;
-	}
-
-	@Override
-	public int getSellOrderCount() {
-		return this.sellOrderCount;
-	}
 
 
 	@Override
@@ -296,4 +277,25 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd) {
 		listenersAddedOrderToOrderBook.add(toAdd);
 	}
-}
+
+
+
+
+	@Override
+	public List<InterfaceOrder> getOrdersBySide(OrderBookSide orderBookSide) {
+		return getTheseSortedOrders(orderBookSide);
+	}
+
+
+
+
+	@Override
+	public int getOrderCountBySide(OrderBookSide orderBookSide) {
+		if (orderBookSide == OrderBookSide.BUY) {
+			return this.buyOrderCount;	
+		}else {
+			return this.sellOrderCount;
+		}
+	}
+
+}	

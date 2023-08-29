@@ -10,7 +10,6 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,63 +26,36 @@ import com.alignmentsystems.fix44.field.OrderID;
 import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.OperationEventType;
-import com.alignmentsystems.matching.enumerations.OrderBookSide;
 import com.alignmentsystems.matching.interfaces.InterfaceInitialise;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
+import com.alignmentsystems.matching.library.LibraryOrders;
 
 import quickfix.FieldNotFound;
 import quickfix.Session;
 import quickfix.SessionID;
 import quickfix.SessionNotFound;
 
-
+/**
+ * 
+ */
 public class MatchingEngine implements Runnable , InterfaceMatchEvent, InterfaceInitialise {
-	private final static String className = MatchingEngine.class.getCanonicalName();
+	private final static String CLASSNAME = MatchingEngine.class.getCanonicalName();
 
 	private LogEncapsulation log = null;
 	private ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced = new ConcurrentLinkedQueue<InterfaceOrder>(); 	
 	private OrderBooks orderBooks = null; 
 	private int nanoSleep = 200;
 
-	private final AtomicBoolean running = new AtomicBoolean(false);
+	private AtomicBoolean running = new AtomicBoolean(false);
 
+	
 	public MatchingEngine(String[] args, LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced) {
 		this.log = log;
 		this.inboundSequenced = inboundSequenced;		
 	}
-
-	private void snapshotOrderBook(InterfaceOrderBook orderBook ) {
-
-		String stringCount = null;
-
-		List<InterfaceOrder> buys = orderBook.getBuyOrders();
-
-		if (orderBook.getBuyOrderCount() == 0) {
-			stringCount = Integer.toString(orderBook.getBuyOrderCount());
-			log.debug( stringCount + Constants.TAB + "No orders for " + OrderBookSide.BUY.sideValue);
-		}else {
-			for (InterfaceOrder io : buys) {
-				log.debug( stringCount + Constants.TAB + io.toString());	
-			}
-		}
-
-		List<InterfaceOrder> sells = orderBook.getSellOrders();
-
-		if (orderBook.getSellOrderCount() == 0) {
-			stringCount = Integer.toString(orderBook.getSellOrderCount());
-			log.debug( stringCount + Constants.TAB + "No orders for " + OrderBookSide.SELL.sideValue);
-		}else {
-
-			for (InterfaceOrder io : sells) {
-				log.debug( stringCount + Constants.TAB +  io.toString());	
-			}
-		}
-
-	}
-
-
+	
 	@Override
 	public void run() {
 		log.info("Started....");
@@ -99,9 +71,8 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 				InterfaceOrderBook orderBook = orderBooks.getOrderBookForSymbol(symbol);
 				if(orderBook.addOrder(inSeq)) {
 					orderBook.runMatch();
-				}
-								
-				snapshotOrderBook(orderBook);
+				}								
+				LibraryOrders.snapShotOrderBook(orderBook, this.log);
 
 			}else {
 				try {
@@ -112,7 +83,7 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 					Thread.currentThread().interrupt();
 					System.err.println(e.getMessage());
 					StringBuilder sb7 = new StringBuilder()
-							.append(className)
+							.append(CLASSNAME)
 							.append(Constants.SPACE)
 							.append(e.getMessage())
 							;

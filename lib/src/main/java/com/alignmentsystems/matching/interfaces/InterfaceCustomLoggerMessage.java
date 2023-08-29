@@ -20,5 +20,7 @@ import quickfix.SessionID;
 public interface InterfaceCustomLoggerMessage {
 	public void infoFIXSession(String msg, SessionID sessionId, MessageDirection direction, String methodName, String className, Actors actor);
 	public void infoFIXSession(String msg, SessionID sessionId, String methodName, String className, Actors actor);
+	public void errorFIXSession(String msg, SessionID sessionId, String methodName, String className, Actors actor);
+	public void errorFIXSession(String msg, SessionID sessionId, MessageDirection direction, String methodName, String className, Actors actor);
 	public void infoMatchingEvent(OperationEventType operationEventType, Match match);
 }

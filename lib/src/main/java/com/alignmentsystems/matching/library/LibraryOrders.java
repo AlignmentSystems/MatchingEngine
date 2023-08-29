@@ -11,6 +11,7 @@ package com.alignmentsystems.matching.library;
  *****************************************************************************/
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import com.alignmentsystems.fix44.NewOrderSingle;
@@ -21,6 +22,11 @@ import com.alignmentsystems.fix44.field.Price;
 import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.fix44.field.Symbol;
 import com.alignmentsystems.fix44.field.TransactTime;
+import com.alignmentsystems.matching.LogEncapsulation;
+import com.alignmentsystems.matching.constants.Constants;
+import com.alignmentsystems.matching.enumerations.OrderBookSide;
+import com.alignmentsystems.matching.interfaces.InterfaceOrder;
+import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
 
 public class LibraryOrders {
 	public static NewOrderSingle getOrder() {
@@ -46,6 +52,42 @@ public class LibraryOrders {
 		return nos;
 
 	}
+
+	/**
+	 * 
+	 * @param orderBook
+	 * @param log
+	 */
+	public static void snapShotOrderBook(InterfaceOrderBook orderBook, LogEncapsulation log) {
+		snapShotOrderBookBySide(orderBook, OrderBookSide.BUY , log); 
+		snapShotOrderBookBySide(orderBook, OrderBookSide.SELL , log);
+	}
+
+	
+	
+	/**
+	 * 
+	 * @param orderBook
+	 * @param targetSide
+	 * @param log
+	 */
+	public static void snapShotOrderBookBySide(InterfaceOrderBook orderBook, OrderBookSide targetSide, LogEncapsulation log) {
+		String stringCount = null;
+
+		List<InterfaceOrder> buys = orderBook.getOrdersBySide(OrderBookSide.BUY);
+
+		stringCount = Integer.toString(orderBook.getOrderCountBySide(targetSide));
+		if (orderBook.getOrderCountBySide(targetSide) == 0) {
+
+			log.debug( stringCount + Constants.TAB + "No orders for " + targetSide.sideValue);
+		}else {
+			for (InterfaceOrder io : buys) {
+				log.debug(targetSide.sideValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(stringCount) + io.toString());	
+			}
+		}
+	}
+
+
 
 
 }
