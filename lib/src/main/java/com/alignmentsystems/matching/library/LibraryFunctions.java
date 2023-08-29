@@ -289,7 +289,14 @@ public class LibraryFunctions {
 
 
 
-
+	public static String wrapNameBrackets(String wrapName) {
+		return new StringBuilder()
+				.append(Constants.SQUAREBRACKETOPEN)
+				.append(wrapName)
+				.append(Constants.SQUAREBRACKETCLOSE)
+				.toString()
+				;
+	}
 
 
 
@@ -307,7 +314,6 @@ public class LibraryFunctions {
 				.append(Constants.SQUAREBRACKETCLOSE)
 				.toString()
 				;
-
 	}
 
 
@@ -423,7 +429,7 @@ public class LibraryFunctions {
 		String statusMessage  = new StringBuilder()
 				.append(thread.getName())
 				.append(Constants.SPACE)
-				.append(thread.getClass().getCanonicalName().toString())
+				.append(thread.getClass().getSimpleName().toString())
 				.append(" is alive?=")
 				.append(Boolean.toString(thread.isAlive()).toUpperCase())
 				.toString()

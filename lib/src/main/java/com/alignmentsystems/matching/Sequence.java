@@ -30,7 +30,8 @@ public class Sequence implements Runnable{
 
 	@Override
 	public void run() {
-
+		running.set(true);
+		
 		while (running.get()){
 
 			InterfaceOrder inSeq = sequenced.peek();

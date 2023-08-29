@@ -37,7 +37,7 @@ import quickfix.UnsupportedMessageType;
 public class ApplicationFIXEngine extends MessageCracker implements quickfix.Application{
 	private ConcurrentLinkedQueue<InterfaceOrder> orderQueue = new ConcurrentLinkedQueue<InterfaceOrder>(); 
 	private LogEncapsulation log = null;
-	private final String className = this.getClass().getCanonicalName();
+	private final static String CLASSNAME = ApplicationFIXEngine.class.getSimpleName();
 	private Actors actor = null;
 
 	public ApplicationFIXEngine(ConcurrentLinkedQueue<InterfaceOrder> orderQueue, LogEncapsulation log, Actors actor) {
@@ -65,7 +65,7 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 				.append(sessionId.toString())
 				;
 
-		log.infoFIXSession(sb.toString(), sessionId, METHODNAME, className, actor);		
+		log.infoFIXSession(sb.toString(), sessionId, METHODNAME, CLASSNAME, actor);		
 	}
 
 
@@ -82,7 +82,7 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 				.append(sessionId.toString())
 				;
 
-		log.infoFIXSession(sb.toString(), sessionId, METHODNAME, className, actor);	
+		log.infoFIXSession(sb.toString(), sessionId, METHODNAME, CLASSNAME, actor);	
 
 
 		if(actor==Actors.A || actor==Actors.B) {
@@ -111,7 +111,7 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 				.append(sessionId.toString())
 				;
 
-		log.infoFIXSession(sb.toString(), sessionId, METHODNAME, className, actor);	
+		log.infoFIXSession(sb.toString(), sessionId, METHODNAME, CLASSNAME, actor);	
 
 	}
 
@@ -158,7 +158,7 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 					.append(message.getClass().getSimpleName())
 					.append(")") 				
 					;
-			log.infoFIXSession(sb.toString(), sessionId, METHODNAME, className, actor);	
+			log.infoFIXSession(sb.toString(), sessionId, METHODNAME, CLASSNAME, actor);	
 		}
 
 	}
@@ -183,7 +183,7 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 			throw e;
 		}
 
-		log.infoFIXSession(message.toRawString(), sessionId, METHODNAME, className, actor);		
+		log.infoFIXSession(message.toRawString(), sessionId, METHODNAME, CLASSNAME, actor);		
 
 
 
@@ -234,7 +234,7 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 		}
 
 
-		log.infoFIXSession(message.toRawString(), sessionId, MessageDirection.RECEIVED, METHODNAME, this.className, this.actor);
+		log.infoFIXSession(message.toRawString(), sessionId, MessageDirection.RECEIVED, METHODNAME, this.CLASSNAME, this.actor);
 
 		try {
 			crack(message, sessionId);

@@ -24,7 +24,7 @@ import com.alignmentsystems.matching.library.LibraryFunctions;
 import quickfix.Acceptor;
 import quickfix.Initiator;
 
-public class MatchingEngineWrapper {
+public class MatchingEngineWrapper implements InterfaceInitialise{
 	private final String className = this.getClass().getSimpleName();
 
 	private List<ApplicationFIXEngine> engines = new ArrayList<ApplicationFIXEngine>();
@@ -35,48 +35,53 @@ public class MatchingEngineWrapper {
 
 	LogEncapsulation log = new LogEncapsulation(this.getClass());
 
-	public void fireItUp() {
+	public MatchingEngineWrapper(String[] args) {
+		this.args=args;
+	}
+
+	@Override
+	public boolean Initialise() {
 		log.info("Started....");
 
 		Thread sequencer = new Thread(new Sequence(log, sequenced));
 		MatchingEngine matchingEngine = new MatchingEngine(args , log, sequenced);
-		
+
 		InterfaceInitialise intMatchingEngine = (InterfaceInitialise) matchingEngine;
-		
+
 		matchingEngine.Initialise();
-		
+
 		Thread matcher = new Thread(matchingEngine); 
-		
-		
+
+
 		//Set some descriptive thread names to help with debugging...
 		Thread.currentThread().setName(this.className);		
 		sequencer.setName(Sequence.class.getSimpleName());
 		matcher.setName(MatchingEngine.class.getSimpleName());
-		
-		
+
+
 		matcher.start();
 		sequencer.start();
 
 		ApplicationFIXEngine engineExchange = new ApplicationFIXEngine(sequenced, log, Actors.EXCHANGE);
 		engines.add(engineExchange);
-		
+
 		ApplicationFIXEngine engineMemberA = new ApplicationFIXEngine(sequenced, log, Actors.A);
 		engines.add(engineMemberA);
 
 		ApplicationFIXEngine engineMemberB = new ApplicationFIXEngine(sequenced, log, Actors.B);
 		engines.add(engineMemberB);
-		
+
 		String[] initiators = {Constants.MEMBERASETTINGS, Constants.MEMBERBSETTINGS};
 		log.debug("get" + initiators[0]);
 		log.debug("get" + initiators[1]);
 		String[] acceptors = {Constants.EXCHANGESETTINGS};
 		log.debug("get" + acceptors[0]);
-		
+
 		Initiator memberA = null;
 		Initiator memberB = null;
 		Acceptor exchange = null;
-		
-		
+
+
 		try {
 			exchange = LibraryFunctions.getExchangeEnvironment(acceptors[0], engineExchange);
 		} catch (NullPointerException e) {
@@ -84,8 +89,8 @@ public class MatchingEngineWrapper {
 			System.err.println(e.getMessage());
 			System.exit(FailureConditionConstants.ERROR_EXCHANGE_FIX_PROPERTIES_FILE);			
 		}
-		
-		
+
+
 		try {
 			memberA = LibraryFunctions.getMemberEnvironment(initiators[0], engineMemberA);
 		} catch (NullPointerException e) {
@@ -93,7 +98,7 @@ public class MatchingEngineWrapper {
 			System.err.println(e.getMessage());
 			System.exit(FailureConditionConstants.ERROR_MEMBER_FIX_PROPERTIES_FILE);			
 		}
-		
+
 		try {
 			memberB = LibraryFunctions.getMemberEnvironment(initiators[1], engineMemberB);
 		} catch (NullPointerException e) {
@@ -101,25 +106,15 @@ public class MatchingEngineWrapper {
 			System.err.println(e.getMessage());
 			System.exit(FailureConditionConstants.ERROR_MEMBER_FIX_PROPERTIES_FILE);			
 		}
-		
-		
+
+
 		LibraryFunctions.threadStatusCheck(Thread.currentThread(), log);
 		LibraryFunctions.threadStatusCheck(matcher, log);
 		LibraryFunctions.threadStatusCheck(sequencer, log);
-		
-		
-		
+
+		return true;		
+
 		//If we get to here then the Acceptor and the initiators are started, the code is now executing....		
-	}
-
-	public MatchingEngineWrapper(String[] args) {
-		this.args=args;
-
 
 	}
-
-
-
-
-	
 }

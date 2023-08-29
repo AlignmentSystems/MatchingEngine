@@ -288,6 +288,10 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 
 	@Override
 	public void run() {
+		
+		running.set(true);
+		
+		
 		while (running.get()){
 			InterfaceOrder inSeq = inboundSequenced.peek();
 			if (inSeq!=null) {
@@ -296,8 +300,10 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 										
 					if (inSeq.getOrderBookSide()==OrderBookSide.BUY) {
 						this.buy.add(inSeq);
+						this.buyOrderCount++;
 					}else if (inSeq.getOrderBookSide()==OrderBookSide.SELL) {
 						this.sell.add(inSeq);
+						this.sellOrderCount++;
 					}else {
 						//TODO Error - how do we handle this?
 					}
@@ -322,10 +328,7 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 							.append(Constants.SPACE)
 							.append(e.getMessage())
 							.toString());			
-				}
-				
-				
-				
+				}			
 			}
 		}
 	}

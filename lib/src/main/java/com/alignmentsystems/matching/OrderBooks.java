@@ -48,7 +48,7 @@ public class OrderBooks implements InterfaceOrderBooks{
 	@Override
 	public InterfaceOrderBook getOrderBookForSymbol(String symbol) throws OrderBookNotFound {
 
-		final String errString = "Cannot find order book for symbol=" + symbol;
+		final String errString = new StringBuilder().append("Cannot find order book for symbol=").append(symbol).toString();
 		InterfaceOrderBook returnValue = orderBooks.get(symbol); 
 		if (returnValue!=null) {
 			return returnValue;
@@ -83,6 +83,7 @@ public class OrderBooks implements InterfaceOrderBooks{
 
 	@Override
 	public Set<Thread> getOrderBookThreads() {
+
 		return this.orderBookThreads;
 	}
 }
