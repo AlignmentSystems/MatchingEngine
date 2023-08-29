@@ -21,4 +21,6 @@ public Double getMatchPrice();
 public InterfaceOrder getBuyOrder();
 public InterfaceOrder getSellOrder();
 public Side getAggressorSide();
+public String getBuyClOrdId();
+public String getSellClOrdId();
 }

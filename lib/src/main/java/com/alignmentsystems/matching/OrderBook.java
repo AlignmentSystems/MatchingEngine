@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
 
+import com.alignmentsystems.fix44.annotations.NotYetImplemented;
 import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.OrderBookSide;
@@ -24,6 +25,8 @@ import com.alignmentsystems.matching.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.matching.library.LibraryFunctions;
+
+import quickfix.FieldNotFound;
 
 public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
 
@@ -34,6 +37,7 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 	private String symbol = null;
 	private int buyOrderCount = 0;
 	private int sellOrderCount = 0;
+	private LogEncapsulation log = null;
 
 
 	private List<InterfaceOrder> getTheseSortedOrders(OrderBookSide orderBookSide){
@@ -63,8 +67,9 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 	}
 
 
-	public OrderBook(String symbol ) {
+	public OrderBook(String symbol, LogEncapsulation log) {
 		this.symbol = symbol;
+		this.log = log;
 	}
 
 
@@ -109,12 +114,14 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 
 	}
 
+	@NotYetImplemented
 	@Override
 	public boolean cancelOrder(InterfaceOrder nos) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@NotYetImplemented
 	@Override
 	public boolean cancelOrder(String orderId) {
 		// TODO Auto-generated method stub
@@ -177,10 +184,19 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 			}
 			OffsetDateTime executionTimestamp = OffsetDateTime.now(Constants.HERE);
 
-
-
-			Match match = new Match(tradedQuantity, tradedPrice, topOfBuyBook, topOfSellBook, aggressor, executionTimestamp);
+			String buyClOrdID = null;
+			String sellClOrdID = null;
+			try {
+				buyClOrdID = topOfBuyBook.getClOrdID().getValue().toString();
+				sellClOrdID = topOfSellBook.getClOrdID().getValue().toString();
+			} catch (FieldNotFound e) {
+				log.error(e.getMessage() , e);
+			}
+						
+			Match match = new Match(tradedQuantity, tradedPrice, topOfBuyBook, topOfSellBook, aggressor, executionTimestamp, buyClOrdID, sellClOrdID);
+			
 			this.matchHappened(match);
+			
 		}else {
 			//topOfBuyBookPrice < topOfSellBookPrice
 			//therefore no trade possible...
@@ -188,19 +204,21 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 
 	}
 
+	@NotYetImplemented
 	@Override
 	public void upsertTopOfBook(InterfaceOrder nos) {
 		// TODO Auto-generated method stub
 
 	}
 
+	@NotYetImplemented
 	@Override
 	public void updateLevelsOfDepth() {
 		// TODO Auto-generated method stub
 
 	}
 
-
+	
 	@Override
 	public void matchHappened(Match match) {		
 		for (InterfaceMatchEvent hl : listenersMatchEvent)
@@ -230,10 +248,8 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 			hl.addedOrderToOrderBook(nos);	
 	}
 
-
 	@Override
 	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd) {
 		listenersAddedOrderToOrderBook.add(toAdd);
-
 	}
 }

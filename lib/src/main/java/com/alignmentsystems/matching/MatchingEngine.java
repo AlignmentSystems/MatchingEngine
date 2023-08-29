@@ -27,6 +27,7 @@ import com.alignmentsystems.fix44.field.OrderID;
 import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.OperationEventType;
+import com.alignmentsystems.matching.interfaces.InterfaceInitialise;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
@@ -37,12 +38,12 @@ import quickfix.SessionID;
 import quickfix.SessionNotFound;
 
 
-public class MatchingEngine implements Runnable , InterfaceMatchEvent {
-	private String className = this.getClass().getCanonicalName();
+public class MatchingEngine implements Runnable , InterfaceMatchEvent, InterfaceInitialise {
+	private final static String className = MatchingEngine.class.getCanonicalName();
 
 	private LogEncapsulation log = null;
 	private ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced = new ConcurrentLinkedQueue<InterfaceOrder>(); 	
-	private OrderBooks orderBooks = new OrderBooks(); 
+	private OrderBooks orderBooks = null; 
 	private int nanoSleep = 200;
 
 	private final AtomicBoolean running = new AtomicBoolean(false);
@@ -85,7 +86,6 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent {
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		log.info("Started....");
 		running.set(true);
 
@@ -192,7 +192,11 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent {
 		} catch (SessionNotFound e) {
 			log.error(e.getMessage(), e);
 		};
-
 	}
 
+	@Override
+	public boolean Initialise() {
+		orderBooks = new OrderBooks(this.log); 
+		return true;
+	}
 }

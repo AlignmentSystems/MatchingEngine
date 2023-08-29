@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.constants.FailureConditionConstants;
 import com.alignmentsystems.matching.enumerations.Actors;
+import com.alignmentsystems.matching.interfaces.InterfaceInitialise;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.library.LibraryFunctions;
 
@@ -38,8 +39,17 @@ public class MatchingEngineWrapper {
 		log.info("Started....");
 
 		Thread sequencer = new Thread(new Sequence(log, sequenced));
-		Thread matcher = new Thread(new MatchingEngine(args , log, sequenced)); 
-
+		MatchingEngine matchingEngine = new MatchingEngine(args , log, sequenced);
+		
+		InterfaceInitialise intMatchingEngine = (InterfaceInitialise) matchingEngine;
+		
+		matchingEngine.Initialise();
+		
+		Thread matcher = new Thread(matchingEngine); 
+		 
+		
+		
+		
 		matcher.start();
 		sequencer.start();
 

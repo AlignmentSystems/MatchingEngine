@@ -19,9 +19,22 @@ import com.alignmentsystems.matching.interfaces.InterfaceOrderBooks;
 
 public class OrderBooks implements InterfaceOrderBooks{
 	private Map<String, InterfaceOrderBook> orderBooks = new HashMap<String, InterfaceOrderBook>();
+	private LogEncapsulation log = null;
+	
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("OrderBooks [orderBooks=");
+		for (String key : orderBooks.keySet()) {
+			builder.append(key.toString());
+		}
+		builder.append("]");
+		return builder.toString();
+	}
 
-	public OrderBooks() {
-		// TODO Auto-generated constructor stub
+	public OrderBooks(LogEncapsulation log ) {
+		this.log = log;
 	}
 
 	@Override
@@ -32,7 +45,7 @@ public class OrderBooks implements InterfaceOrderBooks{
 		if (returnValue!=null) {
 			return returnValue;
 		}else {
-			orderBooks.put(symbol, new OrderBook(symbol));
+			orderBooks.put(symbol, new OrderBook(symbol, log));
 			returnValue = orderBooks.get(symbol); 
 			
 		}
