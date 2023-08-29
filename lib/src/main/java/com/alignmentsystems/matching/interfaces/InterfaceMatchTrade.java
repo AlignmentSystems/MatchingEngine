@@ -9,18 +9,18 @@ package com.alignmentsystems.matching.interfaces;
  *	Artefact		:	InterfaceMatchTrade
  *	Description		:
  *****************************************************************************/
-
 import java.time.OffsetDateTime;
-
 import com.alignmentsystems.fix44.field.Side;
 
 public interface InterfaceMatchTrade {
-public OffsetDateTime getTimestamp();
-public Double getMatchQuantity();
-public Double getMatchPrice();
-public InterfaceOrder getBuyOrder();
-public InterfaceOrder getSellOrder();
-public Side getAggressorSide();
-public String getBuyClOrdId();
-public String getSellClOrdId();
+	public OffsetDateTime getTimestamp();
+	public Double getMatchQuantity();
+	public Double getMatchPrice();
+	public InterfaceOrder getBuyOrder();
+	public InterfaceOrder getSellOrder();
+	public Side getAggressorSide();
+	public String getBuyClOrdId();
+	public String getSellClOrdId();
+	public String getBuyOrderId();
+	public String getSellOrderId();
 }

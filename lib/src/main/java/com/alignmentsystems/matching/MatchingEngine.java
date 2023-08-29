@@ -140,12 +140,12 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 
 		ExecID execID = new ExecID(UUID.randomUUID().toString());
 
-		ExecType execTypeBuy; 
-		OrdStatus ordStatusBuy; 
-		Double orderQtyBuy = null; 
+		ExecType b_execType; 
+		OrdStatus b_ordStatus; 
+		Double b_orderQty = null; 
 
 		try {
-			orderQtyBuy = buy.getOrderQty().getValue();
+			b_orderQty = buy.getOrderQty().getValue();
 		} catch (FieldNotFound e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -153,23 +153,25 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 
 
 
-		if (executionQuantity.compareTo(orderQtyBuy)==0) {
+		if (executionQuantity.compareTo(b_orderQty)==0) {
 			//int java.lang.Double.compareTo(Double anotherDouble)
 			//the value 0 if anotherDouble is numerically equal to this Double; 
 			//a value less than 0 if this Double is numerically less than anotherDouble; 
 			//and a value greater than 0 if this Double is numerically greater than anotherDouble.
 			//Therefore, if this is equal to zero then the execution quantity is equal to the order quantity
-			execTypeBuy = new ExecType(ExecType.FILL); 
-			ordStatusBuy = new OrdStatus(OrdStatus.FILLED); 
+			b_execType = new ExecType(ExecType.FILL); 
+			b_ordStatus = new OrdStatus(OrdStatus.FILLED); 
 
 		}
 
+		
+		CumQty b_cumQty = new CumQty(match.getMatchQuantity());
+		AvgPx b_avgPx = new AvgPx(match.getMatchPrice());
+		Side b_side = new Side(Side.BUY);
+	
 		try {
-			Side side = new Side(buy.getSide().getValue()); 
-			CumQty cumQty = new CumQty(match.getMatchQuantity());
-
-			LeavesQty leavesQty = new LeavesQty(buy.getOrderQty().getValue() - cumQty.getValue()); 
-			AvgPx avgPx = new AvgPx(match.getMatchPrice());
+			 
+			LeavesQty leavesQty = new LeavesQty(buy.getOrderQty().getValue() - b_cumQty.getValue());	
 			//String uuidBuy = UUID.randomUUID().toString()
 			//public ExecutionReport(com.alignmentsystems.fix44.field.OrderID orderID, com.alignmentsystems.fix44.field.ExecID execID, com.alignmentsystems.fix44.field.ExecType execType, com.alignmentsystems.fix44.field.OrdStatus ordStatus, com.alignmentsystems.fix44.field.Side side, com.alignmentsystems.fix44.field.LeavesQty leavesQty, com.alignmentsystems.fix44.field.CumQty cumQty, com.alignmentsystems.fix44.field.AvgPx avgPx) {
 
@@ -181,7 +183,11 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		
+		//(com.alignmentsystems.fix44.field.OrderID orderID, com.alignmentsystems.fix44.field.ExecID execID, com.alignmentsystems.fix44.field.ExecType execType, com.alignmentsystems.fix44.field.OrdStatus ordStatus, com.alignmentsystems.fix44.field.Side side, com.alignmentsystems.fix44.field.LeavesQty leavesQty, com.alignmentsystems.fix44.field.CumQty cumQty, com.alignmentsystems.fix44.field.AvgPx avgPx) {
+		
+		
+		
 		ExecutionReport buyExecRpt = new ExecutionReport();
 		ExecutionReport sellExecRpt = new ExecutionReport();
 

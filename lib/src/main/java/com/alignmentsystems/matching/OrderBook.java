@@ -16,8 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
 
-import com.alignmentsystems.fix44.annotations.NotYetImplemented;
 import com.alignmentsystems.fix44.field.Side;
+import com.alignmentsystems.matching.annotations.NotYetImplemented;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.OrderBookSide;
 import com.alignmentsystems.matching.interfaces.InterfaceAddedOrderToOrderBook;
@@ -192,8 +192,24 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 			} catch (FieldNotFound e) {
 				log.error(e.getMessage() , e);
 			}
-						
-			Match match = new Match(tradedQuantity, tradedPrice, topOfBuyBook, topOfSellBook, aggressor, executionTimestamp, buyClOrdID, sellClOrdID);
+
+			String buyOrderID = topOfBuyBook.getOrderId();
+			String sellOrderID = topOfSellBook.getOrderId();
+
+			
+			
+			Match match = new Match(
+					tradedQuantity
+					, tradedPrice
+					, topOfBuyBook
+					, topOfSellBook
+					, aggressor
+					, executionTimestamp
+					, buyClOrdID
+					, sellClOrdID
+					, buyOrderID
+					, sellOrderID
+					);
 			
 			this.matchHappened(match);
 			

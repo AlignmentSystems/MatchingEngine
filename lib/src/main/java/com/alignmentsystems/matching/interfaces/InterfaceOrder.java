@@ -36,5 +36,6 @@ public interface InterfaceOrder extends Comparable<InterfaceOrder>{
 	public ClOrdID getClOrdID() throws FieldNotFound;
 	public void execute(ExecutionReport execution);
 	public List<ExecutionReport> getExecutionReports();
-	
+	public void setOrderId(String OrderId);
+	public String getOrderId();
 }

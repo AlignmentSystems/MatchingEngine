@@ -10,9 +10,11 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.alignmentsystems.fix44.NewOrderSingle;
+import com.alignmentsystems.fix44.field.OrderID;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.Actors;
 import com.alignmentsystems.matching.enumerations.MessageDirection;
@@ -260,16 +262,17 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 			throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
 		final String METHODNAME = "onMessage";
 
-		StringBuilder sb = new StringBuilder()				
-				.append(" Received=")
-				.append(message.getClass().getSimpleName() )
-				.append(" on [") 
-				.append(sessionID.toString())
-				.append("] enqueueing to rawMessageQueue...")
-				;
-		//log.infoSession(sb.toString(), METHODNAME);
+		
+		AlignmentOrder ao = new AlignmentOrder(UUID.randomUUID().toString());
 
-		AlignmentOrder ao = new AlignmentOrder();
+		StringBuilder sb = new StringBuilder()				
+				.append(" OrderID=(")
+				.append(ao.getOrderId())
+				.append(") enqueueing to rawMessageQueue...")
+				;
+		log.infoFIXSession(sb.toString(), sessionID, MessageDirection.Received, METHODNAME, message.getClass().getSimpleName(), actor);
+		
+				
 		ao.setNewOrderSingle(message, sessionID);
 		orderQueue.add(ao);
 	}

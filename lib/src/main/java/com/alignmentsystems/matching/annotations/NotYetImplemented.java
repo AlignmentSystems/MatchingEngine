@@ -1,4 +1,4 @@
-package com.alignmentsystems.fix44.annotations;
+package com.alignmentsystems.matching.annotations;
 /******************************************************************************
  * 
  *	Author			:	John Greenan 

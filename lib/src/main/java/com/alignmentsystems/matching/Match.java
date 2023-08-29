@@ -25,8 +25,23 @@ public class Match implements InterfaceMatchTrade {
 	private OffsetDateTime timestamp = null;
 	private String buyClOrdId = null;
 	private String sellClOrdId = null;
+	private String buyOrderId = null;
+	private String sellOrderId = null;	
+
 	
-	
+	/**
+	 * 
+	 * @param matchQuantity
+	 * @param matchPrice
+	 * @param buyOrder
+	 * @param sellOrder
+	 * @param aggressorSide
+	 * @param timestamp
+	 * @param buyClOrdId
+	 * @param sellClOrdId
+	 * @param buyOrderId
+	 * @param sellOrderId
+	 */
 	public Match(
 			Double matchQuantity
 			, Double matchPrice
@@ -36,6 +51,8 @@ public class Match implements InterfaceMatchTrade {
 			, OffsetDateTime timestamp
 			, String buyClOrdId 
 			, String sellClOrdId
+			, String buyOrderId
+			, String sellOrderId
 			) {
 		super();
 		this.matchQuantity = matchQuantity;
@@ -46,9 +63,8 @@ public class Match implements InterfaceMatchTrade {
 		this.timestamp = timestamp;
 		this.buyClOrdId = buyClOrdId;
 		this.sellClOrdId = sellClOrdId;
-
-
-
+		this.buyOrderId = buyOrderId;
+		this.sellOrderId = sellOrderId;
 	}
 
 
@@ -120,5 +136,21 @@ public class Match implements InterfaceMatchTrade {
 	@Override
 	public String getSellClOrdId() {
 		return this.sellClOrdId;
+	}
+
+
+
+	@Override
+	public String getBuyOrderId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	@Override
+	public String getSellOrderId() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

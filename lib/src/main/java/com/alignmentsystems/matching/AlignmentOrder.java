@@ -33,6 +33,17 @@ import quickfix.SessionID;
  */
 public class AlignmentOrder implements InterfaceOrder{
 	private String symbol = null;
+	private Side side = null;
+	private OrderQty orderQty = null;
+	private Price limitPrice = null;
+	private SessionID sessionId = null;
+	private NewOrderSingle nos = null;
+	private OffsetDateTime ts = null;
+	private String counterparty = null;
+	private final ZoneOffset zo = Constants.HERE;
+	private List<ExecutionReport> executions =  new ArrayList<ExecutionReport>();
+	private String orderId = null;
+	
 	
 
 	@Override
@@ -57,19 +68,11 @@ public class AlignmentOrder implements InterfaceOrder{
 	}
 
 
-	private Side side = null;
-	private OrderQty orderQty = null;
-	private Price limitPrice = null;
-	private SessionID sessionId = null;
-	private NewOrderSingle nos = null;
-	private OffsetDateTime ts = null;
-	private String counterparty = null;
-	private final ZoneOffset zo = Constants.HERE;
+	
 
-	private List<ExecutionReport> executions =  new ArrayList<ExecutionReport>();
-
-	public AlignmentOrder() {
+	public AlignmentOrder(String orderId) {
 		this.ts = OffsetDateTime.now(zo);
+		this.orderId = orderId;
 	}
 
 
@@ -197,5 +200,17 @@ public class AlignmentOrder implements InterfaceOrder{
 	@Override
 	public String getCounterparty() {
 		return this.counterparty;
+	}
+
+
+	@Override
+	public void setOrderId(String OrderId) {
+		this.orderId = orderId;
+		
+	}
+
+	@Override
+	public String getOrderId() {
+		return this.orderId;
 	}
 }
