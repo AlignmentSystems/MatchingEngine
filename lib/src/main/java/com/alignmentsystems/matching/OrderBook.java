@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.annotations.NotYetImplemented;
@@ -29,18 +31,35 @@ import com.alignmentsystems.matching.library.LibraryFunctions;
 
 import quickfix.FieldNotFound;
 
-public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
+public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
+	private final static String CLASSNAME = OrderBook.class.getCanonicalName();
 
+	
 	private PriorityQueue<InterfaceOrder>  buy = new PriorityQueue<InterfaceOrder> (100, Collections.reverseOrder());
 	private PriorityQueue<InterfaceOrder>  sell = new PriorityQueue<InterfaceOrder> (100);
 	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
 	private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
+	private ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced = null;
+	private AtomicBoolean running = new AtomicBoolean(false);
 	private String symbol = null;
 	private int buyOrderCount = 0;
 	private int sellOrderCount = 0;
 	private LogEncapsulation log = null;
+	private final int nanoSleep = 200;
 
+	
+	
+	public OrderBook(String symbol, LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced ) {
+		this.symbol = symbol;
+		this.log = log;
+		this.inboundSequenced = inboundSequenced;
+	}
 
+	/**
+	 * 
+	 * @param orderBookSide
+	 * @return List of orders sorted from top of book down in price & time priority order.
+	 */
 	private List<InterfaceOrder> getTheseSortedOrders(OrderBookSide orderBookSide){
 		List<InterfaceOrder> list = null; 
 
@@ -52,17 +71,7 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 
 		list.sort(null);
 		return list;
-
 	} 
-
-
-
-
-	public OrderBook(String symbol, LogEncapsulation log) {
-		this.symbol = symbol;
-		this.log = log;
-	}
-
 
 	@Override
 	public String getThisOrderBookSymbol() {
@@ -70,13 +79,8 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 	}
 
 
-
-
-
-
-	@Override
-	public boolean addOrder(InterfaceOrder nos) {
-		OrderBookSide orderBookSide = LibraryFunctions.getOrderBookSide(nos); 
+	private boolean addOrder(InterfaceOrder nos) {
+		OrderBookSide orderBookSide = nos.getOrderBookSide(); 
 
 		Boolean returnValue = Boolean.FALSE;
 
@@ -94,7 +98,6 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 			returnValue = Boolean.FALSE;
 		}
 
-
 		//TODO - this is not the right way to do this, the event should be queued rather than sent here.
 
 		if(returnValue) {
@@ -106,22 +109,20 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 	}
 
 	@NotYetImplemented
-	@Override
-	public boolean cancelOrder(InterfaceOrder nos) {
+	private boolean cancelOrder(InterfaceOrder nos) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@NotYetImplemented
-	@Override
-	public boolean cancelOrder(String orderId) {
+	private boolean cancelOrder(String orderId) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 
-	@Override
-	public void runMatch() {
+	
+	private void runMatch() {
 
 		InterfaceOrder topOfBuyBookPeek = buy.peek();
 		InterfaceOrder topOfSellBookPeek = sell.peek();
@@ -228,14 +229,10 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 				//One sided market (sell orders only), so you cannot match here
 				log.info(orderBookState.getStateString());
 			}
-
-
-
 		}else {
 			//topOfBuyBookPrice < topOfSellBookPrice
 			//therefore no trade possible...
 		}
-
 	}
 
 	@NotYetImplemented
@@ -252,20 +249,16 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 
 	}
 
-
 	@Override
 	public void matchHappened(Match match) {		
 		for (InterfaceMatchEvent hl : listenersMatchEvent)
 			hl.matchHappened(match);	
 	}
 
-
 	@Override
 	public void addMatchEventListener(InterfaceMatchEvent toAdd) {
 		this.listenersMatchEvent.add(toAdd);
 	}
-
-
 
 	@Override
 	public void addedOrderToOrderBook(InterfaceOrder nos) {
@@ -278,16 +271,10 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 		listenersAddedOrderToOrderBook.add(toAdd);
 	}
 
-
-
-
 	@Override
 	public List<InterfaceOrder> getOrdersBySide(OrderBookSide orderBookSide) {
 		return getTheseSortedOrders(orderBookSide);
 	}
-
-
-
 
 	@Override
 	public int getOrderCountBySide(OrderBookSide orderBookSide) {
@@ -298,4 +285,47 @@ public class OrderBook implements InterfaceOrderBook , InterfaceMatchEvent, Inte
 		}
 	}
 
+	@Override
+	public void run() {
+		while (running.get()){
+			InterfaceOrder inSeq = inboundSequenced.peek();
+			if (inSeq!=null) {
+				if(inSeq.getSymbol()==this.symbol) {
+					inSeq = inboundSequenced.poll();
+										
+					if (inSeq.getOrderBookSide()==OrderBookSide.BUY) {
+						this.buy.add(inSeq);
+					}else if (inSeq.getOrderBookSide()==OrderBookSide.SELL) {
+						this.sell.add(inSeq);
+					}else {
+						//TODO Error - how do we handle this?
+					}
+					runMatch();
+					
+				}//Else - this is not an instrument for this OrderBook, so leave the peek'd Object alone...
+			}else {
+				try {
+					Thread.currentThread();
+					Thread.sleep(0L , nanoSleep);
+					
+				}catch(InterruptedException e){
+					
+					running.set(false);
+					
+					Thread.currentThread().interrupt();
+					
+					System.err.println(e.getMessage());
+					
+					System.err.println(new StringBuilder()
+							.append(CLASSNAME)
+							.append(Constants.SPACE)
+							.append(e.getMessage())
+							.toString());			
+				}
+				
+				
+				
+			}
+		}
+	}
 }	

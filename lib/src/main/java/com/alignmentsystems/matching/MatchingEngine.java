@@ -44,7 +44,8 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 	private final static String CLASSNAME = MatchingEngine.class.getCanonicalName();
 
 	private LogEncapsulation log = null;
-	private ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced = new ConcurrentLinkedQueue<InterfaceOrder>(); 	
+	private ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced = null;
+	private ConcurrentLinkedQueue<InterfaceOrder> outboundSequenced = new ConcurrentLinkedQueue<InterfaceOrder>();
 	private OrderBooks orderBooks = null; 
 	private int nanoSleep = 200;
 
@@ -69,9 +70,9 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 				String symbol = inSeq.getSymbol();
 
 				InterfaceOrderBook orderBook = orderBooks.getOrderBookForSymbol(symbol);
-				if(orderBook.addOrder(inSeq)) {
-					orderBook.runMatch();
-				}								
+				
+				outboundSequenced.add(inSeq);
+												
 				LibraryOrders.snapShotOrderBook(orderBook, this.log);
 
 			}else {
@@ -173,7 +174,7 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 
 	@Override
 	public boolean Initialise() {
-		orderBooks = new OrderBooks(this.log); 
+		orderBooks = new OrderBooks(this.log, this.outboundSequenced); 
 		return true;
 	}
 }

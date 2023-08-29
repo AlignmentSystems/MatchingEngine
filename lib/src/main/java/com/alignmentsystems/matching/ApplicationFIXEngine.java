@@ -18,6 +18,7 @@ import com.alignmentsystems.fix44.field.OrderID;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.Actors;
 import com.alignmentsystems.matching.enumerations.MessageDirection;
+import com.alignmentsystems.matching.enumerations.OrderBookSide;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.library.LibraryOrders;
 
@@ -263,8 +264,11 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 		final String METHODNAME = "onMessage";
 
 		
-		AlignmentOrder ao = new AlignmentOrder(UUID.randomUUID().toString());
+		OrderBookSide orderBookSide = LibraryOrders.getOrderBookSideFromFIXSide(message.getSide());
 
+		
+		AlignmentOrder ao = new AlignmentOrder(UUID.randomUUID().toString() , orderBookSide);
+		
 		StringBuilder sb = new StringBuilder()				
 				.append(" OrderID=(")
 				.append(ao.getOrderId())
@@ -272,6 +276,7 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 				;
 		
 		ao.setNewOrderSingle(message, sessionID);
+		
 
 		try{
 			orderQueue.add(ao);

@@ -209,18 +209,18 @@ public class LibraryFunctions {
 
 
 
-	/**
-	 * 
-	 * @param nos
-	 * @return
-	 */
-	public static OrderBookSide getOrderBookSide(InterfaceOrder nos) {
-		if(Character.compare(nos.getOrderSide().getValue(), Side.BUY)==0)   {
-			return OrderBookSide.BUY; 
-		}else {
-			return OrderBookSide.SELL;
-		}			
-	}
+//	/**
+//	 * 
+//	 * @param nos
+//	 * @return
+//	 */
+//	public static OrderBookSide getOrderBookSide(InterfaceOrder nos) {
+//		if(Character.compare(nos.getOrderSide().getValue(), Side.BUY)==0)   {
+//			return OrderBookSide.BUY; 
+//		}else {
+//			return OrderBookSide.SELL;
+//		}			
+//	}
 
 
 

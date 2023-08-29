@@ -29,6 +29,28 @@ import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
 
 public class LibraryOrders {
+
+	
+	/**
+	 * 
+	 * @param side Side
+	 * @return OrderBookSide
+	 */
+	public static OrderBookSide getOrderBookSideFromFIXSide(Side side) {
+		if (side.getObject()==Side.BUY) {
+			return OrderBookSide.BUY;	
+		}else if (side.getObject()==Side.SELL) {
+			return OrderBookSide.BUY;	
+		}else {
+			return OrderBookSide.ERROR;
+		}
+	}
+	
+	
+	/**
+	 * 
+	 * @return NewOrderSingle
+	 */
 	public static NewOrderSingle getOrder() {
 		ClOrdID clOrdID = new ClOrdID(UUID.randomUUID().toString()); 
 		Side side = new Side(Side.BUY); 
@@ -63,8 +85,8 @@ public class LibraryOrders {
 		snapShotOrderBookBySide(orderBook, OrderBookSide.SELL , log);
 	}
 
-	
-	
+
+
 	/**
 	 * 
 	 * @param orderBook
@@ -86,8 +108,4 @@ public class LibraryOrders {
 			}
 		}
 	}
-
-
-
-
 }

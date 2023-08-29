@@ -11,6 +11,7 @@ package com.alignmentsystems.matching.enumerations;
  *****************************************************************************/
 
 public enum OrderBookSide {
+	ERROR("Error"),
 	SELL("Sell"),
 	BUY("Buy");
 

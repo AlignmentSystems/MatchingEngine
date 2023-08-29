@@ -22,6 +22,7 @@ import com.alignmentsystems.fix44.field.OrderQty;
 import com.alignmentsystems.fix44.field.Price;
 import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.constants.Constants;
+import com.alignmentsystems.matching.enumerations.OrderBookSide;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 
 import quickfix.FieldNotFound;
@@ -33,7 +34,7 @@ import quickfix.SessionID;
  */
 public class AlignmentOrder implements InterfaceOrder{
 	private String symbol = null;
-	private Side side = null;
+	private OrderBookSide orderBookSide = null;
 	private OrderQty orderQty = null;
 	private Price limitPrice = null;
 	private SessionID sessionId = null;
@@ -54,7 +55,7 @@ public class AlignmentOrder implements InterfaceOrder{
 		builder.append(", symbol=");
 		builder.append(this.symbol);
 		builder.append(", side=");
-		builder.append(this.side);
+		builder.append(this.orderBookSide.sideValue);
 		builder.append(", orderQty=");
 		builder.append(this.orderQty);
 		builder.append(", limitPrice=");
@@ -70,9 +71,10 @@ public class AlignmentOrder implements InterfaceOrder{
 
 	
 
-	public AlignmentOrder(String orderId) {
+	public AlignmentOrder(String orderId, OrderBookSide orderBookSide) {
 		this.ts = OffsetDateTime.now(zo);
 		this.orderId = orderId;
+		this.orderBookSide = orderBookSide;
 	}
 
 
@@ -87,8 +89,7 @@ public class AlignmentOrder implements InterfaceOrder{
 		this.nos = nos;
 		this.sessionId = sessionId;
 
-		try {
-			this.side = nos.getSide();
+		try {		
 			this.orderQty = nos.getOrderQty();
 			this.limitPrice = nos.getPrice();
 			this.symbol = nos.getSymbol().getValue();
@@ -100,8 +101,8 @@ public class AlignmentOrder implements InterfaceOrder{
 	}
 
 	@Override
-	public Side getOrderSide() {		
-		return this.side;
+	public OrderBookSide getOrderBookSide() {		
+		return this.orderBookSide;
 	}
 
 	@Override
