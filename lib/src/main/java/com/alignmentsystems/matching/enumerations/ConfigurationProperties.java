@@ -19,8 +19,7 @@ public enum ConfigurationProperties {
 		PASSWORD("Password"),
 		USERNAME("Username"),
 		LOGFILEDIRECTORY("LogFileDirectory"),
-		LOGFILENAMESUFFIX("LogFileNameSuffix"),
-		KEY("KeyFor360T");
+		LOGFILENAMESUFFIX("LogFileNameSuffix");
 		
 		public final String targetProperty;
 		

@@ -255,7 +255,7 @@ public class LibraryFunctions {
 	protected static String getProperty(Actors actor, ConfigurationProperties configurationProperties) {
 		String targetProperty = null;
 
-		InputStream inputStream = App.class.getClassLoader().getResourceAsStream(actor.targetActor);
+		InputStream inputStream = App.class.getClassLoader().getResourceAsStream(actor.targetActorProperties);
 
 		Properties prop = new Properties();
 
@@ -326,9 +326,30 @@ public class LibraryFunctions {
 				;		
 	}
 
+	/**
+	 * 
+	 * @return String The value of the property requested
+	 *  This is stored in the configuration file
+	 */
+	public static String  getLogFileLocation() {
+		String targetProperty = null;
+		targetProperty = getProperty(Actors.PERSISTENCE, ConfigurationProperties.LOGFILEDIRECTORY);
+		return targetProperty;
+	}
 
+	/**
+	 * 
+	 * @return String The value of the property requested
+	 */
+	public static String  getFileNameSuffix() {
+		String targetProperty = null;
+		targetProperty = getProperty(Actors.PERSISTENCE, ConfigurationProperties.LOGFILENAMESUFFIX);
+		return targetProperty;
 
-
+	}
+	
+	
+	
 	/**
 	 * 
 	 * @param rawMessageLogFileDirectory String
@@ -336,7 +357,7 @@ public class LibraryFunctions {
 	 * @return String FileNameToUseForPersistence
 	 * @throws FileNotFoundException if the log file directory does not exist...
 	 */
-	protected static String getFileNameToUseForPersistence(String rawMessageLogFileDirectory, String filename_suffix) throws FileNotFoundException{
+	public static String getFileNameToUseForPersistence(String rawMessageLogFileDirectory, String filename_suffix) throws FileNotFoundException{
 		String fileNameDateTimePartToUse = null;
 		final OffsetDateTime runTime = OffsetDateTime.now(Constants.HERE);
 
@@ -373,7 +394,7 @@ public class LibraryFunctions {
 	 * @param usage Enumeration - is this to go in a log file or a log filename?
 	 * @return String The formatted string
 	 */
-	protected static String getUTCTimestamp(OffsetDateTime runTime, TimestampUsage usage) {
+	public static String getUTCTimestamp(OffsetDateTime runTime, TimestampUsage usage) {
 
 		StringBuilder sb = new StringBuilder();
 

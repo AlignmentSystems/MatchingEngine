@@ -10,6 +10,7 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -26,11 +27,14 @@ import quickfix.Initiator;
 
 public class MatchingEngineWrapper implements InterfaceInitialise{
 	private final String className = this.getClass().getSimpleName();
-
+	private final int nanoSleep = 200;
 	private List<ApplicationFIXEngine> engines = new ArrayList<ApplicationFIXEngine>();
 
 	private ConcurrentLinkedQueue<InterfaceOrder> sequenced = new ConcurrentLinkedQueue<InterfaceOrder>(); 
+	private ConcurrentLinkedQueue<InterfaceOrder> sequencedPersistence = new ConcurrentLinkedQueue<InterfaceOrder>(); 
+	private ConcurrentLinkedQueue<String> deduplicatedPersistence = new ConcurrentLinkedQueue<String>(); 
 
+	
 	private String[] args = null;
 
 	LogEncapsulation log = new LogEncapsulation(this.getClass());
@@ -43,23 +47,47 @@ public class MatchingEngineWrapper implements InterfaceInitialise{
 	public boolean Initialise() {
 		log.info("Started....");
 
-		Thread sequencer = new Thread(new Sequence(log, sequenced));
+		String logFileLocation = LibraryFunctions.getLogFileLocation();
+		String fileNameSuffix = LibraryFunctions.getFileNameSuffix();
+		String fileNameToUseForPersistence = null;
+		
+		try {
+			fileNameToUseForPersistence = LibraryFunctions.getFileNameToUseForPersistence(logFileLocation, fileNameSuffix);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		Thread sequencer = new Thread(new Sequence(log, sequenced, sequencedPersistence));
+		
+		OrderToStringPreProcessor preProcessor = new OrderToStringPreProcessor();
+		preProcessor.initialise(sequenced, deduplicatedPersistence);
+		
+		PersistenceToFileServer persistence = new PersistenceToFileServer(); 
+		persistence.initialise(deduplicatedPersistence, fileNameToUseForPersistence, persistence.getClass().getSimpleName(), nanoSleep);
+		
 		MatchingEngine matchingEngine = new MatchingEngine(args , log, sequenced);
 
 		InterfaceInitialise intMatchingEngine = (InterfaceInitialise) matchingEngine;
 
 		matchingEngine.Initialise();
 
-		Thread matcher = new Thread(matchingEngine); 
-
+		Thread matcher = new Thread(matchingEngine);
+		Thread preProcessorThread = new Thread(preProcessor);
+		Thread persistenceThread = new Thread(persistence);
 
 		//Set some descriptive thread names to help with debugging...
 		Thread.currentThread().setName(this.className);		
+		
 		sequencer.setName(Sequence.class.getSimpleName());
 		matcher.setName(MatchingEngine.class.getSimpleName());
-
+		preProcessorThread.setName(OrderToStringPreProcessor.class.getSimpleName());
+		persistenceThread.setName(PersistenceToFileServer.class.getSimpleName());
 
 		matcher.start();
+		persistenceThread.start();
+		preProcessorThread.start();
 		sequencer.start();
 
 		ApplicationFIXEngine engineExchange = new ApplicationFIXEngine(sequenced, log, Actors.EXCHANGE);
@@ -107,10 +135,11 @@ public class MatchingEngineWrapper implements InterfaceInitialise{
 			System.exit(FailureConditionConstants.ERROR_MEMBER_FIX_PROPERTIES_FILE);			
 		}
 
-
 		LibraryFunctions.threadStatusCheck(Thread.currentThread(), log);
 		LibraryFunctions.threadStatusCheck(matcher, log);
 		LibraryFunctions.threadStatusCheck(sequencer, log);
+		LibraryFunctions.threadStatusCheck(preProcessorThread, log);
+		LibraryFunctions.threadStatusCheck(persistenceThread, log);
 
 		return true;		
 

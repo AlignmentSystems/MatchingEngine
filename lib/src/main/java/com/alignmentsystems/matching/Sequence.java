@@ -10,23 +10,34 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
+import java.time.OffsetDateTime;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.alignmentsystems.matching.constants.Constants;
+import com.alignmentsystems.matching.enumerations.TimestampUsage;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
+import com.alignmentsystems.matching.library.LibraryFunctions;
 
 public class Sequence implements Runnable{
 	private final static String CLASSNAME = Sequence.class.getSimpleName().toString();
-	private ConcurrentLinkedQueue<InterfaceOrder> sequenced = new ConcurrentLinkedQueue<InterfaceOrder>(); 
+	private ConcurrentLinkedQueue<InterfaceOrder> sequencedIn;
+	private ConcurrentLinkedQueue<InterfaceOrder> sequencedOut;
 	private LogEncapsulation log = null;
 	private final int nanoSleep = 200;
 	private AtomicBoolean running = new AtomicBoolean(false);
 
-	public Sequence(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> sequenced) {
+	public Sequence(
+			LogEncapsulation log
+			, ConcurrentLinkedQueue<InterfaceOrder> sequencedIn
+			, ConcurrentLinkedQueue<InterfaceOrder> sequencedOut) {
 		this.log = log;
-		this.sequenced = sequenced;
+		this.sequencedIn = sequencedIn;
+		this.sequencedOut = sequencedOut;
 	}
+	
+	
+	
 
 	@Override
 	public void run() {
@@ -34,8 +45,10 @@ public class Sequence implements Runnable{
 		
 		while (running.get()){
 
-			InterfaceOrder inSeq = sequenced.peek();
+			InterfaceOrder inSeq = sequencedIn.peek();
+			
 			if (inSeq!=null) {
+				sequencedOut.add(inSeq);
 
 				try {
 					Thread.currentThread();
@@ -55,13 +68,7 @@ public class Sequence implements Runnable{
 							.append(e.getMessage())
 							.toString());			
 				}
-
 			}
-			// TODO Auto-generated method stub
-			//poll A ==>add to sequenced
-			//Poll B ==>add to sequenced.
-			//But, how do you ensure that strict time order is observed
-
 		}
 	}
 }

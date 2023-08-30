@@ -18,7 +18,6 @@ import com.alignmentsystems.fix44.NewOrderSingle;
 import com.alignmentsystems.fix44.field.ClOrdID;
 import com.alignmentsystems.fix44.field.OrderQty;
 import com.alignmentsystems.fix44.field.Price;
-import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.enumerations.OrderBookSide;
 
 import quickfix.FieldNotFound;

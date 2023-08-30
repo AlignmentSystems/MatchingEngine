@@ -19,12 +19,13 @@ import com.alignmentsystems.matching.constants.Constants;
 public enum Actors {
 		A("MemberA"),
 		B("MemberB"),
-		EXCHANGE("Exchange");
+		EXCHANGE("Exchange"),
+		PERSISTENCE("Persistence");
 		
 		public final String targetActor;
-		//public final String targetActorProperties;
+		public final String targetActorProperties;
 		Actors(String actor){
 			this.targetActor = actor;
-			//this.targetActorProperties = actor + Constants.DOTPROPERTIES;
+			this.targetActorProperties = actor + Constants.DOTPROPERTIES;
 		}
 	}

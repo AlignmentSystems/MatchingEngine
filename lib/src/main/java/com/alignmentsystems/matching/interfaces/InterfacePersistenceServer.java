@@ -9,12 +9,6 @@ package com.alignmentsystems.matching.interfaces;
  *	Artefact		:	InterfaceOrderBooks
  *	Description		:
  *****************************************************************************/
-
-import java.util.Set;
-
-import com.alignmentsystems.matching.exceptions.OrderBookNotFound;
-
-public interface InterfaceOrderBooks {
-	public InterfaceOrderBook getOrderBookForSymbol(String symbol) throws OrderBookNotFound;	
-	public Set<Thread> getOrderBookThreads();
+public interface InterfacePersistenceServer {
+	public void writeLineAtClose(String toWrite) ;
 }
