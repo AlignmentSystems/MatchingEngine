@@ -47,8 +47,8 @@ public class MatchingEngineWrapper implements InterfaceInitialise{
 	public boolean Initialise() {
 		log.info("Started....");
 
-		String logFileLocation = LibraryFunctions.getLogFileLocation();
-		String fileNameSuffix = LibraryFunctions.getFileNameSuffix();
+		final String logFileLocation = LibraryFunctions.getLogFileLocation();
+		final String fileNameSuffix = LibraryFunctions.getFileNameSuffix();
 		String fileNameToUseForPersistence = null;
 		
 		try {
@@ -59,7 +59,7 @@ public class MatchingEngineWrapper implements InterfaceInitialise{
 		}
 		
 		
-		Thread sequencer = new Thread(new Sequence(log, sequenced, sequencedPersistence));
+		Thread sequencerThread = new Thread(new Sequence(log, sequenced, sequencedPersistence));
 		
 		OrderToStringPreProcessor preProcessor = new OrderToStringPreProcessor();
 		preProcessor.initialise(sequenced, deduplicatedPersistence);
@@ -73,22 +73,22 @@ public class MatchingEngineWrapper implements InterfaceInitialise{
 
 		matchingEngine.Initialise();
 
-		Thread matcher = new Thread(matchingEngine);
+		Thread matchingEngineThread = new Thread(matchingEngine);
 		Thread preProcessorThread = new Thread(preProcessor);
 		Thread persistenceThread = new Thread(persistence);
 
 		//Set some descriptive thread names to help with debugging...
 		Thread.currentThread().setName(this.className);		
 		
-		sequencer.setName(Sequence.class.getSimpleName());
-		matcher.setName(MatchingEngine.class.getSimpleName());
+		sequencerThread.setName(Sequence.class.getSimpleName());
+		matchingEngineThread.setName(MatchingEngine.class.getSimpleName());
 		preProcessorThread.setName(OrderToStringPreProcessor.class.getSimpleName());
 		persistenceThread.setName(PersistenceToFileServer.class.getSimpleName());
 
-		matcher.start();
+		matchingEngineThread.start();
 		persistenceThread.start();
 		preProcessorThread.start();
-		sequencer.start();
+		sequencerThread.start();
 
 		ApplicationFIXEngine engineExchange = new ApplicationFIXEngine(sequenced, log, Actors.EXCHANGE);
 		engines.add(engineExchange);
@@ -99,16 +99,15 @@ public class MatchingEngineWrapper implements InterfaceInitialise{
 		ApplicationFIXEngine engineMemberB = new ApplicationFIXEngine(sequenced, log, Actors.B);
 		engines.add(engineMemberB);
 
-		String[] initiators = {Constants.MEMBERASETTINGS, Constants.MEMBERBSETTINGS};
+		String[] initiators = {Actors.A.getProperties(), Actors.B.getProperties()};
 		log.debug("get" + initiators[0]);
 		log.debug("get" + initiators[1]);
-		String[] acceptors = {Constants.EXCHANGESETTINGS};
+		String[] acceptors = {Actors.EXCHANGE.getProperties()};
 		log.debug("get" + acceptors[0]);
 
 		Initiator memberA = null;
 		Initiator memberB = null;
 		Acceptor exchange = null;
-
 
 		try {
 			exchange = LibraryFunctions.getExchangeEnvironment(acceptors[0], engineExchange);
@@ -117,7 +116,6 @@ public class MatchingEngineWrapper implements InterfaceInitialise{
 			System.err.println(e.getMessage());
 			System.exit(FailureConditionConstants.ERROR_EXCHANGE_FIX_PROPERTIES_FILE);			
 		}
-
 
 		try {
 			memberA = LibraryFunctions.getMemberEnvironment(initiators[0], engineMemberA);
@@ -136,14 +134,13 @@ public class MatchingEngineWrapper implements InterfaceInitialise{
 		}
 
 		LibraryFunctions.threadStatusCheck(Thread.currentThread(), log);
-		LibraryFunctions.threadStatusCheck(matcher, log);
-		LibraryFunctions.threadStatusCheck(sequencer, log);
+		LibraryFunctions.threadStatusCheck(matchingEngineThread, log);
+		LibraryFunctions.threadStatusCheck(sequencerThread, log);
 		LibraryFunctions.threadStatusCheck(preProcessorThread, log);
 		LibraryFunctions.threadStatusCheck(persistenceThread, log);
 
 		return true;		
 
 		//If we get to here then the Acceptor and the initiators are started, the code is now executing....		
-
 	}
 }

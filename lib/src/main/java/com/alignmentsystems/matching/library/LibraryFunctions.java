@@ -255,7 +255,7 @@ public class LibraryFunctions {
 	protected static String getProperty(Actors actor, ConfigurationProperties configurationProperties) {
 		String targetProperty = null;
 
-		InputStream inputStream = App.class.getClassLoader().getResourceAsStream(actor.targetActorProperties);
+		InputStream inputStream = App.class.getClassLoader().getResourceAsStream(actor.getProperties());
 
 		Properties prop = new Properties();
 

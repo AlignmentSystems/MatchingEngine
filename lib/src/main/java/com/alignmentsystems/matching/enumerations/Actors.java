@@ -18,14 +18,15 @@ import com.alignmentsystems.matching.constants.Constants;
  */
 public enum Actors {
 		A("MemberA"),
-		B("MemberB"),
-		EXCHANGE("Exchange"),
+		B("MemberB" ),
+		EXCHANGE("Exchange" ),
 		PERSISTENCE("Persistence");
 		
 		public final String targetActor;
-		public final String targetActorProperties;
+		public String getProperties() {
+			return this.targetActor + Constants.DOTPROPERTIES;
+		};
 		Actors(String actor){
 			this.targetActor = actor;
-			this.targetActorProperties = actor + Constants.DOTPROPERTIES;
 		}
 	}

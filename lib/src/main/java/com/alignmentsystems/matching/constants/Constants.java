@@ -38,9 +38,9 @@ public class Constants {
 		
 		public final static String DOTPROPERTIES = ".properties".intern();
 		
-		public final static String MEMBERASETTINGS = Actors.A.targetActor + DOTPROPERTIES ;
-		public final static String MEMBERBSETTINGS = Actors.B.targetActor + DOTPROPERTIES ;
-		public final static String EXCHANGESETTINGS = Actors.EXCHANGE.targetActor + DOTPROPERTIES;
+		public final static String MEMBERASETTINGS = Actors.A.getProperties();
+		public final static String MEMBERBSETTINGS = Actors.B.getProperties();
+		public final static String EXCHANGESETTINGS = Actors.EXCHANGE.getProperties();
 		
 		public final static int NANOSLEEP = 100;
 

@@ -52,6 +52,13 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 	private AtomicBoolean running = new AtomicBoolean(false);
 
 
+	@Override
+	public boolean Initialise() {
+		orderBooks = new OrderBooks(this.log, this.outboundSequenced); 
+		return true;
+	}
+	
+	
 	public MatchingEngine(String[] args, LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced) {
 		this.log = log;
 		this.inboundSequenced = inboundSequenced;		
@@ -59,7 +66,7 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 
 	@Override
 	public void run() {
-		log.info("Started....");
+		log.info(CLASSNAME + " Started....");
 		running.set(true);
 
 		while (running.get()){
@@ -172,9 +179,5 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 		};
 	}
 
-	@Override
-	public boolean Initialise() {
-		orderBooks = new OrderBooks(this.log, this.outboundSequenced); 
-		return true;
-	}
+	
 }
