@@ -87,7 +87,15 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 
 		if(actor==Actors.A || actor==Actors.B) {
 			for(int i = 0; i < 2; i++) {
-				NewOrderSingle nos = LibraryOrders.getOrder();
+				NewOrderSingle nos = LibraryOrders.getOrder(OrderBookSide.BUY);
+				try {
+					Session.sendToTarget(nos, sessionId);
+					log.info(nos.toRawString());
+				} catch (SessionNotFound e) {
+					log.error(e.getMessage(), e);		
+				}
+				
+				nos = LibraryOrders.getOrder(OrderBookSide.SELL);
 				try {
 					Session.sendToTarget(nos, sessionId);
 					log.info(nos.toRawString());

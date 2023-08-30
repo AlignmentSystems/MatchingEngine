@@ -51,15 +51,23 @@ public class LibraryOrders {
 	 * 
 	 * @return NewOrderSingle
 	 */
-	public static NewOrderSingle getOrder() {
-		ClOrdID clOrdID = new ClOrdID(UUID.randomUUID().toString()); 
-		Side side = new Side(Side.BUY); 
-		TransactTime transactTime = new TransactTime(LocalDateTime.now());  
-		OrdType ordType = new OrdType(OrdType.LIMIT);
-
+	public static NewOrderSingle getOrder(OrderBookSide orderBookSide) {
+		ClOrdID clOrdID = new ClOrdID(UUID.randomUUID().toString());
+		Side side;
 		Symbol symbol = new Symbol("BADGER.W");
 		OrderQty ordQty = new OrderQty(100d); 
 		Price price = new Price(42d);
+		
+		if (orderBookSide==OrderBookSide.BUY) {
+			side = new Side(Side.BUY); 
+		}else {
+			side = new Side(Side.SELL);
+		}
+		
+		TransactTime transactTime = new TransactTime(LocalDateTime.now());  
+		OrdType ordType = new OrdType(OrdType.LIMIT);
+
+		
 
 		NewOrderSingle nos = new NewOrderSingle(
 				clOrdID, 
