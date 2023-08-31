@@ -40,7 +40,7 @@ public class LibraryOrders {
 		if (side.getObject()==Side.BUY) {
 			return OrderBookSide.BUY;	
 		}else if (side.getObject()==Side.SELL) {
-			return OrderBookSide.BUY;	
+			return OrderBookSide.SELL;	
 		}else {
 			return OrderBookSide.ERROR;
 		}

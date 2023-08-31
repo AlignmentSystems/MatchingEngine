@@ -121,16 +121,16 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 
 	private void runMatch() {
 
-		InterfaceOrder topOfBuyBookPeek = buy.peek();
-		InterfaceOrder topOfSellBookPeek = sell.peek();
+		InterfaceOrder topOfBuyBook = buy.poll();
+		InterfaceOrder topOfSellBook = sell.poll();
 
 		OrderBookState  orderBookState = OrderBookState.EMPTY;
 
-		if(topOfBuyBookPeek!=null) {
+		if(topOfBuyBook!=null) {
 			orderBookState = LibraryFunctions.updateOrderBookState(orderBookState, OrderBookState.BUYSIDE);
 		}
 
-		if(topOfSellBookPeek!=null) {
+		if(topOfSellBook!=null) {
 			orderBookState = LibraryFunctions.updateOrderBookState(orderBookState, OrderBookState.SELLSIDE);
 		}
 
@@ -138,8 +138,8 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 		Double topOfSellBookPrice = 0d;
 
 		if(orderBookState.contains(OrderBookState.TWOSIDED)){
-			topOfBuyBookPrice = topOfBuyBookPeek.getLimitPrice().getValue();
-			topOfSellBookPrice = topOfSellBookPeek.getLimitPrice().getValue();
+			topOfBuyBookPrice = topOfBuyBook.getLimitPrice().getValue();
+			topOfSellBookPrice = topOfSellBook.getLimitPrice().getValue();
 			Double tradedQuantity = 0d;
 			Double tradedPrice = 0d;
 			//If buy top of book price is greater than or equal to the sell top of book then we have got a buyer
@@ -151,9 +151,7 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 				//Note - this is not correct, since you have to walk down the levels of depth
 				//and execute each price until the order that crossed the spread is full or no longer able to trade as the next]
 				//price level would not match
-				InterfaceOrder topOfBuyBook = buy.poll();
-				InterfaceOrder topOfSellBook = sell.poll();
-
+				
 				//Here is a question, who is the aggressor?
 				//Why do we need to know this? So you can work out who gets to trade at their preferred price...
 				OffsetDateTime topOfBuyBookTimestamp = topOfBuyBook.getTimestamp();
