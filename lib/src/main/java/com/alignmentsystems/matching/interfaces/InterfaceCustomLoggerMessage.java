@@ -10,6 +10,8 @@ package com.alignmentsystems.matching.interfaces;
  *	Description		:
  *****************************************************************************/
 
+import java.util.List;
+
 import com.alignmentsystems.matching.Match;
 import com.alignmentsystems.matching.enumerations.Actors;
 import com.alignmentsystems.matching.enumerations.MessageDirection;
@@ -23,4 +25,5 @@ public interface InterfaceCustomLoggerMessage {
 	public void errorFIXSession(String msg, SessionID sessionId, String methodName, String className, Actors actor);
 	public void errorFIXSession(String msg, SessionID sessionId, MessageDirection direction, String methodName, String className, Actors actor);
 	public void infoMatchingEvent(OperationEventType operationEventType, Match match);
+	public void infoOrderBookStatus(List<String> buyList, List<String> sellList);
 }

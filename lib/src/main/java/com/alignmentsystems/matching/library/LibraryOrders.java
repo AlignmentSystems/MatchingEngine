@@ -11,6 +11,7 @@ package com.alignmentsystems.matching.library;
  *****************************************************************************/
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -88,8 +89,11 @@ public class LibraryOrders {
 	 * @param log
 	 */
 	public static void snapShotOrderBook(InterfaceOrderBook orderBook, LogEncapsulation log) {
-		snapShotOrderBookBySide(orderBook, OrderBookSide.BUY , log); 
-		snapShotOrderBookBySide(orderBook, OrderBookSide.SELL , log);
+				
+		List<String> buy =  snapShotOrderBookBySide(orderBook, OrderBookSide.BUY); 
+		List<String> sell = snapShotOrderBookBySide(orderBook, OrderBookSide.SELL);
+		
+		log.infoOrderBookStatus(buy , sell);
 	}
 
 
@@ -98,21 +102,26 @@ public class LibraryOrders {
 	 * 
 	 * @param orderBook
 	 * @param targetSide
-	 * @param log
+	
 	 */
-	public static void snapShotOrderBookBySide(InterfaceOrderBook orderBook, OrderBookSide targetSide, LogEncapsulation log) {
+	public static List<String> snapShotOrderBookBySide(InterfaceOrderBook orderBook, OrderBookSide targetSide) {
 		String stringCount = null;
 
+		List<String> snapShotOrderBook = new ArrayList<String>();
+		
 		List<InterfaceOrder> orders = orderBook.getOrdersBySide(targetSide);
 
 		stringCount = Integer.toString(orderBook.getOrderCountBySide(targetSide));
 		if (orderBook.getOrderCountBySide(targetSide) == 0) {
 
-			log.debug( stringCount + Constants.TAB + "No orders for " + targetSide.sideValue);
+			snapShotOrderBook.add( stringCount + Constants.TAB + "No orders for " + targetSide.sideValue);
 		}else {
 			for (InterfaceOrder io : orders) {
-				log.debug(targetSide.sideValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(stringCount) + io.toString());	
+				snapShotOrderBook.add(targetSide.sideValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(stringCount) + io.toString());	
 			}
 		}
+		return snapShotOrderBook;
+		
+		
 	}
 }

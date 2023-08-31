@@ -10,6 +10,9 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
+import java.util.List;
+import java.util.ListIterator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
@@ -35,6 +38,32 @@ public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 		super();
 		innerLog = LoggerFactory.getLogger(clazz);
 	}
+
+
+	@Override
+	public void infoOrderBookStatus(List<String> buyList, List<String> sellList) {
+		ListIterator<String> sideIterator = null;
+
+		sideIterator = buyList.listIterator();
+
+		while (sideIterator.hasNext()) {
+			this.info(sideIterator.next().toString());
+			System.out.println(sideIterator.next());
+		}
+
+		sideIterator = sellList.listIterator();
+
+		while (sideIterator.hasNext()) {
+			this.info(sideIterator.next().toString());
+			System.out.println(sideIterator.next());
+		}
+
+
+
+	}
+
+
+
 
 
 	private String getInformation(String msg, SessionID sessionId, String methodName, String className, Actors actor) {
@@ -93,8 +122,8 @@ public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 
 		innerLog.info(toWrite);
 	}
-	
-	
+
+
 	@Override
 	public void errorFIXSession(String msg, SessionID sessionId, MessageDirection direction, String methodName,
 			String className, Actors actor) {
@@ -427,4 +456,5 @@ public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 	public void error(Marker marker, String msg, Throwable t) {
 		innerLog.error(marker, msg, t);	
 	}
+
 }
