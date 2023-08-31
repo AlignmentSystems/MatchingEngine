@@ -47,15 +47,13 @@ public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 		sideIterator = buyList.listIterator();
 
 		while (sideIterator.hasNext()) {
-			this.info(sideIterator.next().toString());
-			System.out.println(sideIterator.next());
+			this.info(sideIterator.next().toString());			
 		}
 
 		sideIterator = sellList.listIterator();
 
 		while (sideIterator.hasNext()) {
 			this.info(sideIterator.next().toString());
-			System.out.println(sideIterator.next());
 		}
 
 
