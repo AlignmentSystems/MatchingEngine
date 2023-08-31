@@ -276,6 +276,8 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 		StringBuilder sb = new StringBuilder()				
 				.append(" OrderID=(")
 				.append(ao.getOrderId())				
+				.append(" Side=(")
+				.append(ao.getOrderBookSide().sideValue )				
 				.append(") SenderCompId=")
 				.append(ao.getSender())
 				.append(" TargetCompId=")
