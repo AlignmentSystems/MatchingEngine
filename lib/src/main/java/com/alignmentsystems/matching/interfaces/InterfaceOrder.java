@@ -18,6 +18,7 @@ import com.alignmentsystems.fix44.NewOrderSingle;
 import com.alignmentsystems.fix44.field.ClOrdID;
 import com.alignmentsystems.fix44.field.OrderQty;
 import com.alignmentsystems.fix44.field.Price;
+import com.alignmentsystems.matching.enumerations.MessageDirection;
 import com.alignmentsystems.matching.enumerations.OrderBookSide;
 
 import quickfix.FieldNotFound;
@@ -26,16 +27,18 @@ import quickfix.SessionID;
 public interface InterfaceOrder extends Comparable<InterfaceOrder>{
 	public OffsetDateTime getTimestamp();	
 	public NewOrderSingle getNewOrderSingle();
-	public void setNewOrderSingle(NewOrderSingle nos, SessionID sessionId) throws FieldNotFound;
+	public void setNewOrderSingle(NewOrderSingle nos, SessionID sessionId, MessageDirection messageDirection, String orderId, OrderBookSide orderBookSide) throws FieldNotFound;
 	public OrderBookSide getOrderBookSide();
 	public OrderQty getOrderQty();
 	public Price getLimitPrice();
 	public SessionID getSessionId();
 	public String getSymbol();
-	public String getCounterparty();
-	public ClOrdID getClOrdID() throws FieldNotFound;
+	public String getSender();
+	public String getTarget();
+	public String getClOrdID();
 	public void execute(ExecutionReport execution);
 	public List<ExecutionReport> getExecutionReports();
 	public void setOrderId(String OrderId);
 	public String getOrderId();
+	public String getOrderUniquenessTuple();
 }

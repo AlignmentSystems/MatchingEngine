@@ -10,42 +10,105 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.alignmentsystems.matching.annotations.Experimental;
 import com.alignmentsystems.matching.constants.Constants;
+import com.alignmentsystems.matching.enumerations.Actors;
 import com.alignmentsystems.matching.enumerations.PersistenceRecordType;
+import com.alignmentsystems.matching.exceptions.LogMessageIsNull;
 import com.alignmentsystems.matching.interfaces.InterfacePersistenceClient;
 import com.alignmentsystems.matching.interfaces.InterfacePersistenceServer;
 import com.alignmentsystems.matching.library.LibraryFunctions;
 
-import java.io.FileNotFoundException;
-
 
 /**
- * The main part of the logger that wraps up the logqueue and the ToFlatFile class...
+ * The main part of the logger that wraps up the logqueue and the PersistenceToFileServer class...
  * @author John Greenan john.greenan@alignment-systems.com
-
  */
 public class PersistenceToFileClient implements InterfacePersistenceClient{
-	private ConcurrentLinkedQueue<String> logQueue = null;
-	private Boolean runOnce=Boolean.TRUE;
-	private String logFileDirectory = null;
-	private String filenameSuffix = null;
-	private final static int NANOSLEEP = 100;
-	private boolean hasExecutedInit = false;
+	private ConcurrentLinkedQueue<String> logQueue = new ConcurrentLinkedQueue<String>();
+	private Boolean runOnce = Boolean.TRUE;
+	private final static int MILLISLEEP = 200;
+	private AtomicBoolean hasExecutedInit = new AtomicBoolean(false);
 	private Thread logger = null;
 	private String fullPathAndFileNameToUse  = null;
 	private String tag = null;
 	private AtomicBoolean isShuttingDown = new AtomicBoolean(false);
 
-	public PersistenceToFileClient(String logFileDirectory, String filenameSuffix, String tag) {
-		this.logFileDirectory = logFileDirectory;
-		this.filenameSuffix = filenameSuffix;
-		this.logQueue = new ConcurrentLinkedQueue<String>();
-		this.tag = tag;
+
+
+	@Override
+	public boolean initialise(Actors actor) throws FileNotFoundException, IllegalThreadStateException {
+		if(hasExecutedInit.get()) {
+		}else {
+	
+			PersistenceToFileServer persistenceToFileServer = new PersistenceToFileServer();
+			try {
+				persistenceToFileServer.initialise(this.logQueue, actor, PersistenceToFileClient.MILLISLEEP);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			this.fullPathAndFileNameToUse = persistenceToFileServer.getFileNameAndPathUsed();
+
+			this.logger = new Thread(persistenceToFileServer);
+
+			try {
+				this.logger.start();
+			} catch (IllegalThreadStateException e) {
+				throw e;
+			}
+			if (tag!=null) {
+				this.logger.setName(tag);
+			}
+
+			hasExecutedInit.set(Boolean.TRUE);
+		}
+		return hasExecutedInit.get(); 
 	}
+
+
+	@Override
+	public boolean initialise(Actors actor, String tag) throws FileNotFoundException, IllegalThreadStateException {
+
+		if(hasExecutedInit.get()) {
+		}else {
+
+			this.tag = tag;
+
+			PersistenceToFileServer persistenceToFileServer = new PersistenceToFileServer();
+			try {
+				persistenceToFileServer.initialise(this.logQueue, actor, this.tag, PersistenceToFileClient.MILLISLEEP);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			this.fullPathAndFileNameToUse = persistenceToFileServer.getFileNameAndPathUsed();
+
+			logger = new Thread(persistenceToFileServer);
+
+			try {
+				this.logger.start();
+			} catch (IllegalThreadStateException e) {
+				throw e;
+			}
+			this.logger.setName(tag);
+
+			hasExecutedInit.set(Boolean.TRUE);
+		}
+		return hasExecutedInit.get(); 
+	}
+
+
+
+
 
 	/**
 	 * Flush the queued up messages to disk and then exit gracefully
@@ -60,25 +123,7 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 	}
 
 
-	/**
-	 * 
-	 * @throws FileNotFoundException Configuration for the file location may be incorrect, check it here, throw exception if not available
-	 */
-	public void init() throws FileNotFoundException, IllegalThreadStateException {
-		if(!hasExecutedInit) {
-			fullPathAndFileNameToUse = LibraryFunctions.getFileNameToUseForPersistence(logFileDirectory,filenameSuffix );
-			PersistenceToFileServer persistenceToFileServer=new PersistenceToFileServer();
-			persistenceToFileServer.initialise(logQueue, fullPathAndFileNameToUse, tag, NANOSLEEP);
-			logger = new Thread(persistenceToFileServer);
 
-			try {
-				logger.start();
-			} catch (IllegalThreadStateException e) {
-				throw e;
-			}
-			hasExecutedInit=true;
-		}
-	}
 
 
 
@@ -96,8 +141,8 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 	 * this implementation is sufficient.... 
 	 */
 	private Boolean flush() {
-		final long shortSleep = 100;
-		final long longSleep = 500;
+		final long shortSleep = 100L;
+		final long longSleep = 500L;
 		final String message = (new StringBuilder().append(this.getClass().getSimpleName()).append( " flushing queue...")).toString();
 		final String flushedMessage = (new StringBuilder().append(this.getClass().getSimpleName()).append( " flushed queue...")).toString();					
 
@@ -153,33 +198,13 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 	 * 
 	 * @return String getFullPathAndFileNameToUse
 	 */
-	public String getFullPathAndFileNameToUse() {
-		if(hasExecutedInit) {
+	public String getFullPathAndFileNameInUse() {
+		if(hasExecutedInit.get()) {
 			return this.fullPathAndFileNameToUse;
 		}else {
 			return null;
 		}
 	}
-
-
-
-
-	/**
-	 * 		
-	 */
-	private void runOnceExecute() {
-		String runOnceMessage = new StringBuilder()		
-				.append(this.getClass().getSimpleName().toString())
-				.append(" executing for ")
-				.append(this.tag.toUpperCase())
-				.append(" Started as=[")
-				.append(Thread.currentThread().getName().toString())
-				.append("]")
-				.toString();
-
-		info(runOnceMessage);
-	}
-
 
 
 	/**
@@ -188,18 +213,7 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 	 * @return Boolean
 	 */
 	private Boolean logExecute(String toLog) {
-		try {
-			if(runOnce) {
-				runOnce=false;
-				runOnceExecute();
-			}
-
-			logQueue.add(toLog);
-			return true;
-		}catch(Exception e) {
-			return false;
-		}
-
+			return logQueue.add(toLog);
 	}
 
 
@@ -209,16 +223,17 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 	 * @return Did this get logged?
 	 */
 	private Boolean infoPrivate(String toLog) {
-		return logExecute(PersistenceRecordType.INFO.recordType + toLog);
+		return logExecute(new StringBuilder().append(PersistenceRecordType.INFO.recordType).append(toLog).toString());
 	}
 
 
 	@Override
-	public Boolean info(String toLog) {
+	public Boolean info(String toLog) throws LogMessageIsNull {
 		if (this.isShuttingDown.get()) {
 			return false;
 		}else {
-			return logExecute(PersistenceRecordType.INFO.recordType + toLog);
+			cleanLogMessage(toLog);
+			return logExecute(new StringBuilder().append(PersistenceRecordType.INFO.recordType).append(toLog).toString());
 		}
 
 	}
@@ -251,50 +266,52 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 	}
 
 	@Override
-	public Boolean infoSession(String toLog, String methodName) {
+	public Boolean infoSession(String toLog, String methodName) throws LogMessageIsNull{
 		if (this.isShuttingDown.get()) {
 			return false;
 		}else {	
+			cleanLogMessage(toLog);
 			return messageSession(toLog, methodName, PersistenceRecordType.INFO);
 		}
 	}
 
 
 	@Override
-	public Boolean debugSession(String toLog, String methodName) {
+	public Boolean debugSession(String toLog, String methodName)throws LogMessageIsNull {
 		if (this.isShuttingDown.get()) {
 			return false;
 		}else {	
+			cleanLogMessage(toLog);
 			return messageSession(toLog, methodName, PersistenceRecordType.DEBUG);
 		}
 	}
 
 
 	@Override
-	public Boolean errorSession(String toLog, String methodName) {
+	public Boolean errorSession(String toLog, String methodName) throws LogMessageIsNull {
 		if (this.isShuttingDown.get()) {
 			return false;
 		}else {	
+			cleanLogMessage(toLog);
 			return messageSession(toLog, methodName, PersistenceRecordType.ERROR);
 		}
 	}
 
 	@Override
-	public Boolean error(String toLog) {
+	public Boolean error(String toLog) throws LogMessageIsNull {
 		if (this.isShuttingDown.get()) {
 			return false;
 		}else {
-			return logExecute(PersistenceRecordType.ERROR.recordType + toLog);
+			cleanLogMessage(toLog);
+			return logExecute(new StringBuilder().append( PersistenceRecordType.ERROR.recordType).append(toLog).toString());
 		}
-
-
 	}
 
 
 
 	@Experimental
 	@Override
-	public Boolean error(String toLog, Exception e) {
+	public Boolean error(String toLog, Exception e) throws LogMessageIsNull{
 
 		Boolean returnValue = Boolean.FALSE;
 
@@ -302,10 +319,11 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 		if (this.isShuttingDown.get()) {
 			return false;
 		}else {
+			cleanLogMessage(toLog);
+			logExecute(new StringBuilder().append(PersistenceRecordType.ERROR.recordType).append(Constants.BLOCKER).toString());
 
-			logExecute(PersistenceRecordType.ERROR.recordType + Constants.BLOCKER);
-
-			returnValue = logExecute(PersistenceRecordType.ERROR.recordType + toLog);
+			final String blocker = new StringBuilder().append(PersistenceRecordType.ERROR.recordType).append(toLog).toString();
+			returnValue = logExecute(blocker );
 
 			if (!returnValue) {
 				return returnValue;
@@ -314,10 +332,10 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 
 				StackTraceElement[] stackTrace = e.getStackTrace();
 				for (StackTraceElement element : stackTrace) {
-					returnValue = logExecute(PersistenceRecordType.ERROR.recordType + element.toString());
+					returnValue = logExecute(new StringBuilder().append(PersistenceRecordType.ERROR.recordType).append(element.toString()).toString());
 					if (!returnValue) {return returnValue;}
 				}
-				logExecute(PersistenceRecordType.ERROR.recordType + Constants.BLOCKER);
+				returnValue = logExecute(blocker );
 
 				return returnValue;
 			}
@@ -328,7 +346,7 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 
 	@Override
 	@Experimental
-	public Boolean errorSession(String toLog, String methodName, Exception e) {
+	public Boolean errorSession(String toLog, String methodName, Exception e) throws LogMessageIsNull {
 
 		Boolean returnValue = Boolean.FALSE;
 
@@ -336,7 +354,7 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 		if (this.isShuttingDown.get()) {
 			return false;
 		}else {
-
+			cleanLogMessage(toLog);
 			logExecute(PersistenceRecordType.ERROR.recordType + LibraryFunctions.wrapNameBrackets(methodName) +  Constants.BLOCKER);
 
 			returnValue = logExecute(PersistenceRecordType.ERROR.recordType + LibraryFunctions.wrapNameBrackets(methodName) + toLog);
@@ -358,11 +376,24 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 	}
 
 	@Override
-	public Boolean debug(String toLog) {
+	public Boolean debug(String toLog) throws LogMessageIsNull{
 		if (this.isShuttingDown.get()) {
 			return false;
 		}else {
+			cleanLogMessage(toLog);
 			return logExecute(PersistenceRecordType.DEBUG.recordType + toLog);
 		}
 	}
+
+	/**
+	 * 
+	 * @param toLog The message that is to be written to the log file
+	 * @throws LogMessageIsNull if the toLog is null
+	 */
+	private void cleanLogMessage(String toLog) throws LogMessageIsNull{
+		if (toLog==null) {
+			throw new LogMessageIsNull();
+		}
+	}
+
 }

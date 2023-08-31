@@ -20,8 +20,9 @@ import com.alignmentsystems.fix44.NewOrderSingle;
 import com.alignmentsystems.fix44.field.ClOrdID;
 import com.alignmentsystems.fix44.field.OrderQty;
 import com.alignmentsystems.fix44.field.Price;
-import com.alignmentsystems.fix44.field.Side;
+import com.alignmentsystems.matching.annotations.Experimental;
 import com.alignmentsystems.matching.constants.Constants;
+import com.alignmentsystems.matching.enumerations.MessageDirection;
 import com.alignmentsystems.matching.enumerations.OrderBookSide;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 
@@ -39,19 +40,31 @@ public class AlignmentOrder implements InterfaceOrder{
 	private Price limitPrice = null;
 	private SessionID sessionId = null;
 	private NewOrderSingle nos = null;
-	private final OffsetDateTime ts;
-	private String counterparty = null;
-	private final ZoneOffset zo = Constants.HERE;
+	private OffsetDateTime ts;
+	private String sender = null;
+	private String target = null;
+	private final static ZoneOffset zo = Constants.HERE;
 	private List<ExecutionReport> executions =  new ArrayList<ExecutionReport>();
 	private String orderId = null;
-	
-	
+	private String clOrdId = null;
+	private MessageDirection messageDirection = MessageDirection.INDETERMINATE; 
+
+
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("AlignmentOrder [counterparty=");
-		builder.append(this.counterparty);
+		builder.append("AlignmentOrder [target=");
+		builder.append(this.target);
+		builder.append(", sender=");
+		builder.append(this.sender);
+
+		builder.append(", OrderID=");
+		builder.append(this.orderId);
+
+		builder.append(", ClOrdID=");
+		builder.append(this.clOrdId);
+
 		builder.append(", symbol=");
 		builder.append(this.symbol);
 		builder.append(", side=");
@@ -69,14 +82,6 @@ public class AlignmentOrder implements InterfaceOrder{
 	}
 
 
-	
-
-	public AlignmentOrder(String orderId, OrderBookSide orderBookSide) {
-		this.ts = OffsetDateTime.now(zo);
-		this.orderId = orderId;
-		this.orderBookSide = orderBookSide;
-	}
-
 
 	@Override
 	public NewOrderSingle getNewOrderSingle() {
@@ -84,20 +89,31 @@ public class AlignmentOrder implements InterfaceOrder{
 	}
 
 	@Override
-	public void setNewOrderSingle(NewOrderSingle nos, SessionID sessionId) throws FieldNotFound {
-
+	public void setNewOrderSingle(NewOrderSingle nos, SessionID sessionId, MessageDirection messageDirection, String orderId, OrderBookSide orderBookSide) throws FieldNotFound {
+		this.ts = OffsetDateTime.now(zo);
 		this.nos = nos;
 		this.sessionId = sessionId;
+		this.orderId = orderId;
+		this.orderBookSide = orderBookSide;
+		this.messageDirection = messageDirection;
 
-		try {		
+		try {
+			String receivedTarget = sessionId.getSenderCompID(); 	
+			String receivedSender = sessionId.getTargetCompID();		
+			if (messageDirection==MessageDirection.RECEIVED) {
+				this.sender = receivedSender;
+				this.target = receivedTarget;
+			}else {
+				this.sender = receivedSender;
+				this.target = receivedTarget;
+			}
+			this.clOrdId = nos.getClOrdID().getValue().toString();
 			this.orderQty = nos.getOrderQty();
-			this.limitPrice = nos.getPrice();
+			this.limitPrice = nos.getPrice();			
 			this.symbol = nos.getSymbol().getValue();
-			this.counterparty = sessionId.getSenderCompID(); 			
 		} catch (FieldNotFound e) {
 			throw e;
 		}
-
 	}
 
 	@Override
@@ -124,8 +140,8 @@ public class AlignmentOrder implements InterfaceOrder{
 	public OffsetDateTime getTimestamp() {
 		return this.ts;
 	}
-	
-	
+
+
 	//	Compares this date-time to another date-time.
 	//	The comparison is based on the instant then on the local date-time. It is "consistent with equals", as defined by Comparable.
 	//
@@ -144,13 +160,6 @@ public class AlignmentOrder implements InterfaceOrder{
 	//	other the other date-time to compare to, not null
 	//	Returns:
 	//	the comparator value, negative if less, positive if greater
-
-
-
-
-
-
-
 	@Override
 	public int compareTo(InterfaceOrder o) {
 		final int lessThan = -1;
@@ -174,12 +183,8 @@ public class AlignmentOrder implements InterfaceOrder{
 
 
 	@Override
-	public ClOrdID getClOrdID() throws FieldNotFound {
-		try {
-			return this.nos.getClOrdID();
-		} catch (FieldNotFound e) {
-			throw e;
-		}
+	public String getClOrdID()  {
+		return this.clOrdId;
 	}
 
 
@@ -199,21 +204,31 @@ public class AlignmentOrder implements InterfaceOrder{
 		return this.symbol;
 	}
 
-
-	@Override
-	public String getCounterparty() {
-		return this.counterparty;
-	}
-
-
 	@Override
 	public void setOrderId(String orderId) {
 		this.orderId = orderId;
-		
+
 	}
 
 	@Override
 	public String getOrderId() {
 		return this.orderId;
+	}
+
+	@Override
+	@Experimental
+	public String getOrderUniquenessTuple() {
+		return this.orderId;
+	}
+
+	@Override
+	public String getSender() {
+		return this.sender;
+	}
+
+
+	@Override
+	public String getTarget() {
+		return this.target;
 	}
 }

@@ -63,6 +63,7 @@ public class Constants {
 		public static final String UNDERSCORE = String.valueOf(cUNDERSCORE).intern();
 		public static final String DASH = String.valueOf(cDASH).intern();
 		public static final String LETTER_T = "T".intern();
+		public static final String EMPTYSTRING = "".intern();
 		public static final String SPACE = " ".intern();
 		public static final String LETTER_Z = "Z".intern();
 		public static final String FULLSTOP = ".".intern();

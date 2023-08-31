@@ -84,24 +84,23 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 
 		log.infoFIXSession(sb.toString(), sessionId, METHODNAME, CLASSNAME, actor);	
 
+		NewOrderSingle nosB = null;
+		NewOrderSingle nosS = null;
 
 		if(actor==Actors.A || actor==Actors.B) {
 			for(int i = 0; i < 2; i++) {
-				NewOrderSingle nos = LibraryOrders.getOrder(OrderBookSide.BUY);
-				try {
-					Session.sendToTarget(nos, sessionId);
-					log.info(nos.toRawString());
-				} catch (SessionNotFound e) {
-					log.error(e.getMessage(), e);		
-				}
 				
-				nos = LibraryOrders.getOrder(OrderBookSide.SELL);
 				try {
-					Session.sendToTarget(nos, sessionId);
-					log.info(nos.toRawString());
+					nosB = LibraryOrders.getOrder(OrderBookSide.BUY);					
+					Session.sendToTarget(nosB, sessionId);
+					log.info(nosB.toString());
+					nosS = LibraryOrders.getOrder(OrderBookSide.SELL);
+					log.info(nosS.toString());
+					Session.sendToTarget(nosS, sessionId);
+
 				} catch (SessionNotFound e) {
 					log.error(e.getMessage(), e);		
-				}
+				}				
 			}
 		}
 	}
@@ -120,7 +119,6 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 				;
 
 		log.infoFIXSession(sb.toString(), sessionId, METHODNAME, CLASSNAME, actor);	
-
 	}
 
 
@@ -271,15 +269,20 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 		
 		OrderBookSide orderBookSide = LibraryOrders.getOrderBookSideFromFIXSide(message.getSide());
 
-		AlignmentOrder ao = new AlignmentOrder(UUID.randomUUID().toString() , orderBookSide);
+		AlignmentOrder ao = new AlignmentOrder();
+		
+		ao.setNewOrderSingle(message, sessionID, MessageDirection.RECEIVED, UUID.randomUUID().toString() , orderBookSide);
 		
 		StringBuilder sb = new StringBuilder()				
 				.append(" OrderID=(")
-				.append(ao.getOrderId())
-				.append(") enqueueing to rawMessageQueue...")
+				.append(ao.getOrderId())				
+				.append(") SenderCompId=")
+				.append(ao.getSender())
+				.append(" TargetCompId=")
+				.append(ao.getTarget())			
+				.append(" enqueueing to rawMessageQueue...")
 				;
 		
-		ao.setNewOrderSingle(message, sessionID);
 		
 		try{
 			orderQueue.add(ao);

@@ -1,4 +1,11 @@
 package com.alignmentsystems.matching.interfaces;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import com.alignmentsystems.matching.enumerations.Actors;
+
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -11,4 +18,8 @@ package com.alignmentsystems.matching.interfaces;
  *****************************************************************************/
 public interface InterfacePersistenceServer {
 	public void writeLineAtClose(String toWrite) ;
+	public String getFileNameAndPathUsed();
+	public boolean initialise(ConcurrentLinkedQueue<String> queue, Actors actor, String tag, int NanoSleep) throws FileNotFoundException, IOException  ;
+	public boolean initialise(ConcurrentLinkedQueue<String> queue, Actors actor, int NanoSleep) throws FileNotFoundException, IOException  ;
+
 }

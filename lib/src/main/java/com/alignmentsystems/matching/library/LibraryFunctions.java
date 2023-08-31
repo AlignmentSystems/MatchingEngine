@@ -57,8 +57,8 @@ import quickfix.ThreadedSocketInitiator;
  */
 public class LibraryFunctions {
 
-	
-	
+
+
 	/**
 	 * 
 	 * @param bookStateInt
@@ -66,11 +66,11 @@ public class LibraryFunctions {
 	 * @return
 	 */
 	public static OrderBookState updateOrderBookState(OrderBookState oldState, OrderBookState stateToAccumulate) {
-		
+
 		OrderBookState internalOrderBookState;
 		int bookStateInt = oldState.getStateInt(); 
 		int stateToAccum = stateToAccumulate.getStateInt();
-		
+
 		switch (stateToAccum) {
 		case -1:
 			bookStateInt = stateToAccum;
@@ -101,14 +101,14 @@ public class LibraryFunctions {
 		default:
 			internalOrderBookState = OrderBookState.ERROR;	
 		}
-		
+
 		return internalOrderBookState;
 	}
 
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * 
 	 * @param configFile
@@ -209,18 +209,18 @@ public class LibraryFunctions {
 
 
 
-//	/**
-//	 * 
-//	 * @param nos
-//	 * @return
-//	 */
-//	public static OrderBookSide getOrderBookSide(InterfaceOrder nos) {
-//		if(Character.compare(nos.getOrderSide().getValue(), Side.BUY)==0)   {
-//			return OrderBookSide.BUY; 
-//		}else {
-//			return OrderBookSide.SELL;
-//		}			
-//	}
+	//	/**
+	//	 * 
+	//	 * @param nos
+	//	 * @return
+	//	 */
+	//	public static OrderBookSide getOrderBookSide(InterfaceOrder nos) {
+	//		if(Character.compare(nos.getOrderSide().getValue(), Side.BUY)==0)   {
+	//			return OrderBookSide.BUY; 
+	//		}else {
+	//			return OrderBookSide.SELL;
+	//		}			
+	//	}
 
 
 
@@ -245,7 +245,7 @@ public class LibraryFunctions {
 
 
 
-	
+
 	/**
 	 * 
 	 * @param actor The actor for whom properties are requested
@@ -331,9 +331,9 @@ public class LibraryFunctions {
 	 * @return String The value of the property requested
 	 *  This is stored in the configuration file
 	 */
-	public static String  getLogFileLocation() {
+	public static String  getLogFileLocation(Actors actor) {
 		String targetProperty = null;
-		targetProperty = getProperty(Actors.PERSISTENCE, ConfigurationProperties.LOGFILEDIRECTORY);
+		targetProperty = getProperty(actor, ConfigurationProperties.LOGFILEDIRECTORY);
 		return targetProperty;
 	}
 
@@ -341,51 +341,83 @@ public class LibraryFunctions {
 	 * 
 	 * @return String The value of the property requested
 	 */
-	public static String  getFileNameSuffix() {
+	public static String  getFileNameSuffix(Actors actor) {
 		String targetProperty = null;
-		targetProperty = getProperty(Actors.PERSISTENCE, ConfigurationProperties.LOGFILENAMESUFFIX);
+		targetProperty = getProperty(actor, ConfigurationProperties.LOGFILENAMESUFFIX);
 		return targetProperty;
 
 	}
-	
-	
-	
+
+
+
 	/**
 	 * 
-	 * @param rawMessageLogFileDirectory String
-	 * @param filename_suffix String
-	 * @return String FileNameToUseForPersistence
-	 * @throws FileNotFoundException if the log file directory does not exist...
+	 * @param rawMessageLogFileDirectory - this should be something like /dir/dir/logs
+	 * @param tag - this is something meaningful to the reader - say the caller class name or similar. Null will be replaced with an empty string. No dashes allowed
+	 * @param filenameSuffix - this should be something like "name.log" No dashes allowed
+	 * @return something like /dir/dir/logs/2023_08_31__08.00.06.743+0000-debug-Alignment.log
+	 * @throws FileNotFoundException
 	 */
-	public static String getFileNameToUseForPersistence(String rawMessageLogFileDirectory, String filename_suffix) throws FileNotFoundException{
+	public static String getFileNameToUseForPersistence(String rawMessageLogFileDirectory, String tag, String filenameSuffix) throws FileNotFoundException{
 		String fileNameDateTimePartToUse = null;
 		final OffsetDateTime runTime = OffsetDateTime.now(Constants.HERE);
 
 		//log.info(runTime.toString());
-		String suffix = null;
+		String dateTimeOffsetString = null;
+		String cleanedTag;
+		String cleanedFilenameSuffix;
+
+		if(tag==null) {
+			cleanedTag = Constants.EMPTYSTRING;
+		}else {
+			cleanedTag = tag.replace(Constants.DASH , Constants.EMPTYSTRING);	
+		}
+
+
+		if(filenameSuffix==null) {
+			throw new FileNotFoundException("filename_suffix cannot be null");
+		}
+
+		cleanedFilenameSuffix = filenameSuffix.replace(Constants.DASH , Constants.EMPTYSTRING);
+
 
 		//https://stackoverflow.com/questions/473282/how-can-i-pad-an-integer-with-zeros-on-the-left
 
 		if (Constants.HERE.getId()=="Z") {
-			suffix ="+0000";			
+			dateTimeOffsetString ="+0000";			
 		}else {
 			String offset = runTime.getOffset().toString();
-			suffix = offset.substring(offset.lastIndexOf("+")+1);
-			suffix = suffix.replace(":", "");	
-			suffix = new DecimalFormat("0000").format(Integer.decode(suffix));
-			suffix = "+" + suffix;
+			dateTimeOffsetString = offset.substring(offset.lastIndexOf("+")+1);
+			dateTimeOffsetString = dateTimeOffsetString.replace(":", "");	
+			dateTimeOffsetString = new DecimalFormat("0000").format(Integer.decode(dateTimeOffsetString));
+			dateTimeOffsetString = "+" + dateTimeOffsetString;
 		}
 
 		fileNameDateTimePartToUse = getUTCTimestamp(runTime , TimestampUsage.FILENAME); 
 		//Does rawMessageLogFileDirectory exist?
 		Path path = Paths.get(rawMessageLogFileDirectory);
+
 		if (Files.exists(path)) {
 			//Folder exists...
 		}else {
 			//Folder does not exist
 			throw new FileNotFoundException(path.toString() + " does not exist: create it and try again");
 		}
-		return Paths.get(rawMessageLogFileDirectory, (fileNameDateTimePartToUse + suffix + filename_suffix)).toString();				
+
+		StringBuilder sb = new StringBuilder()
+				.append(fileNameDateTimePartToUse)
+				.append(dateTimeOffsetString)
+				;
+
+		if (cleanedTag.length()!=0) {
+			sb.append(Constants.DASH);
+			sb.append(cleanedTag);
+		}
+		
+		sb.append(Constants.DASH);
+		sb.append(cleanedFilenameSuffix);		
+
+		return Paths.get(rawMessageLogFileDirectory, sb.toString()).toString();				
 	}
 
 	/**
@@ -406,15 +438,14 @@ public class LibraryFunctions {
 			.append(String.format("%02d", runTime.getMonthValue()))
 			.append(Constants.UNDERSCORE)
 			.append(String.format("%02d", runTime.getDayOfMonth()))
-			.append(Constants.UNDERSCORE)
-			.append(Constants.UNDERSCORE)
+			.append(Constants.UNDERSCORE)			
 			.append(Constants.UNDERSCORE)
 			.append(String.format("%02d", runTime.getHour() ))
-			.append(Constants.SEMICOLON)
+			.append(Constants.FULLSTOP)
 			.append(String.format("%02d", runTime.getMinute()))
-			.append(Constants.SEMICOLON)
+			.append(Constants.FULLSTOP)
 			.append(String.format("%02d", runTime.getSecond() ))
-			.append(Constants.SEMICOLON)
+			.append(Constants.FULLSTOP)
 			.append(String.format("%09d", runTime.getNano()).substring(0,3)) ;
 			return sb.toString();
 		case INFILE:

@@ -20,7 +20,8 @@ public enum Actors {
 		A("MemberA"),
 		B("MemberB" ),
 		EXCHANGE("Exchange" ),
-		PERSISTENCE("Persistence");
+		PERSISTENCE("Persistence"),
+		MATCHINGENGINE("MatchingEngine");
 		
 		public final String targetActor;
 		public String getProperties() {

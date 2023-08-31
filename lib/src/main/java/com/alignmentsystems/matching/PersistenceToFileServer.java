@@ -10,6 +10,7 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -23,10 +24,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.alignmentsystems.matching.constants.Constants;
+import com.alignmentsystems.matching.enumerations.Actors;
 import com.alignmentsystems.matching.enumerations.PersistenceRecordType;
 import com.alignmentsystems.matching.enumerations.TimestampUsage;
-import com.alignmentsystems.matching.interfaces.InterfaceInitialisePersistenceServer;
-import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfacePersistenceServer;
 import com.alignmentsystems.matching.library.LibraryFunctions;
 
@@ -35,40 +35,86 @@ import com.alignmentsystems.matching.library.LibraryFunctions;
  * ToFlatFile - write from the logger queue to a flat text file that is human readable
  * @author John Greenan john.greenan@alignment-systems.com
  */
-class PersistenceToFileServer implements Runnable , InterfacePersistenceServer, InterfaceInitialisePersistenceServer{
+class PersistenceToFileServer implements Runnable , InterfacePersistenceServer{
 	private ConcurrentLinkedQueue<String> logQueue = null;
 	private final static String CLASSNAME = PersistenceToFileServer.class.getSimpleName().toString();
 	private String fullPathAndFileNameToUse = null;
-	private Boolean runOnce=Boolean.TRUE;
-	private int nanoSleep = 0;
+	private int milliSleep = 0;
 	private Path pathForLogFile = null;
 	private String tag = null;
 	private Long logFileSequenceNumber = 0L;
-	private final AtomicBoolean running = new AtomicBoolean(false);
+	private AtomicBoolean running = new AtomicBoolean(false);
 	//http://www.asciitable.com/
 
-
-	
-	/**
-	 * 
-	 * @param sequencedPersistence The queue from which messages are polled
-	 * @param fullPathAndFileNameToUse The file to use
-	 * @param tag A tag to cover the name in the log file
-	 * @param NanoSleep Sleep interval in nanoseconds
-	 */
 	@Override
-	public boolean initialise(ConcurrentLinkedQueue<String> sequencedPersistence, String fullPathAndFileNameToUse, String tag,
-			int NanoSleep) {
-		this.logQueue = sequencedPersistence;
-		this.fullPathAndFileNameToUse = fullPathAndFileNameToUse;
+	public boolean initialise(ConcurrentLinkedQueue<String> queue, Actors actor, String tag,
+			int milliSleep) throws FileNotFoundException, IOException {
+
+		this.logQueue = queue;
 		this.tag = tag;
-		this.nanoSleep = NanoSleep;
+
+		final String logFileDirectory = LibraryFunctions.getLogFileLocation(actor);
+		final String filenameSuffix = LibraryFunctions.getFileNameSuffix(actor);
+
+		this.fullPathAndFileNameToUse = LibraryFunctions.getFileNameToUseForPersistence(logFileDirectory , tag , filenameSuffix);
+		this.milliSleep = milliSleep;
+		StandardOpenOption option = getOpenOption();
+		String toWrite = getFormattedMessage(fullPathAndFileNameToUse);
+		writeLine( toWrite , option);
+		
+		
+		return true;
+	}
+
+	@Override
+	public boolean initialise(ConcurrentLinkedQueue<String> queue, Actors actor, int milliSleep)
+			throws FileNotFoundException, IOException {
+		
+		this.logQueue = queue;
+		
+		final String logFileDirectory = LibraryFunctions.getLogFileLocation(actor);
+		final String filenameSuffix = LibraryFunctions.getFileNameSuffix(actor);
+
+		this.fullPathAndFileNameToUse = LibraryFunctions.getFileNameToUseForPersistence(logFileDirectory , null , filenameSuffix);
+		this.milliSleep = milliSleep;
+		
+		StandardOpenOption option = getOpenOption();
+		String toWrite = getFormattedMessage(fullPathAndFileNameToUse);
+		writeLine( toWrite , option);
+		
 		return true;
 	}
 
 
-	
-	
+	private void runOnce() {
+		String cleanedTag = null;
+		if (this.tag==null) {
+			cleanedTag = "no tag";
+		} else {
+			cleanedTag = this.tag.toUpperCase();
+		}
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append(PersistenceRecordType.INFO.recordType)
+			.append(CLASSNAME)
+			.append(" for ")
+			.append(cleanedTag)
+			.append(" Started as=[")
+			.append(Thread.currentThread().getName().toString())
+			.append("]")
+			;
+			logQueue.add(sb.toString());
+		} catch (NullPointerException e) {
+			StringBuilder sb2 = new StringBuilder()
+					.append(CLASSNAME)
+					.append(Constants.SPACE)
+					.append(e.getMessage())
+					;
+			System.err.println(sb2.toString());
+		}
+	}
+
+
 	/**
 	 * Here it would be possible to be a bit cuter and implement a pattern of
 	 * write to the file until the number of bytes is equal to or greater than a constant
@@ -81,35 +127,74 @@ class PersistenceToFileServer implements Runnable , InterfacePersistenceServer, 
 	 */
 	@Override
 	public void run() {
-		StringBuilder sb = new StringBuilder();
-		running.set(true);
 
-		if (runOnce) {
+		if(!running.get()) {
+			//runOnce();
+			running.set(true);
+		}
+		StandardOpenOption option = null;
+
+		//Get the big string out of the queue and then write to disk...
+		String body = null;
+
+
+		while (running.get()){
+			body = logQueue.poll();
+
+			if(body!=null) {
+
+				//
+				// Here we need to take the body and then make it look nicer.  Need to have a think, but something with the timestamp and then the payload would make sense.
+				//
 			
+				String toWrite = getFormattedMessage(body);
+				option = getOpenOption();
+
+				try {
+					writeLine( toWrite , option);
+					option = StandardOpenOption.APPEND;
+				} catch (IOException e) {
+					StringBuilder sb6 = new StringBuilder()
+							.append(CLASSNAME)
+							.append(Constants.SPACE)
+							.append(toWrite)
+							.append(Constants.SPACE)
+							.append(e.getMessage())
+							;
+					System.err.println(sb6.toString());
+				}
+			}
 
 			try {
-				sb.append(PersistenceRecordType.INFO.recordType)
-				.append(CLASSNAME)
-				.append(" for ")
-				.append(this.tag.toUpperCase())
-				.append(" Started as=[")
-				.append(Thread.currentThread().getName().toString())
-				.append("]")
-				;
-				logQueue.add(sb.toString());
-			} catch (NullPointerException e) {
-				StringBuilder sb2 = new StringBuilder()
+				Thread.currentThread();
+				Thread.sleep(milliSleep);
+			}catch(InterruptedException e){
+				running.set(false);
+				Thread.currentThread().interrupt();
+				System.err.println(e.getMessage());
+				StringBuilder sb7 = new StringBuilder()
 						.append(CLASSNAME)
 						.append(Constants.SPACE)
 						.append(e.getMessage())
 						;
-				System.err.println(sb2.toString());
-			}
-			runOnce=false;
-		}
+				System.err.println(sb7.toString());
 
-		//Get the big string out of the queue and then write to disk...
-		String body = null;
+				try {
+					writeLine( "Interrupted, goodbye,,,", option);
+				} catch (IOException e1) {
+					StringBuilder sb8 = new StringBuilder()
+							.append(this.getClass().getSimpleName().toString())
+							.append(Constants.SPACE)
+							.append(e1.getMessage())
+							;
+					System.err.println(sb8.toString());
+				}				
+			}			 	
+		}
+	}
+
+
+	private StandardOpenOption getOpenOption() {
 
 		StandardOpenOption option = null;
 
@@ -139,82 +224,15 @@ class PersistenceToFileServer implements Runnable , InterfacePersistenceServer, 
 		}
 
 
-		
-
 		if (alreadyExists) {
 			option = StandardOpenOption.APPEND;
 		}else {
 			option = StandardOpenOption.CREATE;
 		}
-
-
-		while (running.get()){
-			body = logQueue.poll();
-
-			if(body!=null) {
-
-				//
-				// Here we need to take the body and then make it look nicer.  Need to have a think, but something with the timestamp and then the payload would make sense.
-				//
-
-				try {
-					logFileSequenceNumber = Math.addExact(logFileSequenceNumber, 1L);
-				} catch (ArithmeticException e) {
-					StringBuilder sb5 = new StringBuilder()
-							.append(CLASSNAME)
-							.append(Constants.SPACE)
-							.append(e.getMessage())
-							;
-					System.err.println(sb5.toString());
-					logFileSequenceNumber=1L;
-				}
-
-				String toWrite = getFormattedMessage(logFileSequenceNumber, body);
-
-				try {
-					writeLine( toWrite , option);
-					option = StandardOpenOption.APPEND;
-				} catch (IOException e) {
-					StringBuilder sb6 = new StringBuilder()
-							.append(CLASSNAME)
-							.append(Constants.SPACE)
-							.append(toWrite)
-							.append(Constants.SPACE)
-							.append(e.getMessage())
-							;
-					System.err.println(sb6.toString());
-
-				}
-
-			}
-
-			try {
-				Thread.currentThread();
-				Thread.sleep(0L,nanoSleep);
-			}catch(InterruptedException e){
-				running.set(false);
-				Thread.currentThread().interrupt();
-				System.err.println(e.getMessage());
-				StringBuilder sb7 = new StringBuilder()
-						.append(CLASSNAME)
-						.append(Constants.SPACE)
-						.append(e.getMessage())
-						;
-				System.err.println(sb7.toString());
-				
-				try {
-					writeLine( "Interrupted, goodbye,,,", option);
-				} catch (IOException e1) {
-					StringBuilder sb8 = new StringBuilder()
-							.append(this.getClass().getSimpleName().toString())
-							.append(Constants.SPACE)
-							.append(e1.getMessage())
-							;
-					System.err.println(sb8.toString());
-				}				
-			}			 	
-		}
+		return option;
 	}
+
+
 
 
 	/***
@@ -223,13 +241,25 @@ class PersistenceToFileServer implements Runnable , InterfacePersistenceServer, 
 	 * @param messageBody What to put in the log file
 	 * @return A nicely formatted string
 	 */
-	private String getFormattedMessage(Long messageSequenceNumber, String messageBody) {
+	private String getFormattedMessage(String messageBody) {
 
+		try {
+			logFileSequenceNumber = Math.addExact(logFileSequenceNumber, 1L);
+		} catch (ArithmeticException e) {
+			StringBuilder sb5 = new StringBuilder()
+					.append(CLASSNAME)
+					.append(Constants.SPACE)
+					.append(e.getMessage())
+					;
+			System.err.println(sb5.toString());
+			logFileSequenceNumber = 1L;
+		}
+		
 		StringBuilder sb = new StringBuilder()
 				.append(LibraryFunctions.getUTCTimestamp( OffsetDateTime.now(Constants.HERE), TimestampUsage.INFILE))
 				.append(Constants.TAB)
 				.append("[")
-				.append(messageSequenceNumber.toString())
+				.append(logFileSequenceNumber.toString())
 				.append("]")
 				.append(Constants.TAB) 
 				.append(messageBody);
@@ -237,7 +267,7 @@ class PersistenceToFileServer implements Runnable , InterfacePersistenceServer, 
 		return sb.toString();
 	}
 
-	
+
 
 
 	/***
@@ -256,9 +286,9 @@ class PersistenceToFileServer implements Runnable , InterfacePersistenceServer, 
 			System.err.println(e.getMessage());
 		}
 	}
-	
-	
-	
+
+
+
 	/***
 	 * 
 	 * @param toWrite String The string to write to the file
@@ -276,5 +306,10 @@ class PersistenceToFileServer implements Runnable , InterfacePersistenceServer, 
 			System.err.println(e.getMessage());
 			throw e;
 		}
+	}
+
+	@Override
+	public String getFileNameAndPathUsed() {
+		return this.fullPathAndFileNameToUse;
 	}
 }

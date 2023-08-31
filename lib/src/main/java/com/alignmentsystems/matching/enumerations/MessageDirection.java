@@ -11,7 +11,7 @@ package com.alignmentsystems.matching.enumerations;
  *****************************************************************************/
 
 public enum MessageDirection {
-	
+		INDETERMINATE("INDETERMINATE"),
 		SENT("SENT"),
 		RECEIVED("RECD");
 

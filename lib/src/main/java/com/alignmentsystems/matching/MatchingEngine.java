@@ -26,11 +26,10 @@ import com.alignmentsystems.fix44.field.OrderID;
 import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.OperationEventType;
-import com.alignmentsystems.matching.interfaces.InterfaceInitialise;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchEvent;
+import com.alignmentsystems.matching.interfaces.InterfaceMatchingEngine;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
-import com.alignmentsystems.matching.library.LibraryOrders;
 
 import quickfix.FieldNotFound;
 import quickfix.Session;
@@ -40,64 +39,58 @@ import quickfix.SessionNotFound;
 /**
  * 
  */
-public class MatchingEngine implements Runnable , InterfaceMatchEvent, InterfaceInitialise {
-	private final static String CLASSNAME = MatchingEngine.class.getCanonicalName();
-
+public class MatchingEngine implements Runnable , InterfaceMatchEvent, InterfaceMatchingEngine {
+	private final static String CLASSNAME = MatchingEngine.class.getSimpleName();
 	private LogEncapsulation log = null;
 	private ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced = null;
-	private ConcurrentLinkedQueue<InterfaceOrder> outboundSequenced = new ConcurrentLinkedQueue<InterfaceOrder>();
 	private OrderBooks orderBooks = null; 
-	private int nanoSleep = 200;
-
+	private static final int milliSleep = 200;
 	private AtomicBoolean running = new AtomicBoolean(false);
+	private PersistenceToFileClient debugger = null;
 
-
-	@Override
-	public boolean Initialise() {
-		orderBooks = new OrderBooks(this.log, this.outboundSequenced); 
-		return true;
-	}
-	
-	
-	public MatchingEngine(String[] args, LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced) {
-		this.log = log;
-		this.inboundSequenced = inboundSequenced;		
-	}
 
 	@Override
 	public void run() {
-		log.info(CLASSNAME + " Started....");
+
 		running.set(true);
+		debugger.info(CLASSNAME + " Started....");
+
+		String symbol = null;
+		InterfaceOrderBook orderBook = null;
 
 		while (running.get()){
 			InterfaceOrder inSeq = inboundSequenced.poll();
 
-			if (inSeq!=null) {
+			if (inSeq!= null) {
 				//Which OrderBook???
-				String symbol = inSeq.getSymbol();
+				symbol = inSeq.getSymbol();
 
-				InterfaceOrderBook orderBook = orderBooks.getOrderBookForSymbol(symbol);
+				orderBook = orderBooks.getOrderBookForSymbol(symbol);
+				orderBook.getInboundSequenced().add(inSeq);
 
-				outboundSequenced.add(inSeq);
+				debugger.info(CLASSNAME + " Added order for symbol=" + symbol);
+
+				symbol = null;
+				orderBook = null;
 
 				//LibraryOrders.snapShotOrderBook(orderBook, this.log);
+			}
 
-			}else {
-				try {
-					Thread.currentThread();
-					Thread.sleep(0L,nanoSleep);
-				}catch(InterruptedException e){
-					running.set(false);
-					Thread.currentThread().interrupt();
-					System.err.println(e.getMessage());
+			try {
+				Thread.currentThread();
+				Thread.sleep(milliSleep);
+			}catch(InterruptedException e){
+				running.set(false);
+				Thread.currentThread().interrupt();
+				System.err.println(e.getMessage());
 
-					;
-					System.err.println(new StringBuilder().append(CLASSNAME)
-							.append(Constants.SPACE)
-							.append(e.getMessage()
-									).toString());			
-				}
-			}	
+				;
+				System.err.println(new StringBuilder().append(CLASSNAME)
+						.append(Constants.SPACE)
+						.append(e.getMessage()
+								).toString());			
+			}
+
 		}
 	}
 
@@ -179,5 +172,15 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 		};
 	}
 
-	
+
+	@Override
+	public boolean initialise(String[] args, LogEncapsulation log,
+			ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, PersistenceToFileClient debugger) {
+		this.log = log;
+		this.inboundSequenced = inboundSequenced;
+		this.debugger = debugger;
+		orderBooks = new OrderBooks();
+		orderBooks.initialise(this.log, this.inboundSequenced, this.debugger);
+		return true;
+	}
 }

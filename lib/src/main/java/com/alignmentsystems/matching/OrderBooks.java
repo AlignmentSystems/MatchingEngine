@@ -23,12 +23,14 @@ import com.alignmentsystems.matching.interfaces.InterfaceOrderBooks;
 import com.alignmentsystems.matching.library.LibraryFunctions;
 
 public class OrderBooks implements InterfaceOrderBooks{
+	private final static String CLASSNAME = OrderBooks.class.getSimpleName();
+
 	private Map<String, InterfaceOrderBook> orderBooks = new HashMap<String, InterfaceOrderBook>();
 	private LogEncapsulation log = null;
 	private ConcurrentLinkedQueue<InterfaceOrder> outboundSequenced = null;
-	
 	private final Set<Thread> orderBookThreads = new HashSet<Thread>();
-	
+	private PersistenceToFileClient debugger = null;
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -40,10 +42,6 @@ public class OrderBooks implements InterfaceOrderBooks{
 		return builder.toString();
 	}
 
-	public OrderBooks(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> outboundSequenced ) {
-		this.log = log;
-		this.outboundSequenced = outboundSequenced;
-	}
 
 	@Override
 	public InterfaceOrderBook getOrderBookForSymbol(String symbol) throws OrderBookNotFound {
@@ -51,26 +49,36 @@ public class OrderBooks implements InterfaceOrderBooks{
 		final String errString = new StringBuilder().append("Cannot find order book for symbol=").append(symbol).toString();
 		InterfaceOrderBook returnValue = orderBooks.get(symbol); 
 		if (returnValue!=null) {
+			debugger.info(
+					new StringBuilder()
+					.append(CLASSNAME)
+					.append(" Existing OrderBook returned=")
+					.append(symbol)
+					.toString());
 			return returnValue;
 		}else {
-			InterfaceOrderBook orderBook = new OrderBook(symbol, this.log, this.outboundSequenced);
-			
+			InterfaceOrderBook orderBook = new OrderBook();
+
 			Runnable runnableOrderBook = (Runnable) orderBook;
-			
+
 			Thread newThread = new Thread(runnableOrderBook);
-						
-			orderBook.setThread(newThread).setName(symbol);
-			
+			orderBook.initialise(symbol, log, outboundSequenced, newThread, debugger);
+
 			orderBooks.put(symbol, orderBook);
-			
+
 			returnValue = orderBooks.get(symbol); 
-			
+
 			orderBookThreads.add(newThread); 			
-						
+
 			newThread.start();	
+			debugger.info(
+					new StringBuilder()
+					.append(CLASSNAME)
+					.append(" New OrderBook Thread created=")
+					.append(newThread.getName())
+					.toString());
 			
 			LibraryFunctions.threadStatusCheck(newThread, log);
-			
 		}
 		if (returnValue!=null) {
 			return returnValue;	
@@ -82,5 +90,14 @@ public class OrderBooks implements InterfaceOrderBooks{
 	@Override
 	public Set<Thread> getOrderBookThreads() {
 		return this.orderBookThreads;
+	}
+
+	@Override
+	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> outboundSequenced,
+			PersistenceToFileClient debugger) {
+		this.log = log;
+		this.outboundSequenced = outboundSequenced;
+		this.debugger = debugger;
+		return true;
 	}
 }

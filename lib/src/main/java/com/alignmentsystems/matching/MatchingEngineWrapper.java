@@ -11,23 +11,23 @@ package com.alignmentsystems.matching;
  *****************************************************************************/
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.constants.FailureConditionConstants;
 import com.alignmentsystems.matching.enumerations.Actors;
-import com.alignmentsystems.matching.interfaces.InterfaceInitialise;
+import com.alignmentsystems.matching.interfaces.InterfaceMatchingWrapper;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.library.LibraryFunctions;
 
 import quickfix.Acceptor;
 import quickfix.Initiator;
 
-public class MatchingEngineWrapper implements InterfaceInitialise{
+public class MatchingEngineWrapper implements InterfaceMatchingWrapper{
 	private final String className = this.getClass().getSimpleName();
-	private final int nanoSleep = 200;
+	private final int milliSleep = 200;
 	private List<ApplicationFIXEngine> engines = new ArrayList<ApplicationFIXEngine>();
 
 	private ConcurrentLinkedQueue<InterfaceOrder> sequenced = new ConcurrentLinkedQueue<InterfaceOrder>(); 
@@ -43,21 +43,19 @@ public class MatchingEngineWrapper implements InterfaceInitialise{
 		this.args=args;
 	}
 
-	@Override
-	public boolean Initialise() {
-		log.info("Started....");
 
-		final String logFileLocation = LibraryFunctions.getLogFileLocation();
-		final String fileNameSuffix = LibraryFunctions.getFileNameSuffix();
-		String fileNameToUseForPersistence = null;
+	@Override
+	public boolean initialise() {
+		log.info("Started....");
 		
+		PersistenceToFileClient debugger = new PersistenceToFileClient();
 		try {
-			fileNameToUseForPersistence = LibraryFunctions.getFileNameToUseForPersistence(logFileLocation, fileNameSuffix);
-		} catch (FileNotFoundException e) {
+			debugger.initialise(Actors.MATCHINGENGINE);
+			debugger.info("Working...");
+		} catch (IllegalThreadStateException | FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 		
 		Thread sequencerThread = new Thread(new Sequence(log, sequenced, sequencedPersistence));
 		
@@ -65,14 +63,18 @@ public class MatchingEngineWrapper implements InterfaceInitialise{
 		preProcessor.initialise(sequenced, deduplicatedPersistence);
 		
 		PersistenceToFileServer persistence = new PersistenceToFileServer(); 
-		persistence.initialise(deduplicatedPersistence, fileNameToUseForPersistence, persistence.getClass().getSimpleName(), nanoSleep);
+		try {
+			persistence.initialise(deduplicatedPersistence, Actors.PERSISTENCE, milliSleep);
+		} catch ( IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		MatchingEngine matchingEngine = new MatchingEngine(args , log, sequenced);
+		MatchingEngine matchingEngine = new MatchingEngine();
+		matchingEngine.initialise(args, log, sequenced, debugger);
 
-		InterfaceInitialise intMatchingEngine = (InterfaceInitialise) matchingEngine;
 
-		matchingEngine.Initialise();
-
+		
 		Thread matchingEngineThread = new Thread(matchingEngine);
 		Thread preProcessorThread = new Thread(preProcessor);
 		Thread persistenceThread = new Thread(persistence);
@@ -90,6 +92,8 @@ public class MatchingEngineWrapper implements InterfaceInitialise{
 		preProcessorThread.start();
 		sequencerThread.start();
 
+		
+		
 		ApplicationFIXEngine engineExchange = new ApplicationFIXEngine(sequenced, log, Actors.EXCHANGE);
 		engines.add(engineExchange);
 
@@ -142,5 +146,6 @@ public class MatchingEngineWrapper implements InterfaceInitialise{
 		return true;		
 
 		//If we get to here then the Acceptor and the initiators are started, the code is now executing....		
+
 	}
 }

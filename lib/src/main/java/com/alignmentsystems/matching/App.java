@@ -14,6 +14,6 @@ public class App {
 	
 	public static void main(String[] args) {		
 		MatchingEngineWrapper wrapper = new MatchingEngineWrapper(args);
-		wrapper.Initialise();
+		wrapper.initialise();
 	} 
 }

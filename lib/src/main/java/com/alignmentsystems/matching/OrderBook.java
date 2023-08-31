@@ -30,31 +30,27 @@ import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.matching.library.LibraryFunctions;
 import com.alignmentsystems.matching.library.LibraryOrders;
 
-import quickfix.FieldNotFound;
-
 public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
-	private final static String CLASSNAME = OrderBook.class.getCanonicalName();
+	private final static String CLASSNAME = OrderBook.class.getSimpleName();
 	private Thread orderBookThread = null;
 
 	private PriorityQueue<InterfaceOrder>  buy = new PriorityQueue<InterfaceOrder> (100, Collections.reverseOrder());
 	private PriorityQueue<InterfaceOrder>  sell = new PriorityQueue<InterfaceOrder> (100);
 	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
+	private PersistenceToFileClient debugger = null;
+
 	private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
 	private ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced = null;
 	private AtomicBoolean running = new AtomicBoolean(false);
+	private AtomicBoolean initialised = new AtomicBoolean(false);
 	private String symbol = null;
 	private int buyOrderCount = 0;
 	private int sellOrderCount = 0;
 	private LogEncapsulation log = null;
-	private final int nanoSleep = 200;
+	private final int milliSleep = 200;
 
-
-
-	public OrderBook(String symbol, LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced ) {
-		this.symbol = symbol;
-		this.log = log;
-		this.inboundSequenced = inboundSequenced;
-	}
+	private OffsetDateTime orderBookCreationTime = null;
+	private OffsetDateTime orderBookLastUpdateTime = null;
 
 	/**
 	 * 
@@ -191,15 +187,8 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 				}
 				OffsetDateTime executionTimestamp = OffsetDateTime.now(Constants.HERE);
 
-				String buyClOrdID = null;
-				String sellClOrdID = null;
-				try {
-					buyClOrdID = topOfBuyBook.getClOrdID().getValue().toString();
-					sellClOrdID = topOfSellBook.getClOrdID().getValue().toString();
-				} catch (FieldNotFound e) {
-					log.error(e.getMessage() , e);
-				}
-
+				String buyClOrdID = topOfBuyBook.getClOrdID();
+				String sellClOrdID = topOfSellBook.getClOrdID();
 				String buyOrderID = topOfBuyBook.getOrderId();
 				String sellOrderID = topOfSellBook.getOrderId();
 
@@ -219,9 +208,6 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 						);
 
 				this.matchHappened(match);
-
-
-
 
 			}else if (orderBookState.contains(OrderBookState.BUYSIDE)) {
 				//One sided market (buy orders only), so you cannot match here
@@ -288,33 +274,42 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 
 	@Override
 	public void run() {
-
+		InterfaceOrder inSeq = null;
 		running.set(true);
-
-
+		StringBuilder sb = new StringBuilder();
 		while (running.get()){
-			InterfaceOrder inSeq = inboundSequenced.peek();
+			inSeq = inboundSequenced.poll();
 			if (inSeq!=null) {
-				if(inSeq.getSymbol()==this.symbol) {
-					inSeq = inboundSequenced.poll();
+				sb = new StringBuilder()
+						.append(CLASSNAME)
+						.append(LibraryFunctions.wrapNameSquareBracketsAndSpaces(inSeq.getSymbol()))
+						.append("add to =")
+						.append(inSeq.getOrderBookSide().sideValue)
+						//.append(" OrderId=")
+						//.append(inSeq.getOrderId())
+						.append(" OUT=")
+						.append(inSeq.getOrderUniquenessTuple())						
+						;
 
-					if (inSeq.getOrderBookSide()==OrderBookSide.BUY) {
-						this.buy.add(inSeq);
-						this.buyOrderCount++;
-					}else if (inSeq.getOrderBookSide()==OrderBookSide.SELL) {
-						this.sell.add(inSeq);
-						this.sellOrderCount++;
-					}else {
-						//TODO Error - how do we handle this?
-					}
-					LibraryOrders.snapShotOrderBook(this, log);
-					runMatch();
+				debugger.info(sb.toString());
+				if (inSeq.getOrderBookSide()==OrderBookSide.BUY) {
+					this.buy.add(inSeq);
+					this.buyOrderCount++;
+				}else if (inSeq.getOrderBookSide()==OrderBookSide.SELL) {
+					this.sell.add(inSeq);
+					this.sellOrderCount++;
+				}else {
+					//TODO Error - how do we handle this?
+				}
+				this.orderBookLastUpdateTime = OffsetDateTime.now(Constants.HERE);
+				LibraryOrders.snapShotOrderBook(this, log);
+				runMatch();
 
-				}//Else - this is not an instrument for this OrderBook, so leave the peek'd Object alone...
+
 			}else {
 				try {
 					Thread.currentThread();
-					Thread.sleep(0L , nanoSleep);
+					Thread.sleep(milliSleep);
 
 				}catch(InterruptedException e){
 
@@ -334,12 +329,6 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 		}
 	}
 
-	@Override
-	public Thread setThread(Thread orderBookThread) {
-		this.orderBookThread  = orderBookThread;
-		return this.orderBookThread;
-
-	}
 
 	@Override
 	public Thread getThread() {
@@ -351,5 +340,39 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	public List<String> getOrderBookVisualisation() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+
+	@Override
+	public ConcurrentLinkedQueue<InterfaceOrder> getInboundSequenced() {
+		if(this.initialised.get()) {
+			return this.inboundSequenced;
+		}else {
+			return null;	
+		}
+	}
+
+	@Override
+	public Boolean initialise(String symbol, LogEncapsulation log,
+			ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, Thread orderBookThread , PersistenceToFileClient debugger) {
+		this.orderBookCreationTime = OffsetDateTime.now(Constants.HERE);
+		this.symbol = symbol;
+		this.log = log;
+		this.inboundSequenced = inboundSequenced;
+		this.orderBookThread = orderBookThread;
+		this.orderBookThread.setName(symbol);
+		this.debugger = debugger;
+		this.initialised.set(Boolean.TRUE); 
+		return this.initialised.get();
+	}
+
+	@Override
+	public OffsetDateTime getOrderBookCreationTime() {
+		return this.orderBookCreationTime;
+	}
+
+	@Override
+	public OffsetDateTime getOrderBookLastUpdateTime() {
+		return this.orderBookLastUpdateTime;
 	}
 }	

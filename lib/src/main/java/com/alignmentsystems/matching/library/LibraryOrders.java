@@ -52,23 +52,21 @@ public class LibraryOrders {
 	 * @return NewOrderSingle
 	 */
 	public static NewOrderSingle getOrder(OrderBookSide orderBookSide) {
-		ClOrdID clOrdID = new ClOrdID(UUID.randomUUID().toString());
+		final ClOrdID clOrdID = new ClOrdID(UUID.randomUUID().toString());
 		Side side;
-		Symbol symbol = new Symbol("BADGER.W");
-		OrderQty ordQty = new OrderQty(100d); 
-		Price price = new Price(42d);
+		final Symbol symbol = new Symbol("BADGER.W");
+		final OrderQty ordQty = new OrderQty(100d); 
+		final Price price = new Price(42d);
+		final TransactTime transactTime = new TransactTime(LocalDateTime.now());  
+		final OrdType ordType = new OrdType(OrdType.LIMIT);
+		
 		
 		if (orderBookSide==OrderBookSide.BUY) {
 			side = new Side(Side.BUY); 
 		}else {
 			side = new Side(Side.SELL);
 		}
-		
-		TransactTime transactTime = new TransactTime(LocalDateTime.now());  
-		OrdType ordType = new OrdType(OrdType.LIMIT);
-
-		
-
+				
 		NewOrderSingle nos = new NewOrderSingle(
 				clOrdID, 
 				side, 
@@ -78,6 +76,7 @@ public class LibraryOrders {
 		nos.set(symbol);
 		nos.set(ordQty);
 		nos.set(price);
+		
 
 		return nos;
 
@@ -104,14 +103,14 @@ public class LibraryOrders {
 	public static void snapShotOrderBookBySide(InterfaceOrderBook orderBook, OrderBookSide targetSide, LogEncapsulation log) {
 		String stringCount = null;
 
-		List<InterfaceOrder> buys = orderBook.getOrdersBySide(OrderBookSide.BUY);
+		List<InterfaceOrder> orders = orderBook.getOrdersBySide(targetSide);
 
 		stringCount = Integer.toString(orderBook.getOrderCountBySide(targetSide));
 		if (orderBook.getOrderCountBySide(targetSide) == 0) {
 
 			log.debug( stringCount + Constants.TAB + "No orders for " + targetSide.sideValue);
 		}else {
-			for (InterfaceOrder io : buys) {
+			for (InterfaceOrder io : orders) {
 				log.debug(targetSide.sideValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(stringCount) + io.toString());	
 			}
 		}

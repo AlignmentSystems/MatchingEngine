@@ -11,17 +11,34 @@ package com.alignmentsystems.matching.interfaces;
  *****************************************************************************/
 import java.io.FileNotFoundException;
 
+import com.alignmentsystems.matching.enumerations.Actors;
+import com.alignmentsystems.matching.exceptions.LogMessageIsNull;
+
 /**
  * @author John Greenan john.greenan@alignment-systems.com
  * An interface for a Logger
  */
 public interface InterfacePersistenceClient {
 	/**
-	 * Initialise the logger
+	 * 
+	 * @param actor
+	 * @param tag
+	 * @return
 	 * @throws FileNotFoundException The file to which the logger has been directed cannot be found.
-	 * @throws IllegalThreadStateException There isa thread state issue - this has not been seen in testing
+	 * @throws IllegalThreadStateException There is a thread state issue - this has not been seen in testing
 	 */
-	public void init() throws FileNotFoundException, IllegalThreadStateException;
+	public boolean initialise(Actors actor , String tag) throws FileNotFoundException, IllegalThreadStateException;
+	
+	
+	/**
+	 * 
+	 * @param actor
+	 * @return
+	 * @throws FileNotFoundException The file to which the logger has been directed cannot be found.
+	 * @throws IllegalThreadStateException There is a thread state issue - this has not been seen in testing
+	 */
+	public boolean initialise(Actors actor ) throws FileNotFoundException, IllegalThreadStateException;
+	
 	/**
 	 * Shutdown the logger
 	 */
@@ -31,49 +48,49 @@ public interface InterfacePersistenceClient {
 	 * 
 	 * @return The fullname and path of the file to which the logger writes
 	 */
-	public String getFullPathAndFileNameToUse();
+	public String getFullPathAndFileNameInUse();
 
 	/**
 	 * 
 	 * @param toLog The data to add to the log file
 	 * @return Was this logged?
 	 */
-	public Boolean info(String toLog);
+	public Boolean info(String toLog) throws LogMessageIsNull;
 	/**
 	 * 
 	 * @param toLog The data to add to the log file
 	 * @param methodName The FIX session method that has called the logger
 	 * @return Was this logged?
 	 */
-	public Boolean infoSession(String toLog, String methodName);
+	public Boolean infoSession(String toLog, String methodName) throws LogMessageIsNull;
 	/**
 	 * 
 	 * @param toLog The data to add to the log file
 	 * @param methodName The FIX session method that has called the logger
 	 * @return Was this logged?
 	 */
-	public Boolean debugSession(String toLog, String methodName) ;
+	public Boolean debugSession(String toLog, String methodName) throws LogMessageIsNull;
 	/**
 	 * 
 	 * @param toLog The data to add to the log file
 	 * @param methodName The FIX session method that has called the logger
 	 * @return Was this logged?
 	 */
-	public Boolean errorSession(String toLog, String methodName);
+	public Boolean errorSession(String toLog, String methodName) throws LogMessageIsNull;
 
 	/**
 	 * 
 	 * @param toLog The data to add to the log file
 	 * @return Was this logged?
 	 */
-	public Boolean error(String toLog);
+	public Boolean error(String toLog) throws LogMessageIsNull;
 	/**
 	 * 
 	 * @param toLog The data to add to the log file
 	 * @param e Exception to log
 	 * @return Was this logged?
 	 */
-	public Boolean error(String toLog, Exception e);
+	public Boolean error(String toLog, Exception e) throws LogMessageIsNull;
 	/**
 	 * 
 	 * @param toLog The data to add to the log file
@@ -81,11 +98,11 @@ public interface InterfacePersistenceClient {
 	 * @param e Exception to log
 	 * @return Was this logged?
 	 */
-	public Boolean errorSession(String toLog, String methodName, Exception e);
+	public Boolean errorSession(String toLog, String methodName, Exception e) throws LogMessageIsNull;
 	/**
 	 * 
 	 * @param toLog The data to add to the log file
 	 * @return Was this logged?
 	 */
-	public Boolean debug(String toLog);
+	public Boolean debug(String toLog) throws LogMessageIsNull;
 }

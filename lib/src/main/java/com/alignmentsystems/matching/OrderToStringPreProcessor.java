@@ -1,6 +1,15 @@
 package com.alignmentsystems.matching;
+/******************************************************************************
+ * 
+ *	Author			:	John Greenan 
+ *	Contact			:	sales@alignment-systems.com
+ *	Date            :	31st August 2023
+ *	Copyright       :	Alignment Systems Ltd 2023
+ *	Project			:	Alignment Matching Toy
+ *	Artefact		:	OrderToStringPreProcessor
+ *	Description		:	
+ *****************************************************************************/
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -8,20 +17,22 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.alignmentsystems.matching.constants.Constants;
-import com.alignmentsystems.matching.enumerations.TimestampUsage;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderToStringProcessor;
-import com.alignmentsystems.matching.library.LibraryFunctions;
 
 public class OrderToStringPreProcessor implements Runnable, InterfaceOrderToStringProcessor{
 	private final static String CLASSNAME = OrderToStringPreProcessor.class.getSimpleName().toString();
 	private ConcurrentLinkedQueue<InterfaceOrder> inQueue;
 	private ConcurrentLinkedQueue<String> outQueue;
-	private final int nanoSleep = 200;
+	private final int milliSleep = 200;
+	private final int arrayListSize = 100;
+	private final int initialCapacityHashSet =100;
+	private final float loadFactorHashSet = (float) 0.75;
+
+
 	private AtomicBoolean running = new AtomicBoolean(false);
-	private Long logFileSequenceNumber = 0L;
-	private HashSet<String> seen = new HashSet<String>();
-	private List<InterfaceOrder> deDupedOrders = new ArrayList<InterfaceOrder>();
+	private HashSet<String> seen = new HashSet<String>(initialCapacityHashSet,loadFactorHashSet);
+	private List<InterfaceOrder> deDupedOrders = new ArrayList<InterfaceOrder>(arrayListSize);
 
 	public OrderToStringPreProcessor() {
 		// TODO Auto-generated constructor stub
@@ -35,15 +46,11 @@ public class OrderToStringPreProcessor implements Runnable, InterfaceOrderToStri
 	}
 
 
-
-
-
-
-
 	@Override
 	public void run() {
 		running.set(true);
-
+		String trialString = null;
+		String uniqueNessTuple = null;	
 		while (running.get()){
 
 			InterfaceOrder inSeq = inQueue.poll();
@@ -54,36 +61,33 @@ public class OrderToStringPreProcessor implements Runnable, InterfaceOrderToStri
 				//This is where there are arguably a number of ways to do this
 				//TODO - this needs re-writing to handle FIX message replay and other edge cases.
 				//The message would have to be more closely inspected, this is just a proof-of-concept/toy
-				deDupedOrders.add(inSeq);
-				Boolean wasDuplicate = deDupedOrders.removeIf(e -> !seen.add(e.getOrderId()));
-				if(!wasDuplicate) {
-					outQueue.add(inSeq.toString());
+				trialString = inSeq.toString();
+				uniqueNessTuple = inSeq.getOrderUniquenessTuple();
+				if (seen.add(uniqueNessTuple)){
+					deDupedOrders.add(inSeq);
+					outQueue.add(trialString);
 				}
 
-				try {
-					Thread.currentThread();
-					Thread.sleep(0L , nanoSleep);
-
-				}catch(InterruptedException e){
-
-					running.set(false);
-
-					Thread.currentThread().interrupt();
-
-					System.err.println(e.getMessage());
-
-					System.err.println(new StringBuilder()
-							.append(CLASSNAME)
-							.append(Constants.SPACE)
-							.append(e.getMessage())
-							.toString());			
-				}
 			}
+			try {
+				Thread.currentThread();
+				Thread.sleep(milliSleep);
+
+			}catch(InterruptedException e){
+
+				running.set(false);
+
+				Thread.currentThread().interrupt();
+
+				System.err.println(e.getMessage());
+
+				System.err.println(new StringBuilder()
+						.append(CLASSNAME)
+						.append(Constants.SPACE)
+						.append(e.getMessage())
+						.toString());			
+			}
+
 		}
-
 	}
-
-
-
-
 }

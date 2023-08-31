@@ -10,21 +10,18 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
-import java.time.OffsetDateTime;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.alignmentsystems.matching.constants.Constants;
-import com.alignmentsystems.matching.enumerations.TimestampUsage;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
-import com.alignmentsystems.matching.library.LibraryFunctions;
 
 public class Sequence implements Runnable{
 	private final static String CLASSNAME = Sequence.class.getSimpleName().toString();
 	private ConcurrentLinkedQueue<InterfaceOrder> sequencedIn;
 	private ConcurrentLinkedQueue<InterfaceOrder> sequencedOut;
 	private LogEncapsulation log = null;
-	private final int nanoSleep = 200;
+	private final static int MILLISLEEP = 200;
 	private AtomicBoolean running = new AtomicBoolean(false);
 
 	public Sequence(
@@ -52,7 +49,7 @@ public class Sequence implements Runnable{
 
 				try {
 					Thread.currentThread();
-					Thread.sleep(0L , nanoSleep);
+					Thread.sleep(MILLISLEEP);
 
 				}catch(InterruptedException e){
 
