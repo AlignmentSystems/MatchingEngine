@@ -10,9 +10,11 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
+import java.nio.ByteBuffer;
 import java.time.OffsetDateTime;
 
 import com.alignmentsystems.fix44.field.Side;
+import com.alignmentsystems.matching.annotations.Experimental;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 
@@ -153,6 +155,14 @@ public class Match implements InterfaceMatchTrade {
 
 	@Override
 	public String getSellOrderId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+	@Override
+	public @Experimental ByteBuffer getSBERepresentation() {
 		// TODO Auto-generated method stub
 		return null;
 	}

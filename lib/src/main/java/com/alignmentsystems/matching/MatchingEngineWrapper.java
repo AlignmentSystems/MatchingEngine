@@ -18,9 +18,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.alignmentsystems.matching.constants.FailureConditionConstants;
 import com.alignmentsystems.matching.enumerations.Actors;
+import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchingWrapper;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.library.LibraryFunctions;
+import com.alignmentsystems.matching.udp.MulticastServer;
 
 import quickfix.Acceptor;
 import quickfix.Initiator;
@@ -33,6 +35,8 @@ public class MatchingEngineWrapper implements InterfaceMatchingWrapper{
 	private ConcurrentLinkedQueue<InterfaceOrder> sequenced = new ConcurrentLinkedQueue<InterfaceOrder>(); 
 	private ConcurrentLinkedQueue<InterfaceOrder> sequencedPersistence = new ConcurrentLinkedQueue<InterfaceOrder>(); 
 	private ConcurrentLinkedQueue<String> deduplicatedPersistence = new ConcurrentLinkedQueue<String>(); 
+
+	private ConcurrentLinkedQueue<InterfaceMatchTrade> marketDataQueue = new ConcurrentLinkedQueue<InterfaceMatchTrade>(); 
 
 	
 	private String[] args = null;
@@ -70,6 +74,11 @@ public class MatchingEngineWrapper implements InterfaceMatchingWrapper{
 			e.printStackTrace();
 		}
 		
+		MulticastServer mdOut = new MulticastServer(); 
+		mdOut.initialise(log, marketDataQueue, debugger);
+		
+		Thread mdOutThread = new Thread(mdOut);
+		
 		MatchingEngine matchingEngine = new MatchingEngine();
 		matchingEngine.initialise(args, log, sequenced, debugger);
 
@@ -82,11 +91,13 @@ public class MatchingEngineWrapper implements InterfaceMatchingWrapper{
 		//Set some descriptive thread names to help with debugging...
 		Thread.currentThread().setName(this.className);		
 		
+		mdOutThread.setName(MulticastServer.class.getSimpleName());
 		sequencerThread.setName(Sequence.class.getSimpleName());
 		matchingEngineThread.setName(MatchingEngine.class.getSimpleName());
 		preProcessorThread.setName(OrderToStringPreProcessor.class.getSimpleName());
 		persistenceThread.setName(PersistenceToFileServer.class.getSimpleName());
 
+		mdOutThread.start();
 		matchingEngineThread.start();
 		persistenceThread.start();
 		preProcessorThread.start();
@@ -138,6 +149,7 @@ public class MatchingEngineWrapper implements InterfaceMatchingWrapper{
 		}
 
 		LibraryFunctions.threadStatusCheck(Thread.currentThread(), log);
+		LibraryFunctions.threadStatusCheck(mdOutThread, log);
 		LibraryFunctions.threadStatusCheck(matchingEngineThread, log);
 		LibraryFunctions.threadStatusCheck(sequencerThread, log);
 		LibraryFunctions.threadStatusCheck(preProcessorThread, log);

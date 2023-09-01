@@ -17,7 +17,6 @@ import java.util.List;
 
 import com.alignmentsystems.fix44.ExecutionReport;
 import com.alignmentsystems.fix44.NewOrderSingle;
-import com.alignmentsystems.fix44.field.ClOrdID;
 import com.alignmentsystems.fix44.field.OrderQty;
 import com.alignmentsystems.fix44.field.Price;
 import com.alignmentsystems.matching.annotations.Experimental;
@@ -142,44 +141,6 @@ public class AlignmentOrder implements InterfaceOrder{
 	}
 
 
-	//	Compares this date-time to another date-time.
-	//	The comparison is based on the instant then on the local date-time. It is "consistent with equals", as defined by Comparable.
-	//
-	//	For example, the following is the comparator order:
-	//
-	//	2008-12-03T10:30+01:00
-	//	2008-12-03T11:00+01:00
-	//	2008-12-03T12:00+02:00
-	//	2008-12-03T11:30+01:00
-	//	2008-12-03T12:00+01:00
-	//	2008-12-03T12:30+01:00
-	//	Values #2 and #3 represent the same instant on the time-line. When two values represent the same 
-	//	instant, the local date-time is compared to distinguish them. This step is needed to make the ordering consistent with equals().
-	//	Specified by: compareTo(...) in Comparable
-	//	Parameters:
-	//	other the other date-time to compare to, not null
-	//	Returns:
-	//	the comparator value, negative if less, positive if greater
-	@Override
-	public int compareTo(InterfaceOrder o) {
-		final int lessThan = -1;
-		final int moreThan = 1;
-
-
-		if (this.limitPrice.getValue() == o.getLimitPrice().getValue()) {
-			//limit price is identical, so have to look at the timestamp
-			if(this.ts.compareTo(o.getTimestamp()) > 0) {
-				return moreThan;
-			} else {
-				return lessThan;
-			}
-		}else if(this.limitPrice.getValue() > o.getLimitPrice().getValue()) {
-			return moreThan;
-		}else {
-			//this.limitPrice.getValue() < o.getLimitPrice().getValue()
-			return lessThan;
-		}
-	}
 
 
 	@Override
@@ -230,5 +191,5 @@ public class AlignmentOrder implements InterfaceOrder{
 	@Override
 	public String getTarget() {
 		return this.target;
-	}
+	}	
 }

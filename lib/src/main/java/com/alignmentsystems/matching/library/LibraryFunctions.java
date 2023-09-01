@@ -28,17 +28,14 @@ import java.util.jar.Manifest;
 import org.slf4j.Logger;
 
 import com.alignmentsystems.fix44.MessageFactory;
-import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.App;
 import com.alignmentsystems.matching.ApplicationFIXEngine;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.constants.FailureConditionConstants;
 import com.alignmentsystems.matching.enumerations.Actors;
 import com.alignmentsystems.matching.enumerations.ConfigurationProperties;
-import com.alignmentsystems.matching.enumerations.OrderBookSide;
 import com.alignmentsystems.matching.enumerations.OrderBookState;
 import com.alignmentsystems.matching.enumerations.TimestampUsage;
-import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 
 import quickfix.Acceptor;
 import quickfix.ConfigError;
@@ -244,6 +241,19 @@ public class LibraryFunctions {
 	//	}
 
 
+	public static int getPropertyAsInt(Actors actor, ConfigurationProperties configurationProperties) {
+		String innerValue = getProperty(actor, configurationProperties);
+		int returnValue;
+		
+		
+		try {
+			returnValue = Integer.parseInt(innerValue);
+		} catch (NumberFormatException e) {
+			throw e;
+		}
+		return returnValue;
+
+	}
 
 
 	/**
@@ -252,7 +262,7 @@ public class LibraryFunctions {
 	 * @param configurationProperties The specific property requested
 	 * @return The value of the specific property requested
 	 */
-	protected static String getProperty(Actors actor, ConfigurationProperties configurationProperties) {
+	public static String getProperty(Actors actor, ConfigurationProperties configurationProperties) {
 		String targetProperty = null;
 
 		InputStream inputStream = App.class.getClassLoader().getResourceAsStream(actor.getProperties());
@@ -413,7 +423,7 @@ public class LibraryFunctions {
 			sb.append(Constants.DASH);
 			sb.append(cleanedTag);
 		}
-		
+
 		sb.append(Constants.DASH);
 		sb.append(cleanedFilenameSuffix);		
 

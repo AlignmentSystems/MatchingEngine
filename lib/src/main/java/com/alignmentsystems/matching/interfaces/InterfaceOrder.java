@@ -24,7 +24,7 @@ import com.alignmentsystems.matching.enumerations.OrderBookSide;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 
-public interface InterfaceOrder extends Comparable<InterfaceOrder>{
+public interface InterfaceOrder{
 	public OffsetDateTime getTimestamp();	
 	public NewOrderSingle getNewOrderSingle();
 	public void setNewOrderSingle(NewOrderSingle nos, SessionID sessionId, MessageDirection messageDirection, String orderId, OrderBookSide orderBookSide) throws FieldNotFound;

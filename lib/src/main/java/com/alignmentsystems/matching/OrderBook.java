@@ -25,6 +25,7 @@ import com.alignmentsystems.matching.enumerations.OrderBookSide;
 import com.alignmentsystems.matching.enumerations.OrderBookState;
 import com.alignmentsystems.matching.interfaces.InterfaceAddedOrderToOrderBook;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchEvent;
+import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.matching.library.LibraryFunctions;
@@ -34,8 +35,9 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	private final static String CLASSNAME = OrderBook.class.getSimpleName();
 	private Thread orderBookThread = null;
 
-	private PriorityQueue<InterfaceOrder>  buy = new PriorityQueue<InterfaceOrder> (100, Collections.reverseOrder());
-	private PriorityQueue<InterfaceOrder>  sell = new PriorityQueue<InterfaceOrder> (100);
+	private AlignmentOrderComparator aoc = new AlignmentOrderComparator();
+	private PriorityQueue<InterfaceOrder>  buy = new PriorityQueue<InterfaceOrder> (100, aoc);
+	private PriorityQueue<InterfaceOrder>  sell = new PriorityQueue<InterfaceOrder> (100, aoc);
 	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
 	private PersistenceToFileClient debugger = null;
 
@@ -234,12 +236,7 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 
 	}
 
-	@Override
-	public void matchHappened(Match match) {		
-		for (InterfaceMatchEvent hl : listenersMatchEvent)
-			hl.matchHappened(match);	
-	}
-
+	
 	@Override
 	public void addMatchEventListener(InterfaceMatchEvent toAdd) {
 		this.listenersMatchEvent.add(toAdd);
@@ -301,7 +298,7 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 				}
 				this.orderBookLastUpdateTime = OffsetDateTime.now(Constants.HERE);
 				LibraryOrders.snapShotOrderBook(this, log);
-				runMatch();
+				//runMatch();
 
 
 			}else {
@@ -372,5 +369,12 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	@Override
 	public OffsetDateTime getOrderBookLastUpdateTime() {
 		return this.orderBookLastUpdateTime;
+	}
+
+	@Override
+	public void matchHappened(InterfaceMatchTrade match) {
+		for (InterfaceMatchEvent hl : listenersMatchEvent)
+			hl.matchHappened(match);	
+	
 	}
 }	

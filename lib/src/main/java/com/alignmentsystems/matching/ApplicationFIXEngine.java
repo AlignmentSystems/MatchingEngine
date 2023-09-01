@@ -91,10 +91,10 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 			for(int i = 0; i < 2; i++) {
 				
 				try {
-					nosB = LibraryOrders.getOrder(OrderBookSide.BUY);					
+					nosB = LibraryOrders.getOrder(OrderBookSide.BUY, 42d + (double) i);					
 					Session.sendToTarget(nosB, sessionId);
 					log.info(nosB.toString());
-					nosS = LibraryOrders.getOrder(OrderBookSide.SELL);
+					nosS = LibraryOrders.getOrder(OrderBookSide.SELL, 42d - (double) i);
 					log.info(nosS.toString());
 					Session.sendToTarget(nosS, sessionId);
 

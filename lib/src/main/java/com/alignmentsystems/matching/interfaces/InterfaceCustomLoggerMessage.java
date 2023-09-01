@@ -24,6 +24,6 @@ public interface InterfaceCustomLoggerMessage {
 	public void infoFIXSession(String msg, SessionID sessionId, String methodName, String className, Actors actor);
 	public void errorFIXSession(String msg, SessionID sessionId, String methodName, String className, Actors actor);
 	public void errorFIXSession(String msg, SessionID sessionId, MessageDirection direction, String methodName, String className, Actors actor);
-	public void infoMatchingEvent(OperationEventType operationEventType, Match match);
+	public void infoMatchingEvent(OperationEventType operationEventType, InterfaceMatchTrade match);
 	public void infoOrderBookStatus(List<String> buyList, List<String> sellList);
 }

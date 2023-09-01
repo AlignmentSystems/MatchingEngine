@@ -52,12 +52,12 @@ public class LibraryOrders {
 	 * 
 	 * @return NewOrderSingle
 	 */
-	public static NewOrderSingle getOrder(OrderBookSide orderBookSide) {
+	public static NewOrderSingle getOrder(OrderBookSide orderBookSide, Double priceForOrder) {
 		final ClOrdID clOrdID = new ClOrdID(UUID.randomUUID().toString());
 		Side side;
 		final Symbol symbol = new Symbol("BADGER.W");
 		final OrderQty ordQty = new OrderQty(100d); 
-		final Price price = new Price(42d);
+		final Price price = new Price(priceForOrder);
 		final TransactTime transactTime = new TransactTime(LocalDateTime.now());  
 		final OrdType ordType = new OrdType(OrdType.LIMIT);
 		
@@ -105,19 +105,19 @@ public class LibraryOrders {
 	
 	 */
 	public static List<String> snapShotOrderBookBySide(InterfaceOrderBook orderBook, OrderBookSide targetSide) {
-		String stringCount = null;
+		int bookCount = 0;
 
 		List<String> snapShotOrderBook = new ArrayList<String>();
 		
 		List<InterfaceOrder> orders = orderBook.getOrdersBySide(targetSide);
 
-		stringCount = Integer.toString(orderBook.getOrderCountBySide(targetSide));
-		if (orderBook.getOrderCountBySide(targetSide) == 0) {
+		bookCount = orderBook.getOrderCountBySide(targetSide);
+		if (bookCount == 0) {
 
-			snapShotOrderBook.add( stringCount + Constants.TAB + "No orders for " + targetSide.sideValue);
+			snapShotOrderBook.add(targetSide.sideValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount)) + Constants.TAB + "No orders..." );
 		}else {
 			for (InterfaceOrder io : orders) {
-				snapShotOrderBook.add(targetSide.sideValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(stringCount) + io.toString());	
+				snapShotOrderBook.add(targetSide.sideValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount)) + io.toString());	
 			}
 		}
 		return snapShotOrderBook;

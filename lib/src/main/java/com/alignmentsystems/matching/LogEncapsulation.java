@@ -21,7 +21,9 @@ import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.Actors;
 import com.alignmentsystems.matching.enumerations.MessageDirection;
 import com.alignmentsystems.matching.enumerations.OperationEventType;
+import com.alignmentsystems.matching.enumerations.PersistenceRecordType;
 import com.alignmentsystems.matching.interfaces.InterfaceCustomLoggerMessage;
+import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
 import com.alignmentsystems.matching.library.LibraryFunctions;
 
 import quickfix.SessionID;
@@ -44,6 +46,8 @@ public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 	public void infoOrderBookStatus(List<String> buyList, List<String> sellList) {
 		ListIterator<String> sideIterator = null;
 
+		this.info(Constants.BLOCKER);
+
 		sideIterator = buyList.listIterator();
 
 		while (sideIterator.hasNext()) {
@@ -55,7 +59,7 @@ public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 		while (sideIterator.hasNext()) {
 			this.info(sideIterator.next().toString());
 		}
-
+		this.info(Constants.BLOCKER);
 
 
 	}
@@ -136,7 +140,7 @@ public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 
 
 	@Override
-	public void infoMatchingEvent(OperationEventType operationEventType, Match match) {
+	public void infoMatchingEvent(OperationEventType operationEventType, InterfaceMatchTrade match) {
 		StringBuilder sb = new StringBuilder()
 				.append(LibraryFunctions.wrapNameSquareBrackets(operationEventType.value))
 				.append(Constants.TAB)

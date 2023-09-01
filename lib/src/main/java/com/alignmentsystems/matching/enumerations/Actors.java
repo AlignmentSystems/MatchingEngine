@@ -21,7 +21,8 @@ public enum Actors {
 		B("MemberB" ),
 		EXCHANGE("Exchange" ),
 		PERSISTENCE("Persistence"),
-		MATCHINGENGINE("MatchingEngine");
+		MATCHINGENGINE("MatchingEngine"),
+		MULTICASTSERVER("MulticastServer");
 		
 		public final String targetActor;
 		public String getProperties() {

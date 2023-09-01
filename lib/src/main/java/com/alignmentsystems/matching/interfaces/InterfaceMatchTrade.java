@@ -1,4 +1,5 @@
 package com.alignmentsystems.matching.interfaces;
+import java.nio.ByteBuffer;
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -11,6 +12,7 @@ package com.alignmentsystems.matching.interfaces;
  *****************************************************************************/
 import java.time.OffsetDateTime;
 import com.alignmentsystems.fix44.field.Side;
+import com.alignmentsystems.matching.annotations.Experimental;
 
 public interface InterfaceMatchTrade {
 	public OffsetDateTime getTimestamp();
@@ -23,4 +25,6 @@ public interface InterfaceMatchTrade {
 	public String getSellClOrdId();
 	public String getBuyOrderId();
 	public String getSellOrderId();
+	@Experimental
+	public ByteBuffer getSBERepresentation();
 }

@@ -19,7 +19,9 @@ public enum ConfigurationProperties {
 		PASSWORD("Password"),
 		USERNAME("Username"),
 		LOGFILEDIRECTORY("LogFileDirectory"),
-		LOGFILENAMESUFFIX("LogFileNameSuffix");
+		LOGFILENAMESUFFIX("LogFileNameSuffix"),
+	MULTICASTHOST("Host"),
+	MULTICASTPORT("Port");
 		
 		public final String targetProperty;
 		

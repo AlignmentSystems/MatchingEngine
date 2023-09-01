@@ -13,6 +13,6 @@ package com.alignmentsystems.matching.interfaces;
 import com.alignmentsystems.matching.Match;
 
 public interface InterfaceMatchEvent {
-	public void matchHappened(Match match);
+	public void matchHappened(InterfaceMatchTrade match);
 
 }

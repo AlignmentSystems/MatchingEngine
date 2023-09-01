@@ -27,6 +27,7 @@ import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.OperationEventType;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchEvent;
+import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchingEngine;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
@@ -94,8 +95,21 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 		}
 	}
 
+
+
 	@Override
-	public void matchHappened(Match match) {
+	public boolean initialise(String[] args, LogEncapsulation log,
+			ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, PersistenceToFileClient debugger) {
+		this.log = log;
+		this.inboundSequenced = inboundSequenced;
+		this.debugger = debugger;
+		orderBooks = new OrderBooks();
+		orderBooks.initialise(this.log, this.inboundSequenced, this.debugger);
+		return true;
+	}
+
+	@Override
+	public void matchHappened(InterfaceMatchTrade match) {
 		final String methodName ="matchHappened";
 
 		log.infoMatchingEvent(OperationEventType.MATCHEVENT, match);
@@ -172,15 +186,4 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 		};
 	}
 
-
-	@Override
-	public boolean initialise(String[] args, LogEncapsulation log,
-			ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, PersistenceToFileClient debugger) {
-		this.log = log;
-		this.inboundSequenced = inboundSequenced;
-		this.debugger = debugger;
-		orderBooks = new OrderBooks();
-		orderBooks.initialise(this.log, this.inboundSequenced, this.debugger);
-		return true;
-	}
 }
