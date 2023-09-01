@@ -12,9 +12,10 @@ package com.alignmentsystems.matching;
 
 import java.util.Comparator;
 
+import com.alignmentsystems.matching.enumerations.OrderBookSide;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 
-public class AlignmentOrderComparator implements Comparator<InterfaceOrder>{
+public class AlignmentBuyOrderComparator implements Comparator<InterfaceOrder>{
 	/**
 	 * Compares this date-time to another date-time. The comparison is based on the
 	 * instant then on the local date-time. It is "consistent with equals", as
@@ -32,28 +33,29 @@ public class AlignmentOrderComparator implements Comparator<InterfaceOrder>{
 	 * represent the same instant, the local date-time is compared to distinguish
 	 * them. This step is needed to make the ordering consistent with equals().
 	 * Specified by: compareTo(...) in Comparable Parameters: other the other
-	 * date-time to compare to, not null Returns: the comparator value, negative if
-	 * less, positive if greater
+	 * date-time to compare to, not null 
+	 * Returns: the comparator value, negative if less, positive if greater
 	 */
 	@Override
 	public int compare(InterfaceOrder o1, InterfaceOrder o2) {
 		final int lessThan = -1;
 		final int moreThan = 1;
-		double thisPrice = o1.getLimitPrice().getValue();
-		double thatPrice = o2.getLimitPrice().getValue();
+		final double thisPrice = o1.getLimitPrice().getValue();
+		final double thatPrice = o2.getLimitPrice().getValue();
 
-		if (thisPrice==thatPrice) {
-			//limit price is identical, so have to look at the timestamp
-			if(o1.getTimestamp().compareTo(o2.getTimestamp()) > 0) {
-				return moreThan;
-			} else {
-				return lessThan;
-			}
-		}else if(thisPrice > thatPrice) {
+		
+		if (thisPrice > thatPrice) {
+			return lessThan;
+		}else if(thisPrice < thatPrice) {
 			return moreThan;
 		}else {
-			//this.limitPrice.getValue() < o.getLimitPrice().getValue()
-			return lessThan;
+			//limit price is identical, so have to look at the timestamp
+			//Top of book is the oldest timestamp
+			if(o1.getTimestamp().compareTo(o2.getTimestamp()) < 0) {
+				return lessThan;
+			} else {
+				return moreThan;
+			}
 		}
 	}
 }

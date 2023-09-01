@@ -88,40 +88,9 @@ public class LibraryOrders {
 	 * @param orderBook
 	 * @param log
 	 */
-	public static void snapShotOrderBook(InterfaceOrderBook orderBook, LogEncapsulation log) {
-				
-		List<String> buy =  snapShotOrderBookBySide(orderBook, OrderBookSide.BUY); 
-		List<String> sell = snapShotOrderBookBySide(orderBook, OrderBookSide.SELL);
-		
-		log.infoOrderBookStatus(buy , sell);
-	}
-
-
-
-	/**
-	 * 
-	 * @param orderBook
-	 * @param targetSide
 	
-	 */
-	public static List<String> snapShotOrderBookBySide(InterfaceOrderBook orderBook, OrderBookSide targetSide) {
-		int bookCount = 0;
 
-		List<String> snapShotOrderBook = new ArrayList<String>();
-		
-		List<InterfaceOrder> orders = orderBook.getOrdersBySide(targetSide);
 
-		bookCount = orderBook.getOrderCountBySide(targetSide);
-		if (bookCount == 0) {
 
-			snapShotOrderBook.add(targetSide.sideValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount)) + Constants.TAB + "No orders..." );
-		}else {
-			for (InterfaceOrder io : orders) {
-				snapShotOrderBook.add(targetSide.sideValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount)) + io.toString());	
-			}
-		}
-		return snapShotOrderBook;
-		
-		
-	}
+
 }

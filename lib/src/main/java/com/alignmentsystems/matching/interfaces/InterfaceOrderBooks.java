@@ -20,5 +20,6 @@ import com.alignmentsystems.matching.exceptions.OrderBookNotFound;
 public interface InterfaceOrderBooks {
 	public InterfaceOrderBook getOrderBookForSymbol(String symbol) throws OrderBookNotFound;	
 	public Set<Thread> getOrderBookThreads();
-	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> outboundSequenced, PersistenceToFileClient debugger);
+	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> outboundSequenced, PersistenceToFileClient debugger, InterfaceMatchEvent toAdd);
+	public void addMatchEventListener(InterfaceMatchEvent toAdd);
 }

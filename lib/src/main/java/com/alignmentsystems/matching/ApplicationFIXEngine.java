@@ -295,4 +295,30 @@ public class ApplicationFIXEngine extends MessageCracker implements quickfix.App
 			log.errorFIXSession(sb.toString(), sessionID, MessageDirection.RECEIVED, METHODNAME, message.getClass().getSimpleName(), actor);
 		}
 	}
+	
+	/**
+	 * 
+	 * @see <a href="https://www.quickfixj.org/usermanual/2.3.0/usage/receiving_messages.html">QuickFIX</a> 
+	 * @param message fix44.ExecutionReport that is to be processed... 
+	 * @param sessionID The FIX session on which the message was received
+	 * @throws FieldNotFound Should not happen...
+	 * @throws UnsupportedMessageType Should not happen...
+	 * @throws IncorrectTagValue Should not happen...
+	 */
+	public void onMessage(com.alignmentsystems.fix44.ExecutionReport message, SessionID sessionID) 			  
+			throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
+		final String METHODNAME = "onMessage".intern();
+		
+				
+		StringBuilder sb = new StringBuilder()				
+				.append(" Execution Report=(")
+				.append(" ExecID=(")
+				.append(message.getExecID())
+				.append(") SessionID=(")
+				.append(sessionID.toString())
+				.append(")") 
+				;
+		log.infoFIXSession(sb.toString(), sessionID, MessageDirection.RECEIVED, METHODNAME, message.getClass().getSimpleName(), actor);
+		
+	}
 }

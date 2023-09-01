@@ -148,18 +148,15 @@ public class Match implements InterfaceMatchTrade {
 	@Override
 	public String getBuyOrderId() {
 		// TODO Auto-generated method stub
-		return null;
+		return this.buyOrderId;
 	}
-
 
 
 	@Override
 	public String getSellOrderId() {
 		// TODO Auto-generated method stub
-		return null;
+		return this.sellOrderId;
 	}
-
-
 
 	@Override
 	public @Experimental ByteBuffer getSBERepresentation() {

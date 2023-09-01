@@ -14,7 +14,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.alignmentsystems.matching.LogEncapsulation;
 import com.alignmentsystems.matching.PersistenceToFileClient;
+import com.alignmentsystems.matching.udp.MulticastServer;
 
 public interface InterfaceMatchingEngine {
-	public boolean initialise(String[] args, LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, PersistenceToFileClient debugger);
+	public boolean initialise(
+			String[] args
+			, LogEncapsulation log
+			, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced
+			, PersistenceToFileClient debugger
+			, MulticastServer mdOut);
 }

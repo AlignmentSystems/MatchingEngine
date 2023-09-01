@@ -12,7 +12,6 @@ package com.alignmentsystems.matching;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -22,55 +21,80 @@ import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.annotations.NotYetImplemented;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.OrderBookSide;
-import com.alignmentsystems.matching.enumerations.OrderBookState;
 import com.alignmentsystems.matching.interfaces.InterfaceAddedOrderToOrderBook;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.matching.library.LibraryFunctions;
-import com.alignmentsystems.matching.library.LibraryOrders;
 
 public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
 	private final static String CLASSNAME = OrderBook.class.getSimpleName();
 	private Thread orderBookThread = null;
 
-	private AlignmentOrderComparator aoc = new AlignmentOrderComparator();
-	private PriorityQueue<InterfaceOrder>  buy = new PriorityQueue<InterfaceOrder> (100, aoc);
-	private PriorityQueue<InterfaceOrder>  sell = new PriorityQueue<InterfaceOrder> (100, aoc);
+	private AlignmentBuyOrderComparator aboc = new AlignmentBuyOrderComparator();
+	private AlignmentSellOrderComparator asoc = new AlignmentSellOrderComparator();
+	private PriorityQueue<InterfaceOrder>  buy = new PriorityQueue<InterfaceOrder> (100, aboc);
+	private PriorityQueue<InterfaceOrder>  sell = new PriorityQueue<InterfaceOrder> (100,asoc); 
+
 	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
 	private PersistenceToFileClient debugger = null;
+
+
 
 	private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
 	private ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced = null;
 	private AtomicBoolean running = new AtomicBoolean(false);
 	private AtomicBoolean initialised = new AtomicBoolean(false);
 	private String symbol = null;
-	private int buyOrderCount = 0;
-	private int sellOrderCount = 0;
 	private LogEncapsulation log = null;
 	private final int milliSleep = 200;
 
 	private OffsetDateTime orderBookCreationTime = null;
 	private OffsetDateTime orderBookLastUpdateTime = null;
 
-	/**
-	 * 
-	 * @param orderBookSide
-	 * @return List of orders sorted from top of book down in price & time priority order.
-	 */
-	private List<InterfaceOrder> getTheseSortedOrders(OrderBookSide orderBookSide){
-		List<InterfaceOrder> list = null; 
 
-		if (orderBookSide==OrderBookSide.BUY) {
-			list = new ArrayList<>( buy );	
-		}else {
-			list = new ArrayList<>( sell );
-		}
+	private Boolean innerInitialise(String symbol, LogEncapsulation log,
+			ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, Thread orderBookThread , PersistenceToFileClient debugger) {
+		Boolean returnValue = Boolean.FALSE;
+		this.orderBookCreationTime = OffsetDateTime.now(Constants.HERE);
+		this.symbol = symbol;
+		this.log = log;
+		this.inboundSequenced = inboundSequenced;
+		this.orderBookThread = orderBookThread;
+		this.orderBookThread.setName(symbol);
+		this.debugger = debugger;
+		returnValue =Boolean.TRUE;
+		return returnValue ; 
+	}
 
-		list.sort(null);
-		return list;
-	} 
+	@Override
+	public Boolean initialise(String symbol, LogEncapsulation log,
+			ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, Thread orderBookThread , PersistenceToFileClient debugger) {
+
+		Boolean returnValue = innerInitialise(symbol, log, inboundSequenced, orderBookThread, debugger);
+
+		this.initialised.set(returnValue); 
+
+		return this.initialised.get();
+	}
+
+	@Override
+	public Boolean initialise(String symbol, LogEncapsulation log,
+			ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, Thread orderBookThread,
+			PersistenceToFileClient debugger, InterfaceMatchEvent toAdd) {
+		
+		Boolean returnValue = innerInitialise(symbol, log, inboundSequenced, orderBookThread, debugger);
+
+		this.addMatchEventListener(toAdd);
+
+		this.initialised.set(returnValue); 
+
+		return this.initialised.get();	}
+
+
+
+
 
 	@Override
 	public String getThisOrderBookSymbol() {
@@ -85,14 +109,8 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 
 		if(orderBookSide==OrderBookSide.BUY) {
 			returnValue = buy.add(nos);
-			if (returnValue) {
-				buyOrderCount++;
-			}
 		}else if(orderBookSide==OrderBookSide.SELL) {
 			returnValue = sell.add(nos);
-			if (returnValue) {
-				sellOrderCount++;
-			}
 		}else {
 			returnValue = Boolean.FALSE;
 		}
@@ -119,103 +137,135 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 		return false;
 	}
 
+	private void snapShotOrderBook() {
+		List<String> buy =  snapShotOrderBookBySide(OrderBookSide.BUY); 
+		List<String> sell = snapShotOrderBookBySide(OrderBookSide.SELL);
+		log.infoOrderBookStatus(buy , sell);
+	}
 
+
+
+	/**
+	 * 
+	 * @param orderBook
+	 * @param targetSide
+	 */
+	public List<String> snapShotOrderBookBySide(OrderBookSide targetSide) {
+		int bookCount = 0;
+
+		List<String> snapShotOrderBook = new ArrayList<String>();
+
+		List<InterfaceOrder> orders = getOrdersBySide(targetSide);
+
+		bookCount = getOrderCountBySide(targetSide);
+		if (bookCount == 0) {
+
+			snapShotOrderBook.add(targetSide.sideValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount)) + Constants.TAB + "No orders..." );
+		}else {
+			for (InterfaceOrder io : orders) {
+				snapShotOrderBook.add(targetSide.sideValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount)) + io.toString());	
+			}
+		}
+		return snapShotOrderBook;
+
+
+	}
 
 	private void runMatch() {
 
-		InterfaceOrder topOfBuyBook = buy.poll();
-		InterfaceOrder topOfSellBook = sell.poll();
+		InterfaceOrder topOfBuyBook = buy.peek();
+		InterfaceOrder topOfSellBook = sell.peek();
 
-		OrderBookState  orderBookState = OrderBookState.EMPTY;
 
-		if(topOfBuyBook!=null) {
-			orderBookState = LibraryFunctions.updateOrderBookState(orderBookState, OrderBookState.BUYSIDE);
+		if(topOfBuyBook==null) {
+			//null for buy-side, so just exit this function
+			return;
+		}
+		if(topOfSellBook==null) {
+			//null for sell-side, so just exit this function
+			return;
 		}
 
-		if(topOfSellBook!=null) {
-			orderBookState = LibraryFunctions.updateOrderBookState(orderBookState, OrderBookState.SELLSIDE);
-		}
 
-		Double topOfBuyBookPrice = 0d;
-		Double topOfSellBookPrice = 0d;
-
-		if(orderBookState.contains(OrderBookState.TWOSIDED)){
-			topOfBuyBookPrice = topOfBuyBook.getLimitPrice().getValue();
-			topOfSellBookPrice = topOfSellBook.getLimitPrice().getValue();
-			Double tradedQuantity = 0d;
-			Double tradedPrice = 0d;
-			//If buy top of book price is greater than or equal to the sell top of book then we have got a buyer
-			//who has crossed the spread.  So we have a trade, yay!
-			if (topOfBuyBookPrice>=topOfSellBookPrice) {
+		final Double topOfBuyBookPrice = topOfBuyBook.getLimitPrice().getValue();
+		final Double topOfSellBookPrice = topOfSellBook.getLimitPrice().getValue();
+		Double tradedQuantity = 0d;
+		Double tradedPrice = 0d;
+		//If buy top of book price is greater than or equal to the sell top of book then we have got a buyer
+		//who has crossed the spread.  So we have a trade, yay!
+		if (topOfBuyBookPrice>=topOfSellBookPrice) {
 
 
-				//The minimum of sell order quantity and buy order quantity can trade.
-				//Note - this is not correct, since you have to walk down the levels of depth
-				//and execute each price until the order that crossed the spread is full or no longer able to trade as the next]
-				//price level would not match
-				
-				//Here is a question, who is the aggressor?
-				//Why do we need to know this? So you can work out who gets to trade at their preferred price...
-				OffsetDateTime topOfBuyBookTimestamp = topOfBuyBook.getTimestamp();
-				OffsetDateTime topOfSellBookTimestamp = topOfSellBook.getTimestamp();
-				Side aggressor = null;
+			//The minimum of sell order quantity and buy order quantity can trade.
+			//Note - this is not correct, since you have to walk down the levels of depth
+			//and execute each price until the order that crossed the spread is full or no longer able to trade as the next]
+			//price level would not match
+
+			//Here is a question, who is the aggressor?
+			//Why do we need to know this? So you can work out who gets to trade at their preferred price...
+			final OffsetDateTime topOfBuyBookTimestamp = topOfBuyBook.getTimestamp();
+			final OffsetDateTime topOfSellBookTimestamp = topOfSellBook.getTimestamp();
+			Side aggressor = null;
 
 
-				if (topOfBuyBookTimestamp.compareTo(topOfSellBookTimestamp)<0) {
-					//Returns: the comparator value, negative if less, positive if greater
-					//Therefore topOfBuyBookTimestamp is less than topOfSellBookTimestamp
-					//So topOfBuyBookTimestamp came first and is therefore NOT the aggressor
-					aggressor = new Side(Side.SELL);
-				}else {
-					aggressor = new Side(Side.BUY);
-				}
-
-				Double topOfBuyBookQty = topOfBuyBook.getOrderQty().getValue();
-				Double topOfSellBookQty = topOfBuyBook.getOrderQty().getValue();
-
-				tradedQuantity = Math.min(topOfBuyBookQty, topOfSellBookQty);
-
-
-
-				switch(aggressor.getValue()) {
-				case Side.SELL:
-					tradedPrice  = Math.max(topOfBuyBookPrice, topOfSellBookPrice);
-					break;
-				case Side.BUY:
-					tradedPrice  = Math.min(topOfBuyBookPrice, topOfSellBookPrice);
-					break;
-				}
-				OffsetDateTime executionTimestamp = OffsetDateTime.now(Constants.HERE);
-
-				String buyClOrdID = topOfBuyBook.getClOrdID();
-				String sellClOrdID = topOfSellBook.getClOrdID();
-				String buyOrderID = topOfBuyBook.getOrderId();
-				String sellOrderID = topOfSellBook.getOrderId();
-
-
-
-				Match match = new Match(
-						tradedQuantity
-						, tradedPrice
-						, topOfBuyBook
-						, topOfSellBook
-						, aggressor
-						, executionTimestamp
-						, buyClOrdID
-						, sellClOrdID
-						, buyOrderID
-						, sellOrderID
-						);
-
-				this.matchHappened(match);
-
-			}else if (orderBookState.contains(OrderBookState.BUYSIDE)) {
-				//One sided market (buy orders only), so you cannot match here
-				log.info(orderBookState.getStateString());
-			}else if (orderBookState.contains(OrderBookState.SELLSIDE)) {
-				//One sided market (sell orders only), so you cannot match here
-				log.info(orderBookState.getStateString());
+			if (topOfBuyBookTimestamp.compareTo(topOfSellBookTimestamp)<0) {
+				//Returns: the comparator value, negative if less, positive if greater
+				//Therefore topOfBuyBookTimestamp is less than topOfSellBookTimestamp
+				//So topOfBuyBookTimestamp came first and is therefore NOT the aggressor
+				aggressor = new Side(Side.SELL);
+			}else {
+				aggressor = new Side(Side.BUY);
 			}
+
+			Double topOfBuyBookQty = topOfBuyBook.getOrderQty().getValue();
+			Double topOfSellBookQty = topOfBuyBook.getOrderQty().getValue();
+
+			tradedQuantity = Math.min(topOfBuyBookQty, topOfSellBookQty);
+
+
+
+			switch(aggressor.getValue()) {
+			case Side.SELL:
+				tradedPrice  = Math.max(topOfBuyBookPrice, topOfSellBookPrice);
+				break;
+			case Side.BUY:
+				tradedPrice  = Math.min(topOfBuyBookPrice, topOfSellBookPrice);
+				break;
+			}
+			OffsetDateTime executionTimestamp = OffsetDateTime.now(Constants.HERE);
+
+			String buyClOrdID = topOfBuyBook.getClOrdID();
+			String sellClOrdID = topOfSellBook.getClOrdID();
+			String buyOrderID = topOfBuyBook.getOrderId();
+			String sellOrderID = topOfSellBook.getOrderId();
+
+
+
+			Match match = new Match(
+					tradedQuantity
+					, tradedPrice
+					, topOfBuyBook
+					, topOfSellBook
+					, aggressor
+					, executionTimestamp
+					, buyClOrdID
+					, sellClOrdID
+					, buyOrderID
+					, sellOrderID
+					);
+
+			buy.remove(topOfBuyBook);
+			sell.remove(topOfSellBook);
+
+			this.matchHappened(match);
+
+			//			}else if (orderBookState.contains(OrderBookState.BUYSIDE)) {
+			//				//One sided market (buy orders only), so you cannot match here
+			//				log.info(orderBookState.getStateString());
+			//			}else if (orderBookState.contains(OrderBookState.SELLSIDE)) {
+			//				//One sided market (sell orders only), so you cannot match here
+			//				log.info(orderBookState.getStateString());
+			//			}
 		}else {
 			//topOfBuyBookPrice < topOfSellBookPrice
 			//therefore no trade possible...
@@ -236,7 +286,7 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 
 	}
 
-	
+
 	@Override
 	public void addMatchEventListener(InterfaceMatchEvent toAdd) {
 		this.listenersMatchEvent.add(toAdd);
@@ -255,50 +305,72 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 
 	@Override
 	public List<InterfaceOrder> getOrdersBySide(OrderBookSide orderBookSide) {
-		return getTheseSortedOrders(orderBookSide);
+		List<InterfaceOrder> list = null; 
+
+		if (orderBookSide==OrderBookSide.BUY) {
+			if (buy.size()==1) {
+				list = new ArrayList<>( buy );
+			}else {
+				list = new ArrayList<>( buy );
+				list.sort(aboc);
+			}
+		}else {
+			if (sell.size()==1) {
+				list = new ArrayList<>( sell );
+			}else {
+				list = new ArrayList<>( sell );
+				list.sort(asoc);
+			}
+		}
+
+
+		return list;
 	}
 
 	@Override
 	public int getOrderCountBySide(OrderBookSide orderBookSide) {
 		if (orderBookSide == OrderBookSide.BUY) {
-			return this.buyOrderCount;	
+			return buy.size();	
 		}else {
-			return this.sellOrderCount;
+			return sell.size();
 		}
 	}
 
 	@Override
 	public void run() {
-		InterfaceOrder inSeq = null;
+
 		running.set(true);
+		InterfaceOrder inSeq = null;
 		StringBuilder sb = new StringBuilder();
+
 		while (running.get()){
 			inSeq = inboundSequenced.poll();
 			if (inSeq!=null) {
 				sb = new StringBuilder()
 						.append(CLASSNAME)
 						.append(LibraryFunctions.wrapNameSquareBracketsAndSpaces(inSeq.getSymbol()))
-						.append("add to =")
+						.append(" add to =")
 						.append(inSeq.getOrderBookSide().sideValue)
 						//.append(" OrderId=")
 						//.append(inSeq.getOrderId())
-						.append(" OUT=")
-						.append(inSeq.getOrderUniquenessTuple())						
+						.append(" OUT=(")
+						.append(inSeq.getOrderUniquenessTuple())
+						.append(")")
 						;
 
 				debugger.info(sb.toString());
 				if (inSeq.getOrderBookSide()==OrderBookSide.BUY) {
 					this.buy.add(inSeq);
-					this.buyOrderCount++;
+
 				}else if (inSeq.getOrderBookSide()==OrderBookSide.SELL) {
 					this.sell.add(inSeq);
-					this.sellOrderCount++;
+
 				}else {
 					//TODO Error - how do we handle this?
 				}
 				this.orderBookLastUpdateTime = OffsetDateTime.now(Constants.HERE);
-				LibraryOrders.snapShotOrderBook(this, log);
-				//runMatch();
+				//this.snapShotOrderBook();
+				this.runMatch();
 
 
 			}else {
@@ -347,19 +419,7 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 		}
 	}
 
-	@Override
-	public Boolean initialise(String symbol, LogEncapsulation log,
-			ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, Thread orderBookThread , PersistenceToFileClient debugger) {
-		this.orderBookCreationTime = OffsetDateTime.now(Constants.HERE);
-		this.symbol = symbol;
-		this.log = log;
-		this.inboundSequenced = inboundSequenced;
-		this.orderBookThread = orderBookThread;
-		this.orderBookThread.setName(symbol);
-		this.debugger = debugger;
-		this.initialised.set(Boolean.TRUE); 
-		return this.initialised.get();
-	}
+
 
 	@Override
 	public OffsetDateTime getOrderBookCreationTime() {
@@ -375,6 +435,8 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	public void matchHappened(InterfaceMatchTrade match) {
 		for (InterfaceMatchEvent hl : listenersMatchEvent)
 			hl.matchHappened(match);	
-	
 	}
+
+
+
 }	

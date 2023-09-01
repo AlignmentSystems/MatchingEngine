@@ -20,6 +20,7 @@ import com.alignmentsystems.matching.enumerations.OrderBookSide;
 
 public interface InterfaceOrderBook {
 	public Boolean initialise(String symbol, LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, Thread orderBookThread, PersistenceToFileClient debugger);
+	public Boolean initialise(String symbol, LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, Thread orderBookThread, PersistenceToFileClient debugger, InterfaceMatchEvent toAdd);
 	public ConcurrentLinkedQueue<InterfaceOrder> getInboundSequenced();
 	public List<InterfaceOrder> getOrdersBySide(OrderBookSide orderBookSide );
 	public List<String> getOrderBookVisualisation();

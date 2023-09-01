@@ -52,31 +52,31 @@ public class AlignmentOrder implements InterfaceOrder{
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("AlignmentOrder [target=");
-		builder.append(this.target);
-		builder.append(", sender=");
-		builder.append(this.sender);
+		StringBuilder builder = new StringBuilder()
+		.append("AlignmentOrder [limitPrice=")
+		.append(this.limitPrice)
+		.append(", ts=")
+		.append(this.ts)
+		.append(", target=")
+		.append(this.target)
+		.append(", sender=")
+		.append(this.sender)
+		.append(", OrderID=")
+		.append(this.orderId)
+		
+		.append(", ClOrdID=")
+		.append(this.clOrdId)
 
-		builder.append(", OrderID=");
-		builder.append(this.orderId);
-
-		builder.append(", ClOrdID=");
-		builder.append(this.clOrdId);
-
-		builder.append(", symbol=");
-		builder.append(this.symbol);
-		builder.append(", side=");
-		builder.append(this.orderBookSide.sideValue);
-		builder.append(", orderQty=");
-		builder.append(this.orderQty);
-		builder.append(", limitPrice=");
-		builder.append(this.limitPrice);
-		builder.append(", sessionId=");
-		builder.append(this.sessionId);
-		builder.append(", ts=");
-		builder.append(this.ts);
-		builder.append("]");
+		.append(", symbol=")
+		.append(this.symbol)
+		.append(", side=")
+		.append(this.orderBookSide.sideValue)
+		.append(", orderQty=")
+		.append(this.orderQty)
+		.append(", sessionId=")
+		.append(this.sessionId)
+		.append("]")
+		;
 		return builder.toString();
 	}
 

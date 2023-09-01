@@ -80,7 +80,7 @@ public class MatchingEngineWrapper implements InterfaceMatchingWrapper{
 		Thread mdOutThread = new Thread(mdOut);
 		
 		MatchingEngine matchingEngine = new MatchingEngine();
-		matchingEngine.initialise(args, log, sequenced, debugger);
+		matchingEngine.initialise(args, log, sequenced, debugger, mdOut);
 
 
 		

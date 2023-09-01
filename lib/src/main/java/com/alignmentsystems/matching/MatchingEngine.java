@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.alignmentsystems.fix44.ExecutionReport;
 import com.alignmentsystems.fix44.NewOrderSingle;
 import com.alignmentsystems.fix44.field.AvgPx;
+import com.alignmentsystems.fix44.field.ClOrdID;
 import com.alignmentsystems.fix44.field.CumQty;
 import com.alignmentsystems.fix44.field.ExecID;
 import com.alignmentsystems.fix44.field.ExecType;
@@ -31,6 +32,7 @@ import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchingEngine;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
+import com.alignmentsystems.matching.udp.MulticastServer;
 
 import quickfix.FieldNotFound;
 import quickfix.Session;
@@ -48,7 +50,8 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 	private static final int milliSleep = 200;
 	private AtomicBoolean running = new AtomicBoolean(false);
 	private PersistenceToFileClient debugger = null;
-
+private MulticastServer mdOut = null;
+private ConcurrentLinkedQueue<InterfaceMatchTrade> marketDataToPublishQueue = null;
 
 	@Override
 	public void run() {
@@ -99,12 +102,14 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 
 	@Override
 	public boolean initialise(String[] args, LogEncapsulation log,
-			ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, PersistenceToFileClient debugger) {
+			ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, PersistenceToFileClient debugger,  MulticastServer mdOut) {
 		this.log = log;
 		this.inboundSequenced = inboundSequenced;
 		this.debugger = debugger;
 		orderBooks = new OrderBooks();
-		orderBooks.initialise(this.log, this.inboundSequenced, this.debugger);
+		orderBooks.initialise(this.log, this.inboundSequenced, this.debugger, this);
+		this.mdOut = mdOut;
+		this.marketDataToPublishQueue = mdOut.getMarketDataQueue();
 		return true;
 	}
 
@@ -114,7 +119,6 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 
 		log.infoMatchingEvent(OperationEventType.MATCHEVENT, match);
 
-
 		NewOrderSingle buy = match.getBuyOrder().getNewOrderSingle();
 		NewOrderSingle sell = match.getSellOrder().getNewOrderSingle();
 		SessionID buySession  = match.getBuyOrder().getSessionId();
@@ -122,60 +126,92 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 		Double executionQuantity = match.getMatchQuantity();
 
 
-		OrderID orderId = null;
-
-		ExecID execID = new ExecID(UUID.randomUUID().toString());
-
-		ExecType b_execType; 
-		OrdStatus b_ordStatus; 
-		Double b_orderQty = null; 
-
-		try {
-			b_orderQty = buy.getOrderQty().getValue();
-		} catch (FieldNotFound e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-
-
-		if (executionQuantity.compareTo(b_orderQty)==0) {
-			//int java.lang.Double.compareTo(Double anotherDouble)
-			//the value 0 if anotherDouble is numerically equal to this Double; 
-			//a value less than 0 if this Double is numerically less than anotherDouble; 
-			//and a value greater than 0 if this Double is numerically greater than anotherDouble.
-			//Therefore, if this is equal to zero then the execution quantity is equal to the order quantity
-			b_execType = new ExecType(ExecType.FILL); 
-			b_ordStatus = new OrdStatus(OrdStatus.FILLED); 
-
-		}
-
-
+		OrderID b_orderId = new OrderID(match.getBuyOrderId());
+		ClOrdID b_ClOrdId = null;
+		ExecID b_execID = new ExecID(UUID.randomUUID().toString());
 		CumQty b_cumQty = new CumQty(match.getMatchQuantity());
 		AvgPx b_avgPx = new AvgPx(match.getMatchPrice());
 		Side b_side = new Side(Side.BUY);
 
+		ExecType b_execType = null; 
+		OrdStatus b_ordStatus = null; 
+		Double b_orderQty = null;
+		LeavesQty b_leavesQty =  null;
+
 		try {
-
-			LeavesQty leavesQty = new LeavesQty(buy.getOrderQty().getValue() - b_cumQty.getValue());	
-			//String uuidBuy = UUID.randomUUID().toString()
-			//public ExecutionReport(com.alignmentsystems.fix44.field.OrderID orderID, com.alignmentsystems.fix44.field.ExecID execID, com.alignmentsystems.fix44.field.ExecType execType, com.alignmentsystems.fix44.field.OrdStatus ordStatus, com.alignmentsystems.fix44.field.Side side, com.alignmentsystems.fix44.field.LeavesQty leavesQty, com.alignmentsystems.fix44.field.CumQty cumQty, com.alignmentsystems.fix44.field.AvgPx avgPx) {
-
-
-			//orderId = buy.getField(orderId.getField());		
-			//execType = null; 
-
+			b_orderQty = buy.getOrderQty().getValue();
+			b_leavesQty = new LeavesQty(buy.getOrderQty().getValue() - b_cumQty.getValue());	
 		} catch (FieldNotFound e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		//(com.alignmentsystems.fix44.field.OrderID orderID, com.alignmentsystems.fix44.field.ExecID execID, com.alignmentsystems.fix44.field.ExecType execType, com.alignmentsystems.fix44.field.OrdStatus ordStatus, com.alignmentsystems.fix44.field.Side side, com.alignmentsystems.fix44.field.LeavesQty leavesQty, com.alignmentsystems.fix44.field.CumQty cumQty, com.alignmentsystems.fix44.field.AvgPx avgPx) {
+		//int java.lang.Double.compareTo(Double anotherDouble)
+		//the value 0 if anotherDouble is numerically equal to this Double; 
+		//a value less than 0 if this Double is numerically less than anotherDouble; 
+		//and a value greater than 0 if this Double is numerically greater than anotherDouble.
+		//Therefore, if this is equal to zero then the execution quantity is equal to the order quantity
 
+		if (executionQuantity.compareTo(b_orderQty)==0) {
+			b_execType = new ExecType(ExecType.FILL); 
+			b_ordStatus = new OrdStatus(OrdStatus.FILLED); 
+		}
 
+		ExecutionReport buyExecRpt = new ExecutionReport(
+				b_orderId
+				, b_execID
+				, b_execType
+				, b_ordStatus
+				, b_side 
+				, b_leavesQty
+				, b_cumQty
+				, b_avgPx)
+				;
+		
+//TODO - clean up the above
+//Repeat the same code with s_ instead of b_ 
+		OrderID s_orderId = new OrderID(match.getSellOrderId());
+		ClOrdID s_ClOrdId = null;
+		ExecID s_execID = new ExecID(UUID.randomUUID().toString());
+		CumQty s_cumQty = new CumQty(match.getMatchQuantity());
+		AvgPx s_avgPx = new AvgPx(match.getMatchPrice());
+		Side s_side = new Side(Side.SELL);
 
-		ExecutionReport buyExecRpt = new ExecutionReport();
-		ExecutionReport sellExecRpt = new ExecutionReport();
+		ExecType s_execType = null; 
+		OrdStatus s_ordStatus = null; 
+		Double s_orderQty = null;
+		LeavesQty s_leavesQty =  null;
+
+		try {
+			s_orderQty = sell.getOrderQty().getValue();
+			s_leavesQty = new LeavesQty(sell.getOrderQty().getValue() - s_cumQty.getValue());	
+		} catch (FieldNotFound e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		//int java.lang.Double.compareTo(Double anotherDouble)
+		//the value 0 if anotherDouble is numerically equal to this Double; 
+		//a value less than 0 if this Double is numerically less than anotherDouble; 
+		//and a value greater than 0 if this Double is numerically greater than anotherDouble.
+		//Therefore, if this is equal to zero then the execution quantity is equal to the order quantity
+
+		if (executionQuantity.compareTo(s_orderQty)==0) {
+			s_execType = new ExecType(ExecType.FILL); 
+			s_ordStatus = new OrdStatus(OrdStatus.FILLED); 
+		}
+
+		ExecutionReport sellExecRpt = new ExecutionReport(
+				s_orderId
+				, s_execID
+				, s_execType
+				, s_ordStatus
+				, s_side 
+				, s_leavesQty
+				, s_cumQty
+				, s_avgPx)
+				;
+				
 
 
 		try {
@@ -184,6 +220,6 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 		} catch (SessionNotFound e) {
 			log.error(e.getMessage(), e);
 		};
+		marketDataToPublishQueue.add(match);			
 	}
-
 }

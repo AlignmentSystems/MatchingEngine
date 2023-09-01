@@ -10,19 +10,23 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.alignmentsystems.matching.exceptions.OrderBookNotFound;
+import com.alignmentsystems.matching.interfaces.InterfaceMatchEvent;
+import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBooks;
 import com.alignmentsystems.matching.library.LibraryFunctions;
 
-public class OrderBooks implements InterfaceOrderBooks{
+public class OrderBooks implements InterfaceOrderBooks , InterfaceMatchEvent {
 	private final static String CLASSNAME = OrderBooks.class.getSimpleName();
 
 	private Map<String, InterfaceOrderBook> orderBooks = new HashMap<String, InterfaceOrderBook>();
@@ -30,7 +34,9 @@ public class OrderBooks implements InterfaceOrderBooks{
 	private ConcurrentLinkedQueue<InterfaceOrder> outboundSequenced = null;
 	private final Set<Thread> orderBookThreads = new HashSet<Thread>();
 	private PersistenceToFileClient debugger = null;
+	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
 
+	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -62,8 +68,8 @@ public class OrderBooks implements InterfaceOrderBooks{
 			Runnable runnableOrderBook = (Runnable) orderBook;
 
 			Thread newThread = new Thread(runnableOrderBook);
-			orderBook.initialise(symbol, log, outboundSequenced, newThread, debugger);
-
+			orderBook.initialise(symbol, log, outboundSequenced, newThread, debugger, this);
+			
 			orderBooks.put(symbol, orderBook);
 
 			returnValue = orderBooks.get(symbol); 
@@ -94,10 +100,26 @@ public class OrderBooks implements InterfaceOrderBooks{
 
 	@Override
 	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> outboundSequenced,
-			PersistenceToFileClient debugger) {
+			PersistenceToFileClient debugger, InterfaceMatchEvent toAdd) {
 		this.log = log;
 		this.outboundSequenced = outboundSequenced;
 		this.debugger = debugger;
+		this.addMatchEventListener(toAdd);
 		return true;
+	}
+
+
+	@Override
+	public void matchHappened(InterfaceMatchTrade match) {
+		for (InterfaceMatchEvent hl : listenersMatchEvent)
+			hl.matchHappened(match);	
+		
+	}
+
+
+	@Override
+	public void addMatchEventListener(InterfaceMatchEvent toAdd) {
+		this.listenersMatchEvent.add(toAdd);
+		
 	}
 }
