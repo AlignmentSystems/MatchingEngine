@@ -15,7 +15,4 @@ public class SimpleBinaryEncodingEncoder {
 	public SimpleBinaryEncodingEncoder() {
 		// TODO Auto-generated constructor stub
 	}
-	public byte
-	
-
 }
