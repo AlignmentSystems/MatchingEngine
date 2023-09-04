@@ -82,11 +82,15 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	@Override
 	public Boolean initialise(String symbol, LogEncapsulation log,
 			ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, Thread orderBookThread,
-			PersistenceToFileClient debugger, InterfaceMatchEvent toAdd) {
+			PersistenceToFileClient debugger
+			, InterfaceMatchEvent toAddMatch
+			, InterfaceAddedOrderToOrderBook toAddOrder
+			) {
 		
 		Boolean returnValue = innerInitialise(symbol, log, inboundSequenced, orderBookThread, debugger);
 
-		this.addMatchEventListener(toAdd);
+		this.addMatchEventListener(toAddMatch);
+		this.addAddedOrderToOrderBookListener(toAddOrder);
 
 		this.initialised.set(returnValue); 
 
@@ -440,7 +444,4 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 		for (InterfaceMatchEvent hl : listenersMatchEvent)
 			hl.matchHappened(match);	
 	}
-
-
-
 }	

@@ -70,7 +70,7 @@ public class OrderBooks implements InterfaceOrderBooks , InterfaceMatchEvent, In
 			Runnable runnableOrderBook = (Runnable) orderBook;
 
 			Thread newThread = new Thread(runnableOrderBook);
-			orderBook.initialise(symbol, log, outboundSequenced, newThread, debugger, this);
+			orderBook.initialise(symbol, log, outboundSequenced, newThread, debugger, this, this);
 			
 			orderBooks.put(symbol, orderBook);
 
@@ -101,12 +101,18 @@ public class OrderBooks implements InterfaceOrderBooks , InterfaceMatchEvent, In
 	}
 
 	@Override
-	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> outboundSequenced,
-			PersistenceToFileClient debugger, InterfaceMatchEvent toAdd) {
+	public boolean initialise(
+			LogEncapsulation log
+			, ConcurrentLinkedQueue<InterfaceOrder> outboundSequenced
+			, PersistenceToFileClient debugger
+			, InterfaceMatchEvent toAddMatch
+			, InterfaceAddedOrderToOrderBook toAddOrder
+			) {
 		this.log = log;
 		this.outboundSequenced = outboundSequenced;
 		this.debugger = debugger;
-		this.addMatchEventListener(toAdd);
+		this.addMatchEventListener(toAddMatch);
+		this.addAddedOrderToOrderBookListener(toAddOrder);
 		return true;
 	}
 

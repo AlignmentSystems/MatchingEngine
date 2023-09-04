@@ -22,9 +22,6 @@ import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.matching.udp.MulticastServer;
 
-/**
- * 
- */
 public class MatchingEngine implements Runnable , InterfaceMatchEvent, InterfaceMatchingEngine , InterfaceAddedOrderToOrderBook{
 	private final static String CLASSNAME = MatchingEngine.class.getSimpleName();
 	private LogEncapsulation log = null;
@@ -48,8 +45,7 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 		while (running.get()){
 			InterfaceOrder inSeq = inboundSequenced.poll();
 
-			if (inSeq!= null) {
-				//Which OrderBook???
+			if (inSeq!= null) { //Which OrderBook???
 				symbol = inSeq.getSymbol();
 
 				orderBook = orderBooks.getOrderBookForSymbol(symbol);
@@ -70,18 +66,17 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 				running.set(false);
 				Thread.currentThread().interrupt();
 				System.err.println(e.getMessage());
-
-				;
-				System.err.println(new StringBuilder().append(CLASSNAME)
+			
+				System.err.println(
+						new StringBuilder().append(CLASSNAME)
 						.append(Constants.SPACE)
-						.append(e.getMessage()
-								).toString());			
+						.append(e.getMessage())
+						.toString()
+						);			
 			}
-
 		}
 	}
 
-	
 	
 
 	@Override
@@ -91,7 +86,7 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 		this.inboundSequenced = inboundSequenced;
 		this.debugger = debugger;
 		orderBooks = new OrderBooks();
-		orderBooks.initialise(this.log, this.inboundSequenced, this.debugger, this);
+		orderBooks.initialise(this.log, this.inboundSequenced, this.debugger, this, this);
 		this.mdOut = mdOut;//TODO - think about if this reference is required...
 		this.marketDataToPublishQueue = mdOut.getMarketDataQueue();
 		return true;

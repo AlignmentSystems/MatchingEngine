@@ -20,7 +20,13 @@ import com.alignmentsystems.matching.exceptions.OrderBookNotFound;
 public interface InterfaceOrderBooks {
 	public InterfaceOrderBook getOrderBookForSymbol(String symbol) throws OrderBookNotFound;	
 	public Set<Thread> getOrderBookThreads();
-	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> outboundSequenced, PersistenceToFileClient debugger, InterfaceMatchEvent toAdd);
+	public boolean initialise(
+			LogEncapsulation log
+			, ConcurrentLinkedQueue<InterfaceOrder> outboundSequenced
+			, PersistenceToFileClient debugger
+			, InterfaceMatchEvent toAddMatch
+			, InterfaceAddedOrderToOrderBook toAddOrder
+			);
 	public void addMatchEventListener(InterfaceMatchEvent toAdd);
 	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd);
 }
