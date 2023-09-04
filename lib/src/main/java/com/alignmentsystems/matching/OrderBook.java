@@ -32,8 +32,8 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	private final static String CLASSNAME = OrderBook.class.getSimpleName();
 	private Thread orderBookThread = null;
 
-	private AlignmentBuyOrderComparator aboc = new AlignmentBuyOrderComparator();
-	private AlignmentSellOrderComparator asoc = new AlignmentSellOrderComparator();
+	private AlignmentOrderComparatorBuy aboc = new AlignmentOrderComparatorBuy();
+	private AlignmentOrderComparatorSell asoc = new AlignmentOrderComparatorSell();
 	private PriorityQueue<InterfaceOrder>  buy = new PriorityQueue<InterfaceOrder> (100, aboc);
 	private PriorityQueue<InterfaceOrder>  sell = new PriorityQueue<InterfaceOrder> (100,asoc); 
 

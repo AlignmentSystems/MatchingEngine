@@ -6,7 +6,7 @@ package com.alignmentsystems.matching;
  *	Date            :	1st September 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	AlignmentOrderComparator
+ *	Artefact		:	AlignmentBuyOrderComparator
  *	Description		:
  *****************************************************************************/
 
@@ -15,7 +15,7 @@ import java.util.Comparator;
 import com.alignmentsystems.matching.enumerations.OrderBookSide;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 
-public class AlignmentBuyOrderComparator implements Comparator<InterfaceOrder>{
+public class AlignmentOrderComparatorBuy implements Comparator<InterfaceOrder>{
 	/**
 	 * Compares this date-time to another date-time. The comparison is based on the
 	 * instant then on the local date-time. It is "consistent with equals", as
