@@ -157,7 +157,7 @@ public class Match implements InterfaceMatchTrade {
 	public  byte[] getSBERepresentation(Long sequenceNumber) {
 
 		if (innerSBERepresentation==null) {
-			SimpleBinaryEncodingMessage sbe = new SimpleBinaryEncodingMessage();
+			SimpleBinaryEncodingMessage sbe = new SimpleBinaryEncodingMessage(sequenceNumber);
 			sbe.setMessage(this);
 			Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
 			this.innerSBERepresentation = sbe.getByteArray(encoding);
@@ -166,6 +166,7 @@ public class Match implements InterfaceMatchTrade {
 			return this.innerSBERepresentation;
 		}
 	}
+	
 	@Override
 	public UUID getMatchId() {
 		return this.matchId;
