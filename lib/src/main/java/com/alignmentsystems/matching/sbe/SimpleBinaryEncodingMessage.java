@@ -27,11 +27,12 @@ public class SimpleBinaryEncodingMessage implements InterfaceSimpleBinaryEncodin
 	private OffsetDateTime timestamp = null;
 	private UUID marketDataId = null;
 	private Encodings encoding = null;
-	private  final static int LENGTH_STRING_UUID = 36;
+	private Long sequenceNumber = null;
 
 
-	public SimpleBinaryEncodingMessage() {
-		// TODO Auto-generated constructor stub
+
+	public SimpleBinaryEncodingMessage(Long sequenceNumber) {
+		this.sequenceNumber = sequenceNumber;
 	}
 
 	@Override
@@ -41,6 +42,8 @@ public class SimpleBinaryEncodingMessage implements InterfaceSimpleBinaryEncodin
 		this.encoding = encoding;
 
 		final int bufferLength =
+				Long.BYTES //sequenceNumber
+				+
 				Long.BYTES//least
 				+
 				Long.BYTES//most
@@ -54,7 +57,7 @@ public class SimpleBinaryEncodingMessage implements InterfaceSimpleBinaryEncodin
 
 
 		ByteBuffer buf = ByteBuffer.allocate(bufferLength).order(this.encoding.getByteOrder());
-
+		buf.putLong(this.sequenceNumber);
 		buf.putLong(this.marketDataId.getLeastSignificantBits());
 		buf.putLong(this.marketDataId.getMostSignificantBits());
 		buf.putLong(Double.doubleToLongBits(this.marketDataPrice));
@@ -62,7 +65,7 @@ public class SimpleBinaryEncodingMessage implements InterfaceSimpleBinaryEncodin
 		buf.putLong(Double.doubleToLongBits(this.timestamp.toInstant().toEpochMilli()));
 
 		returnValue = buf.array();
-		
+
 		return returnValue;
 	}
 
@@ -70,18 +73,18 @@ public class SimpleBinaryEncodingMessage implements InterfaceSimpleBinaryEncodin
 	public void setByteArray(byte[] match , Encodings encoding) {
 		this.encoding = encoding;
 		ByteBuffer buf = ByteBuffer.wrap(match).order(encoding.getByteOrder());
-		
-		byte[] parkUUIDAsByteArray = new byte[LENGTH_STRING_UUID];
+
+		this.sequenceNumber = buf.getLong();
 		
 		Long leastSignificantBits = buf.getLong();
 		Long mostSignificantBits = buf.getLong();
-		
+
 		this.marketDataId = new UUID(mostSignificantBits, leastSignificantBits);		
 		this.marketDataPrice = buf.getDouble();
 		this.marketDataQuantity = buf.getDouble();
 		Instant instant = Instant.ofEpochMilli(buf.getLong());
 		this.timestamp = OffsetDateTime.ofInstant(instant, Constants.HERE);
-						
+
 	}
 
 	@Override
@@ -96,5 +99,16 @@ public class SimpleBinaryEncodingMessage implements InterfaceSimpleBinaryEncodin
 	public InterfaceMatchTrade getMessage() {
 		InterfaceMatchTrade match = new Match();
 		return match;
+	}
+
+	@Override
+	public Long getSequenceNumber() {		
+		return this.sequenceNumber;
+	}
+
+	@Override
+	public void setSequenceNumber(Long sequenceNumber) {
+		this.sequenceNumber = sequenceNumber;
+
 	}
 }

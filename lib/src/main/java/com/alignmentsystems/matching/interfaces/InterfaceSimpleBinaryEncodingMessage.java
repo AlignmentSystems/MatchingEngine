@@ -18,4 +18,6 @@ public interface InterfaceSimpleBinaryEncodingMessage {
 	public void setByteArray(byte[] match, Encodings encoding);
 	public void setMessage(InterfaceMatchTrade match);
 	public InterfaceMatchTrade getMessage();
+	public Long getSequenceNumber();
+	public void setSequenceNumber(Long sequenceNumber);
 }

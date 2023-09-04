@@ -20,4 +20,5 @@ public interface InterfaceMulticastServer {
 	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceMatchTrade> marketDataToPublishQueue, PersistenceToFileClient debugger);
 	public void multicastThis(byte[] multicastBytes) throws IOException;
 	public ConcurrentLinkedQueue<InterfaceMatchTrade> getMarketDataQueue();
+	public Long getCurrentSequenceNumber();
 }

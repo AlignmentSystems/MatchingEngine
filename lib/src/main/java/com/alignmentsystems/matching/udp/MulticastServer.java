@@ -33,7 +33,7 @@ public class MulticastServer implements Runnable, InterfaceMulticastServer{
 	private int port = 0;
 	private AtomicBoolean running = new AtomicBoolean(false);
 	private final static int MILLISLEEP = 200;
-
+	private Long sequenceNumber = Long.MIN_VALUE;
 
 
 	private DatagramSocket getSocket() throws SocketException{
@@ -101,6 +101,8 @@ public class MulticastServer implements Runnable, InterfaceMulticastServer{
 	@Override
 	public void run() {
 		running.set(true);
+		
+		
 
 		debugger.info(CLASSNAME);
 
@@ -110,13 +112,14 @@ public class MulticastServer implements Runnable, InterfaceMulticastServer{
 
 			if (inMarketDataToPublish!=null) {
 				try {
+					
 					//debugger.info(inMarketDataToPublish.toString());
-					ByteBuffer bb = ByteBuffer.wrap(inMarketDataToPublish.getSBERepresentation());
+					ByteBuffer bb = ByteBuffer.wrap(inMarketDataToPublish.getSBERepresentation(this.getCurrentSequenceNumber()));
 					bb.order(Encodings.FIXSBELITTLEENDIAN.getByteOrder());
 					String payload = Constants.CHARSET.decode(bb).toString();
 					debugger.info(inMarketDataToPublish.toString() + "SBE payload==> " + payload );
 
-					this.multicastThis(inMarketDataToPublish.getSBERepresentation());
+					this.multicastThis(bb.array());
 
 				} catch (IOException e) {
 					log.error(e.getMessage() , e);
@@ -158,5 +161,10 @@ public class MulticastServer implements Runnable, InterfaceMulticastServer{
 	@Override
 	public ConcurrentLinkedQueue<InterfaceMatchTrade> getMarketDataQueue() {
 		return this.marketDataToPublishQueue;
+	}
+
+	@Override
+	public Long getCurrentSequenceNumber() {
+		return ++sequenceNumber;
 	}
 }

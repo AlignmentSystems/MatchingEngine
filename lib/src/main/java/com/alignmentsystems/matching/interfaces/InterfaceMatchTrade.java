@@ -31,6 +31,6 @@ public interface InterfaceMatchTrade {
 	public void setMatchId(UUID matchID);
 	public Boolean getIsEligibleForMarketData();
 	@Experimental
-	public byte[] getSBERepresentation();
+	public byte[] getSBERepresentation(Long sequenceNumber);
 	
 }

@@ -154,7 +154,7 @@ public class Match implements InterfaceMatchTrade {
 
 	@Override
 	@Experimental
-	public  byte[] getSBERepresentation() {
+	public  byte[] getSBERepresentation(Long sequenceNumber) {
 
 		if (innerSBERepresentation==null) {
 			SimpleBinaryEncodingMessage sbe = new SimpleBinaryEncodingMessage();
