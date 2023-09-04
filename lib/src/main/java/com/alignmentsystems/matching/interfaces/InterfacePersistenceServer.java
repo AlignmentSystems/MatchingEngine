@@ -1,11 +1,4 @@
 package com.alignmentsystems.matching.interfaces;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import com.alignmentsystems.matching.enumerations.Actors;
-
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -16,6 +9,12 @@ import com.alignmentsystems.matching.enumerations.Actors;
  *	Artefact		:	InterfaceOrderBooks
  *	Description		:
  *****************************************************************************/
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import com.alignmentsystems.matching.enumerations.Actors;
 public interface InterfacePersistenceServer {
 	public void writeLineAtClose(String toWrite) ;
 	public String getFileNameAndPathUsed();

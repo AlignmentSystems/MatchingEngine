@@ -15,7 +15,6 @@ import java.util.List;
 
 import com.alignmentsystems.fix44.ExecutionReport;
 import com.alignmentsystems.fix44.NewOrderSingle;
-import com.alignmentsystems.fix44.field.ClOrdID;
 import com.alignmentsystems.fix44.field.OrderQty;
 import com.alignmentsystems.fix44.field.Price;
 import com.alignmentsystems.matching.enumerations.MessageDirection;

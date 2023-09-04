@@ -10,13 +10,15 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
-import java.nio.ByteBuffer;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.annotations.Experimental;
+import com.alignmentsystems.matching.enumerations.Encodings;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
+import com.alignmentsystems.matching.sbe.SimpleBinaryEncodingMessage;
 
 public class Match implements InterfaceMatchTrade {
 	private Double matchQuantity = 0d;
@@ -29,8 +31,11 @@ public class Match implements InterfaceMatchTrade {
 	private String sellClOrdId = null;
 	private String buyOrderId = null;
 	private String sellOrderId = null;	
+	private UUID matchId = null;
 
-	
+
+	public Match() {		
+	}
 	/**
 	 * 
 	 * @param matchQuantity
@@ -55,6 +60,7 @@ public class Match implements InterfaceMatchTrade {
 			, String sellClOrdId
 			, String buyOrderId
 			, String sellOrderId
+			, UUID matchId
 			) {
 		super();
 		this.matchQuantity = matchQuantity;
@@ -67,10 +73,39 @@ public class Match implements InterfaceMatchTrade {
 		this.sellClOrdId = sellClOrdId;
 		this.buyOrderId = buyOrderId;
 		this.sellOrderId = sellOrderId;
+		this.matchId = matchId;
+	}
+
+	public Match(
+			Double matchQuantity
+			, Double matchPrice
+			, InterfaceOrder buyOrder
+			, InterfaceOrder sellOrder
+			, Side aggressorSide
+			, OffsetDateTime timestamp
+			, String buyClOrdId 
+			, String sellClOrdId
+			, String buyOrderId
+			, String sellOrderId
+			) {
+		super();
+		this.matchQuantity = matchQuantity;
+		this.matchPrice = matchPrice;
+		this.buyOrder = buyOrder;
+		this.sellOrder = sellOrder;
+		this.aggressorSide = aggressorSide;
+		this.timestamp = timestamp;
+		this.buyClOrdId = buyClOrdId;
+		this.sellClOrdId = sellClOrdId;
+		this.buyOrderId = buyOrderId;
+		this.sellOrderId = sellOrderId;
+		this.matchId = UUID.randomUUID();		
 	}
 
 
 
+	
+	
 	@Override
 	public String toString() {
 		return new StringBuilder()
@@ -78,6 +113,8 @@ public class Match implements InterfaceMatchTrade {
 				.append(Double.toString(this.matchQuantity))
 				.append(", matchPrice=")
 				.append(Double.toString(this.matchPrice))
+				.append(", matchId=")
+				.append(this.matchId)
 				.append(", buyOrder=")
 				.append(this.buyOrder)
 				.append(", sellOrder=")
@@ -122,45 +159,45 @@ public class Match implements InterfaceMatchTrade {
 		return this.aggressorSide;
 	}
 
-
-
 	@Override
 	public OffsetDateTime getTimestamp() {
 		return this.timestamp;
 	}
-
-
 
 	@Override
 	public String getBuyClOrdId() {
 		return this.buyClOrdId;
 	}
 
-
-
 	@Override
 	public String getSellClOrdId() {
 		return this.sellClOrdId;
 	}
 
-
-
 	@Override
 	public String getBuyOrderId() {
-		// TODO Auto-generated method stub
 		return this.buyOrderId;
 	}
 
-
 	@Override
 	public String getSellOrderId() {
-		// TODO Auto-generated method stub
 		return this.sellOrderId;
 	}
 
 	@Override
-	public @Experimental ByteBuffer getSBERepresentation() {
-		// TODO Auto-generated method stub
-		return null;
+	@Experimental
+	public  byte[] getSBERepresentation() {
+		SimpleBinaryEncodingMessage sbe = new SimpleBinaryEncodingMessage();
+		sbe.setMessage(this);
+		Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
+		return sbe.getByteArray(encoding);
+	}
+	@Override
+	public UUID getMatchId() {
+		return this.matchId;
+	}
+	@Override
+	public  void setMatchId(UUID matchID) {
+		this.matchId = matchID;
 	}
 }

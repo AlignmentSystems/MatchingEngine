@@ -11,6 +11,8 @@ import java.nio.ByteBuffer;
  *	Description		:
  *****************************************************************************/
 import java.time.OffsetDateTime;
+import java.util.UUID;
+
 import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.annotations.Experimental;
 
@@ -25,6 +27,9 @@ public interface InterfaceMatchTrade {
 	public String getSellClOrdId();
 	public String getBuyOrderId();
 	public String getSellOrderId();
+	public UUID getMatchId();
+	public void setMatchId(UUID matchID);
 	@Experimental
-	public ByteBuffer getSBERepresentation();
+	public byte[] getSBERepresentation();
+	
 }

@@ -14,6 +14,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -245,8 +246,6 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 			String buyOrderID = topOfBuyBook.getOrderId();
 			String sellOrderID = topOfSellBook.getOrderId();
 
-
-
 			Match match = new Match(
 					tradedQuantity
 					, tradedPrice
@@ -265,13 +264,6 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 
 			this.matchHappened(match);
 
-			//			}else if (orderBookState.contains(OrderBookState.BUYSIDE)) {
-			//				//One sided market (buy orders only), so you cannot match here
-			//				log.info(orderBookState.getStateString());
-			//			}else if (orderBookState.contains(OrderBookState.SELLSIDE)) {
-			//				//One sided market (sell orders only), so you cannot match here
-			//				log.info(orderBookState.getStateString());
-			//			}
 		}else {
 			//topOfBuyBookPrice < topOfSellBookPrice
 			//therefore no trade possible...

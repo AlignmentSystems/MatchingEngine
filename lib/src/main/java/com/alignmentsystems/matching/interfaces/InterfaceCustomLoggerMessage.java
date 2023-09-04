@@ -12,7 +12,6 @@ package com.alignmentsystems.matching.interfaces;
 
 import java.util.List;
 
-import com.alignmentsystems.matching.Match;
 import com.alignmentsystems.matching.enumerations.Actors;
 import com.alignmentsystems.matching.enumerations.MessageDirection;
 import com.alignmentsystems.matching.enumerations.OperationEventType;

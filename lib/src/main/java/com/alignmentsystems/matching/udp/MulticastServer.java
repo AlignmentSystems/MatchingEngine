@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketOption;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -33,6 +34,8 @@ public class MulticastServer implements Runnable, InterfaceMulticastServer{
 	private AtomicBoolean running = new AtomicBoolean(false);
 	private final static int MILLISLEEP = 200;
 
+
+
 	private DatagramSocket getSocket() throws SocketException{
 		if (socket==null) {
 			try {
@@ -48,15 +51,15 @@ public class MulticastServer implements Runnable, InterfaceMulticastServer{
 		return socket;
 	}
 
-	public void multicastThis(String multicastMessage) throws IOException {
+	@Override
+	public void multicastThis(byte[] multicastBytes) throws IOException {
 		socket = getSocket();
 
 		group = InetAddress.getByName(this.host);
-		buf = multicastMessage.getBytes(Constants.CHARSET);
 
-		DatagramPacket packet = new DatagramPacket(buf, buf.length, group, this.port);
+		DatagramPacket packet = new DatagramPacket (multicastBytes, buf.length, group, this.port);
 		socket.send(packet);
-		socket.close();
+		//socket.close()
 	}
 
 	private boolean innerInitialise() {
@@ -105,7 +108,7 @@ public class MulticastServer implements Runnable, InterfaceMulticastServer{
 
 			if (inMarketDataToPublish!=null) {
 				try {
-					this.multicastThis(inMarketDataToPublish.toString());
+					this.multicastThis(inMarketDataToPublish.getSBERepresentation());
 				} catch (IOException e) {
 					log.error(e.getMessage() , e);
 				}

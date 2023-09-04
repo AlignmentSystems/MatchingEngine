@@ -1,4 +1,7 @@
 package com.alignmentsystems.matching.interfaces;
+
+import com.alignmentsystems.matching.enumerations.Encodings;
+
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -6,11 +9,13 @@ package com.alignmentsystems.matching.interfaces;
  *	Date            :	24th August 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	InterfaceMatchEvent
+ *	Artefact		:	InterfaceSimpleBinaryEncodingMessage
  *	Description		:
  *****************************************************************************/
 
-public interface InterfaceMatchEvent {
-	public void matchHappened(InterfaceMatchTrade match);
-
+public interface InterfaceSimpleBinaryEncodingMessage {
+	public byte[] getByteArray(Encodings encoding);
+	public void setByteArray(byte[] match, Encodings encoding);
+	public void setMessage(InterfaceMatchTrade match);
+	public InterfaceMatchTrade getMessage();
 }

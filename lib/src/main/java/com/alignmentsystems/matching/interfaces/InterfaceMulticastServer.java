@@ -18,6 +18,6 @@ import com.alignmentsystems.matching.PersistenceToFileClient;
 public interface InterfaceMulticastServer {
 	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceMatchTrade> marketDataToPublishQueue, PersistenceToFileClient debugger, String host, int port);
 	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceMatchTrade> marketDataToPublishQueue, PersistenceToFileClient debugger);
-	public void multicastThis(String multicastMessage) throws IOException;
+	public void multicastThis(byte[] multicastBytes) throws IOException;
 	public ConcurrentLinkedQueue<InterfaceMatchTrade> getMarketDataQueue();
 }
