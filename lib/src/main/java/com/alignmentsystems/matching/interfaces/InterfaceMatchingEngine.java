@@ -49,7 +49,11 @@ public interface InterfaceMatchingEngine {
 
 	
 	
-	
+	/**
+	 * 
+	 * @param nos
+	 * @param log
+	 */
 	public default void sendExecutionReportAcknowledgementForReceivedOrder(InterfaceOrder nos , LogEncapsulation log) {
 		final String methodName ="sendExecutionReportAcknowledgementForReceivedOrder";
 		ExecutionReport er;
@@ -70,6 +74,11 @@ public interface InterfaceMatchingEngine {
 	}
 	
 
+	/**
+	 * 
+	 * @param match
+	 * @param log
+	 */
 	public default void sendExecutionReportsForMatch(InterfaceMatchTrade match, LogEncapsulation log) {
 		final String methodName ="matchHappened";
 
@@ -83,7 +92,7 @@ public interface InterfaceMatchingEngine {
 
 
 		OrderID b_orderId = new OrderID(match.getBuyOrderId());
-		ClOrdID b_ClOrdId = null;
+		ClOrdID b_ClOrdId = new ClOrdID(match.getBuyClOrdId()); 
 		ExecID b_execID = new ExecID(UUID.randomUUID().toString());
 		CumQty b_cumQty = new CumQty(match.getMatchQuantity());
 		AvgPx b_avgPx = new AvgPx(match.getMatchPrice());
@@ -122,11 +131,14 @@ public interface InterfaceMatchingEngine {
 				, b_cumQty
 				, b_avgPx)
 				;
-
+		buyExecRpt.set(b_ClOrdId);
+		
+		
+		
 		//TODO - clean up the above
 		//Repeat the same code with s_ instead of b_ 
 		OrderID s_orderId = new OrderID(match.getSellOrderId());
-		ClOrdID s_ClOrdId = null;
+		ClOrdID s_ClOrdId = new ClOrdID(match.getBuyClOrdId());
 		ExecID s_execID = new ExecID(UUID.randomUUID().toString());
 		CumQty s_cumQty = new CumQty(match.getMatchQuantity());
 		AvgPx s_avgPx = new AvgPx(match.getMatchPrice());
@@ -165,9 +177,8 @@ public interface InterfaceMatchingEngine {
 				, s_cumQty
 				, s_avgPx)
 				;
-
-
-
+		buyExecRpt.set(s_ClOrdId);
+		
 		try {
 			Session.sendToTarget(sellExecRpt, sellSession);
 			Session.sendToTarget(buyExecRpt, buySession);

@@ -40,22 +40,16 @@ public class SimpleBinaryEncodingMessage implements InterfaceSimpleBinaryEncodin
 
 		this.encoding = encoding;
 
-		InterfaceMatchTrade match = new Match();
-
-		Long epochMillis = this.timestamp.toInstant().toEpochMilli();
-		Long least = match.getMatchId().getLeastSignificantBits(); 
-		Long most = match.getMatchId().getMostSignificantBits();
-
 		final int bufferLength =
-				least.BYTES
+				Long.BYTES//least
 				+
-				most.BYTES
+				Long.BYTES//most
 				+
-				match.getMatchPrice().BYTES
+				Double.BYTES//price
 				+
-				match.getMatchQuantity().BYTES
+				Double.BYTES//quantity
 				+
-				epochMillis.BYTES
+				Long.BYTES//timestamp
 				;
 
 
@@ -65,12 +59,9 @@ public class SimpleBinaryEncodingMessage implements InterfaceSimpleBinaryEncodin
 		buf.putLong(this.marketDataId.getMostSignificantBits());
 		buf.putLong(Double.doubleToLongBits(this.marketDataPrice));
 		buf.putLong(Double.doubleToLongBits(this.marketDataQuantity));
-		buf.putLong(Double.doubleToLongBits(epochMillis));
+		buf.putLong(Double.doubleToLongBits(this.timestamp.toInstant().toEpochMilli()));
 
 		returnValue = buf.array();
-
-		match = null;
-		
 		
 		return returnValue;
 	}

@@ -29,6 +29,7 @@ public interface InterfaceMatchTrade {
 	public String getSellOrderId();
 	public UUID getMatchId();
 	public void setMatchId(UUID matchID);
+	public Boolean getIsEligibleForMarketData();
 	@Experimental
 	public byte[] getSBERepresentation();
 	

@@ -17,6 +17,7 @@ import com.alignmentsystems.matching.PersistenceToFileClient;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.Actors;
 import com.alignmentsystems.matching.enumerations.ConfigurationProperties;
+import com.alignmentsystems.matching.enumerations.Encodings;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
 import com.alignmentsystems.matching.interfaces.InterfaceMulticastServer;
 import com.alignmentsystems.matching.library.LibraryFunctions;
@@ -25,7 +26,6 @@ public class MulticastServer implements Runnable, InterfaceMulticastServer{
 	private final static String CLASSNAME = MulticastServer.class.getSimpleName().toString();
 	private DatagramSocket socket;
 	private InetAddress group;
-	private byte[] buf;
 	private LogEncapsulation log = null;
 	private ConcurrentLinkedQueue<InterfaceMatchTrade> marketDataToPublishQueue = null;
 	private PersistenceToFileClient debugger = null; 
@@ -57,7 +57,7 @@ public class MulticastServer implements Runnable, InterfaceMulticastServer{
 
 		group = InetAddress.getByName(this.host);
 
-		DatagramPacket packet = new DatagramPacket (multicastBytes, buf.length, group, this.port);
+		DatagramPacket packet = new DatagramPacket (multicastBytes, multicastBytes.length, group, this.port);
 		socket.send(packet);
 		//socket.close()
 	}
@@ -102,13 +102,22 @@ public class MulticastServer implements Runnable, InterfaceMulticastServer{
 	public void run() {
 		running.set(true);
 
+		debugger.info(CLASSNAME);
+
 		while (running.get()){
 
 			InterfaceMatchTrade inMarketDataToPublish = marketDataToPublishQueue.poll();
 
 			if (inMarketDataToPublish!=null) {
 				try {
+					//debugger.info(inMarketDataToPublish.toString());
+					ByteBuffer bb = ByteBuffer.wrap(inMarketDataToPublish.getSBERepresentation());
+					bb.order(Encodings.FIXSBELITTLEENDIAN.getByteOrder());
+					String payload = Constants.CHARSET.decode(bb).toString();
+					debugger.info(inMarketDataToPublish.toString() + "SBE payload==> " + payload );
+
 					this.multicastThis(inMarketDataToPublish.getSBERepresentation());
+
 				} catch (IOException e) {
 					log.error(e.getMessage() , e);
 				}

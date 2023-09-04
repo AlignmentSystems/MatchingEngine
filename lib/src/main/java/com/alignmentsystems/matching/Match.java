@@ -32,49 +32,13 @@ public class Match implements InterfaceMatchTrade {
 	private String buyOrderId = null;
 	private String sellOrderId = null;	
 	private UUID matchId = null;
+	private Boolean isEligibleForMarketData = Boolean.FALSE;
+	private byte[] innerSBERepresentation = null;
 
 
 	public Match() {		
 	}
-	/**
-	 * 
-	 * @param matchQuantity
-	 * @param matchPrice
-	 * @param buyOrder
-	 * @param sellOrder
-	 * @param aggressorSide
-	 * @param timestamp
-	 * @param buyClOrdId
-	 * @param sellClOrdId
-	 * @param buyOrderId
-	 * @param sellOrderId
-	 */
-	public Match(
-			Double matchQuantity
-			, Double matchPrice
-			, InterfaceOrder buyOrder
-			, InterfaceOrder sellOrder
-			, Side aggressorSide
-			, OffsetDateTime timestamp
-			, String buyClOrdId 
-			, String sellClOrdId
-			, String buyOrderId
-			, String sellOrderId
-			, UUID matchId
-			) {
-		super();
-		this.matchQuantity = matchQuantity;
-		this.matchPrice = matchPrice;
-		this.buyOrder = buyOrder;
-		this.sellOrder = sellOrder;
-		this.aggressorSide = aggressorSide;
-		this.timestamp = timestamp;
-		this.buyClOrdId = buyClOrdId;
-		this.sellClOrdId = sellClOrdId;
-		this.buyOrderId = buyOrderId;
-		this.sellOrderId = sellOrderId;
-		this.matchId = matchId;
-	}
+
 
 	public Match(
 			Double matchQuantity
@@ -87,6 +51,7 @@ public class Match implements InterfaceMatchTrade {
 			, String sellClOrdId
 			, String buyOrderId
 			, String sellOrderId
+			, Boolean getIsEligibleForMarketData
 			) {
 		super();
 		this.matchQuantity = matchQuantity;
@@ -99,13 +64,14 @@ public class Match implements InterfaceMatchTrade {
 		this.sellClOrdId = sellClOrdId;
 		this.buyOrderId = buyOrderId;
 		this.sellOrderId = sellOrderId;
+		this.isEligibleForMarketData = getIsEligibleForMarketData;
 		this.matchId = UUID.randomUUID();		
 	}
 
 
 
-	
-	
+
+
 	@Override
 	public String toString() {
 		return new StringBuilder()
@@ -129,6 +95,8 @@ public class Match implements InterfaceMatchTrade {
 				.append(this.buyOrderId) 
 				.append(", sellOrderId=")
 				.append(this.sellOrderId) 
+				.append(", isEligibleForMarketData=")
+				.append(this.isEligibleForMarketData) 
 				.append( "]")
 				.toString()
 				;
@@ -187,10 +155,16 @@ public class Match implements InterfaceMatchTrade {
 	@Override
 	@Experimental
 	public  byte[] getSBERepresentation() {
-		SimpleBinaryEncodingMessage sbe = new SimpleBinaryEncodingMessage();
-		sbe.setMessage(this);
-		Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
-		return sbe.getByteArray(encoding);
+
+		if (innerSBERepresentation==null) {
+			SimpleBinaryEncodingMessage sbe = new SimpleBinaryEncodingMessage();
+			sbe.setMessage(this);
+			Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
+			this.innerSBERepresentation = sbe.getByteArray(encoding);
+			return this.innerSBERepresentation;
+		}else {
+			return this.innerSBERepresentation;
+		}
 	}
 	@Override
 	public UUID getMatchId() {
@@ -199,5 +173,9 @@ public class Match implements InterfaceMatchTrade {
 	@Override
 	public  void setMatchId(UUID matchID) {
 		this.matchId = matchID;
+	}
+	@Override
+	public Boolean getIsEligibleForMarketData() {
+		return this.isEligibleForMarketData;
 	}
 }

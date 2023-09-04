@@ -245,7 +245,9 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 			String sellClOrdID = topOfSellBook.getClOrdID();
 			String buyOrderID = topOfBuyBook.getOrderId();
 			String sellOrderID = topOfSellBook.getOrderId();
-
+			final boolean isEligibleForMarketData = true;
+			
+			
 			Match match = new Match(
 					tradedQuantity
 					, tradedPrice
@@ -257,6 +259,7 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 					, sellClOrdID
 					, buyOrderID
 					, sellOrderID
+					, isEligibleForMarketData
 					);
 
 			buy.remove(topOfBuyBook);

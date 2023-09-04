@@ -66,7 +66,7 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 				running.set(false);
 				Thread.currentThread().interrupt();
 				System.err.println(e.getMessage());
-			
+
 				System.err.println(
 						new StringBuilder().append(CLASSNAME)
 						.append(Constants.SPACE)
@@ -77,7 +77,7 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 		}
 	}
 
-	
+
 
 	@Override
 	public boolean initialise(String[] args, LogEncapsulation log,
@@ -102,13 +102,15 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 	@Override
 	public void publishMarketDataToPublishQueue(InterfaceMatchTrade match) {
 		final String methodName ="publishMarketDataToPublishQueue";
-		marketDataToPublishQueue.add(match);		
+		if (match.getIsEligibleForMarketData()) {
+			marketDataToPublishQueue.add(match);	
+		}
 	}
 
 	@Override
 	public void addedOrderToOrderBook(InterfaceOrder nos) {
 		final String methodName ="addedOrderToOrderBook";
 		this.sendExecutionReportAcknowledgementForReceivedOrder(nos, log);
-		
+
 	}
 }
