@@ -21,6 +21,7 @@ import com.alignmentsystems.matching.enumerations.OrderBookSide;
 public interface InterfaceOrderBook {
 	public Boolean initialise(String symbol, LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, Thread orderBookThread, PersistenceToFileClient debugger);
 	public Boolean initialise(String symbol, LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, Thread orderBookThread, PersistenceToFileClient debugger, InterfaceMatchEvent toAdd);
+	public String getThisOrderBookSymbol();
 	public ConcurrentLinkedQueue<InterfaceOrder> getInboundSequenced();
 	public List<InterfaceOrder> getOrdersBySide(OrderBookSide orderBookSide );
 	public List<String> getOrderBookVisualisation();
@@ -32,5 +33,5 @@ public interface InterfaceOrderBook {
 	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd);
 	public void upsertTopOfBook(InterfaceOrder nos);
 	public void updateLevelsOfDepth();
-	public String getThisOrderBookSymbol();
+	
 }

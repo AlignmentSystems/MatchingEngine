@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.alignmentsystems.matching.exceptions.OrderBookNotFound;
+import com.alignmentsystems.matching.interfaces.InterfaceAddedOrderToOrderBook;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
@@ -26,7 +27,7 @@ import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBooks;
 import com.alignmentsystems.matching.library.LibraryFunctions;
 
-public class OrderBooks implements InterfaceOrderBooks , InterfaceMatchEvent {
+public class OrderBooks implements InterfaceOrderBooks , InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
 	private final static String CLASSNAME = OrderBooks.class.getSimpleName();
 
 	private Map<String, InterfaceOrderBook> orderBooks = new HashMap<String, InterfaceOrderBook>();
@@ -35,6 +36,7 @@ public class OrderBooks implements InterfaceOrderBooks , InterfaceMatchEvent {
 	private final Set<Thread> orderBookThreads = new HashSet<Thread>();
 	private PersistenceToFileClient debugger = null;
 	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
+	private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
 
 	
 	@Override
@@ -120,6 +122,19 @@ public class OrderBooks implements InterfaceOrderBooks , InterfaceMatchEvent {
 	@Override
 	public void addMatchEventListener(InterfaceMatchEvent toAdd) {
 		this.listenersMatchEvent.add(toAdd);
+		
+	}
+
+
+	@Override
+	public void addedOrderToOrderBook(InterfaceOrder nos) {
+		for (InterfaceAddedOrderToOrderBook hl : listenersAddedOrderToOrderBook)
+			hl.addedOrderToOrderBook(nos);	
+	}
+
+	@Override
+	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd) {
+		this.listenersAddedOrderToOrderBook.add(toAdd);
 		
 	}
 }

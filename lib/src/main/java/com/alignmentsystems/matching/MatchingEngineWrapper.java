@@ -28,7 +28,7 @@ import quickfix.Acceptor;
 import quickfix.Initiator;
 
 public class MatchingEngineWrapper implements InterfaceMatchingWrapper{
-	private final String className = this.getClass().getSimpleName();
+	private final String CLASSNAME = this.getClass().getSimpleName();
 	private final int milliSleep = 200;
 	private List<ApplicationFIXEngine> engines = new ArrayList<ApplicationFIXEngine>();
 
@@ -50,7 +50,7 @@ public class MatchingEngineWrapper implements InterfaceMatchingWrapper{
 
 	@Override
 	public boolean initialise() {
-		log.info("Started....");
+		log.info(CLASSNAME + " Started version=" + LibraryFunctions.getVersion(this.getClass()));
 		
 		PersistenceToFileClient debugger = new PersistenceToFileClient();
 		try {
@@ -89,7 +89,7 @@ public class MatchingEngineWrapper implements InterfaceMatchingWrapper{
 		Thread persistenceThread = new Thread(persistence);
 
 		//Set some descriptive thread names to help with debugging...
-		Thread.currentThread().setName(this.className);		
+		Thread.currentThread().setName(this.CLASSNAME);		
 		
 		mdOutThread.setName(MulticastServer.class.getSimpleName());
 		sequencerThread.setName(Sequence.class.getSimpleName());

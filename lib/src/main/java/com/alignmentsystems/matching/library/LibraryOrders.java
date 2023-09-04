@@ -11,27 +11,32 @@ package com.alignmentsystems.matching.library;
  *****************************************************************************/
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
+import com.alignmentsystems.fix44.ExecutionReport;
 import com.alignmentsystems.fix44.NewOrderSingle;
+import com.alignmentsystems.fix44.field.AvgPx;
 import com.alignmentsystems.fix44.field.ClOrdID;
+import com.alignmentsystems.fix44.field.CumQty;
+import com.alignmentsystems.fix44.field.ExecID;
+import com.alignmentsystems.fix44.field.ExecType;
+import com.alignmentsystems.fix44.field.LeavesQty;
+import com.alignmentsystems.fix44.field.OrdStatus;
 import com.alignmentsystems.fix44.field.OrdType;
+import com.alignmentsystems.fix44.field.OrderID;
 import com.alignmentsystems.fix44.field.OrderQty;
 import com.alignmentsystems.fix44.field.Price;
 import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.fix44.field.Symbol;
 import com.alignmentsystems.fix44.field.TransactTime;
-import com.alignmentsystems.matching.LogEncapsulation;
-import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.OrderBookSide;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
-import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
+
+import quickfix.FieldNotFound;
 
 public class LibraryOrders {
 
-	
+
 	/**
 	 * 
 	 * @param side Side
@@ -46,8 +51,47 @@ public class LibraryOrders {
 			return OrderBookSide.ERROR;
 		}
 	}
-	
-	
+
+	public static ExecutionReport getExecutionReportAcknowledgementForOrder(InterfaceOrder nos) throws FieldNotFound {
+		OrderID orderId = new OrderID(nos.getOrderId());
+		ExecID execID = new ExecID (UUID.randomUUID().toString());		
+		ExecType execType = new ExecType(ExecType.NEW);		
+		OrdStatus ordStatus = new OrdStatus(OrdStatus.NEW);
+		Side side = null;
+		LeavesQty leavesQty  = null;
+		CumQty cumQty = new CumQty(0d);
+		AvgPx avgPx = new AvgPx(0d);
+
+		try {
+			side = new Side(nos.getNewOrderSingle().getSide().getValue());
+			leavesQty = new LeavesQty(nos.getNewOrderSingle().getOrderQty().getValue());		
+
+		} catch (FieldNotFound e) {
+			throw e;
+		}
+
+
+
+		ExecutionReport er = new ExecutionReport(
+				orderId
+				, execID
+				, execType
+				, ordStatus
+				, side
+				, leavesQty
+				, cumQty
+				, avgPx
+				);
+
+
+
+
+		return er;
+
+	}
+
+
+
 	/**
 	 * 
 	 * @return NewOrderSingle
@@ -60,14 +104,14 @@ public class LibraryOrders {
 		final Price price = new Price(priceForOrder);
 		final TransactTime transactTime = new TransactTime(LocalDateTime.now());  
 		final OrdType ordType = new OrdType(OrdType.LIMIT);
-		
-		
+
+
 		if (orderBookSide==OrderBookSide.BUY) {
 			side = new Side(Side.BUY); 
 		}else {
 			side = new Side(Side.SELL);
 		}
-				
+
 		NewOrderSingle nos = new NewOrderSingle(
 				clOrdID, 
 				side, 
@@ -77,20 +121,9 @@ public class LibraryOrders {
 		nos.set(symbol);
 		nos.set(ordQty);
 		nos.set(price);
-		
+
 
 		return nos;
 
 	}
-
-	/**
-	 * 
-	 * @param orderBook
-	 * @param log
-	 */
-	
-
-
-
-
 }

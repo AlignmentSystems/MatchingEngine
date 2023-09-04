@@ -22,4 +22,5 @@ public interface InterfaceOrderBooks {
 	public Set<Thread> getOrderBookThreads();
 	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> outboundSequenced, PersistenceToFileClient debugger, InterfaceMatchEvent toAdd);
 	public void addMatchEventListener(InterfaceMatchEvent toAdd);
+	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd);
 }

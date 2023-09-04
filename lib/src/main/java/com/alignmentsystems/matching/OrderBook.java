@@ -64,7 +64,7 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 		this.orderBookThread = orderBookThread;
 		this.orderBookThread.setName(symbol);
 		this.debugger = debugger;
-		returnValue =Boolean.TRUE;
+		returnValue = Boolean.TRUE;
 		return returnValue ; 
 	}
 
@@ -90,7 +90,9 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 
 		this.initialised.set(returnValue); 
 
-		return this.initialised.get();	}
+		return this.initialised.get();	
+		
+	}
 
 
 
@@ -102,28 +104,28 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	}
 
 
-	private boolean addOrder(InterfaceOrder nos) {
-		OrderBookSide orderBookSide = nos.getOrderBookSide(); 
-
-		Boolean returnValue = Boolean.FALSE;
-
-		if(orderBookSide==OrderBookSide.BUY) {
-			returnValue = buy.add(nos);
-		}else if(orderBookSide==OrderBookSide.SELL) {
-			returnValue = sell.add(nos);
-		}else {
-			returnValue = Boolean.FALSE;
-		}
-
-		//TODO - this is not the right way to do this, the event should be queued rather than sent here.
-
-		if(returnValue) {
-			addedOrderToOrderBook(nos);
-		}
-
-		return returnValue;
-
-	}
+//	private boolean addOrder(InterfaceOrder nos) {
+//		OrderBookSide orderBookSide = nos.getOrderBookSide(); 
+//
+//		Boolean returnValue = Boolean.FALSE;
+//
+//		if(orderBookSide==OrderBookSide.BUY) {
+//			returnValue = buy.add(nos);
+//		}else if(orderBookSide==OrderBookSide.SELL) {
+//			returnValue = sell.add(nos);
+//		}else {
+//			returnValue = Boolean.FALSE;
+//		}
+//
+//		//TODO - this is not the right way to do this, the event should be queued rather than sent here.
+//
+//		if(returnValue) {
+//			addedOrderToOrderBook(nos);
+//		}
+//
+//		return returnValue;
+//
+//	}
 
 	@NotYetImplemented
 	private boolean cancelOrder(InterfaceOrder nos) {
@@ -361,6 +363,7 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 				debugger.info(sb.toString());
 				if (inSeq.getOrderBookSide()==OrderBookSide.BUY) {
 					this.buy.add(inSeq);
+					
 
 				}else if (inSeq.getOrderBookSide()==OrderBookSide.SELL) {
 					this.sell.add(inSeq);
@@ -368,6 +371,7 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 				}else {
 					//TODO Error - how do we handle this?
 				}
+				addedOrderToOrderBook(inSeq);
 				this.orderBookLastUpdateTime = OffsetDateTime.now(Constants.HERE);
 				//this.snapShotOrderBook();
 				this.runMatch();

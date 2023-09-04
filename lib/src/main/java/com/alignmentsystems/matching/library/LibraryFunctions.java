@@ -244,8 +244,8 @@ public class LibraryFunctions {
 	public static int getPropertyAsInt(Actors actor, ConfigurationProperties configurationProperties) {
 		String innerValue = getProperty(actor, configurationProperties);
 		int returnValue;
-		
-		
+
+
 		try {
 			returnValue = Integer.parseInt(innerValue);
 		} catch (NumberFormatException e) {
@@ -326,7 +326,11 @@ public class LibraryFunctions {
 				;
 	}
 
-
+	/**
+	 * 
+	 * @param wrapName
+	 * @return
+	 */
 	public static String wrapNameSquareBracketsAndSpaces(String wrapName) {
 		return new StringBuilder()
 				.append(Constants.SPACE)
@@ -566,7 +570,7 @@ public class LibraryFunctions {
 	 * @param classVersionToTest Class to check
 	 * @return String The version extracted from the jar file.
 	 */
-	protected final static String getVersion(Class<?> classVersionToTest) {
+	public final static String getVersion(Class<?> classVersionToTest) {
 		String retVal = "n/a";
 		String className = classVersionToTest.getSimpleName() + ".class";
 		String classPath = classVersionToTest.getResource(className).toString();
