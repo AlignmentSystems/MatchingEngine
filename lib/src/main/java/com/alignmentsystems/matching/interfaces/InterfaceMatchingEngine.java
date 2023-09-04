@@ -52,7 +52,13 @@ public interface InterfaceMatchingEngine {
 	
 	public default void sendExecutionReportAcknowledgementForReceivedOrder(InterfaceOrder nos , LogEncapsulation log) {
 		final String methodName ="sendExecutionReportAcknowledgementForReceivedOrder";
-		ExecutionReport er = LibraryOrders.getExecutionReportAcknowledgementForOrder(nos);
+		ExecutionReport er;
+		
+		try {
+			er = LibraryOrders.getExecutionReportAcknowledgementForOrder(nos);
+		} catch (FieldNotFound e) {
+			return;
+		}
 		
 		SessionID sessionID  = nos.getSessionId();
 				
