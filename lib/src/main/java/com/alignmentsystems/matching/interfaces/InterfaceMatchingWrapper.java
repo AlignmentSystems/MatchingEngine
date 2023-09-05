@@ -9,7 +9,10 @@ package com.alignmentsystems.matching.interfaces;
  *	Artefact		:	InterfaceMatchingWrapper
  *	Description		:
  *****************************************************************************/
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public interface InterfaceMatchingWrapper {
 	public boolean initialise();
 }

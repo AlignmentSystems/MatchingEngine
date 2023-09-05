@@ -11,10 +11,12 @@ package com.alignmentsystems.matching;
  *****************************************************************************/
 
 import java.util.Comparator;
-	
-import com.alignmentsystems.matching.enumerations.OrderBookSide;
-import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 
+import com.alignmentsystems.matching.interfaces.InterfaceOrder;
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class AlignmentOrderComparatorBuy implements Comparator<InterfaceOrder>{
 	/**
 	 * Compares this date-time to another date-time. The comparison is based on the

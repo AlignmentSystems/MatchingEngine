@@ -15,8 +15,9 @@ import com.alignmentsystems.matching.enumerations.Actors;
 import com.alignmentsystems.matching.exceptions.LogMessageIsNull;
 
 /**
- * @author John Greenan john.greenan@alignment-systems.com
- * An interface for a Logger
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
  */
 public interface InterfacePersistenceClient {
 	/**

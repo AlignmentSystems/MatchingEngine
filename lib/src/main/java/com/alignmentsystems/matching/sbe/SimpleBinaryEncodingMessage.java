@@ -18,9 +18,13 @@ import java.util.UUID;
 import com.alignmentsystems.matching.Match;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.Encodings;
-import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
+import com.alignmentsystems.matching.interfaces.InterfaceMatch;
 import com.alignmentsystems.matching.interfaces.InterfaceSimpleBinaryEncodingMessage;
 
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class SimpleBinaryEncodingMessage implements InterfaceSimpleBinaryEncodingMessage {
 	private Double marketDataPrice = null;
 	private Double marketDataQuantity = null;
@@ -88,7 +92,7 @@ public class SimpleBinaryEncodingMessage implements InterfaceSimpleBinaryEncodin
 	}
 
 	@Override
-	public void setMessage(InterfaceMatchTrade match) {
+	public void setMessage(InterfaceMatch match) {
 		this.marketDataPrice = match.getMatchPrice();
 		this.marketDataQuantity = match.getMatchQuantity();
 		this.timestamp = match.getTimestamp();
@@ -96,8 +100,8 @@ public class SimpleBinaryEncodingMessage implements InterfaceSimpleBinaryEncodin
 	}
 
 	@Override
-	public InterfaceMatchTrade getMessage() {
-		InterfaceMatchTrade match = new Match();
+	public InterfaceMatch getMessage() {
+		InterfaceMatch match = new Match();
 		return match;
 	}
 

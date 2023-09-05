@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.alignmentsystems.matching.constants.FailureConditionConstants;
 import com.alignmentsystems.matching.enumerations.Actors;
-import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
+import com.alignmentsystems.matching.interfaces.InterfaceMatch;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchingWrapper;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.library.LibraryFunctions;
@@ -26,7 +26,10 @@ import com.alignmentsystems.matching.udp.MulticastServer;
 
 import quickfix.Acceptor;
 import quickfix.Initiator;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class MatchingEngineWrapper implements InterfaceMatchingWrapper{
 	private final String CLASSNAME = this.getClass().getSimpleName();
 	private final int milliSleep = 200;
@@ -36,7 +39,7 @@ public class MatchingEngineWrapper implements InterfaceMatchingWrapper{
 	private ConcurrentLinkedQueue<InterfaceOrder> sequencedPersistence = new ConcurrentLinkedQueue<InterfaceOrder>(); 
 	private ConcurrentLinkedQueue<String> deduplicatedPersistence = new ConcurrentLinkedQueue<String>(); 
 
-	private ConcurrentLinkedQueue<InterfaceMatchTrade> marketDataQueue = new ConcurrentLinkedQueue<InterfaceMatchTrade>(); 
+	private ConcurrentLinkedQueue<InterfaceMatch> marketDataQueue = new ConcurrentLinkedQueue<InterfaceMatch>(); 
 
 	
 	private String[] args = null;

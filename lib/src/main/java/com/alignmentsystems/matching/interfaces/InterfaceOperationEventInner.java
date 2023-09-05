@@ -12,7 +12,10 @@ package com.alignmentsystems.matching.interfaces;
 
 import com.alignmentsystems.matching.enumerations.EventStatusCategory;
 import com.alignmentsystems.matching.enumerations.OperationEventType;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public interface InterfaceOperationEventInner {
 	public void setEventMethodName(String methodName);
 	public String getEventMethodName();

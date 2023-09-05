@@ -10,7 +10,6 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
-import java.nio.ByteBuffer;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -18,12 +17,16 @@ import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.annotations.Experimental;
 import com.alignmentsystems.matching.enumerations.Encodings;
 import com.alignmentsystems.matching.exceptions.RepresentationSBENotAvailable;
-import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
+import com.alignmentsystems.matching.interfaces.InterfaceMatch;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.sbe.SimpleBinaryEncodingMessage;
 import com.alignmentsystems.matching.sbe.SimpleOpenFramingHeaderMessage;
 
-public class Match implements InterfaceMatchTrade {
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
+public class Match implements InterfaceMatch {
 	private Double matchQuantity = 0d;
 	private Double matchPrice = 0d;
 	private InterfaceOrder buyOrder = null;

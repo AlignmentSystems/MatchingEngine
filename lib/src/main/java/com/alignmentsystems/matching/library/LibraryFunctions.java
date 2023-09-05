@@ -48,9 +48,9 @@ import quickfix.SocketAcceptor;
 import quickfix.ThreadedSocketInitiator;
 
 
-/***
- * Some functions shared over the different classes
- * @author John Greenan john.greenan@alignment-systems.com
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
  */
 public class LibraryFunctions {
 

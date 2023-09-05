@@ -14,7 +14,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.alignmentsystems.fix44.NewOrderSingle;
-import com.alignmentsystems.fix44.field.OrderID;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.Actors;
 import com.alignmentsystems.matching.enumerations.MessageDirection;
@@ -34,6 +33,10 @@ import quickfix.SessionID;
 import quickfix.SessionNotFound;
 import quickfix.UnsupportedMessageType;
 
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class ApplicationFIXEngine extends MessageCracker implements quickfix.Application{
 	private ConcurrentLinkedQueue<InterfaceOrder> orderQueue = new ConcurrentLinkedQueue<InterfaceOrder>(); 
 	private LogEncapsulation log = null;

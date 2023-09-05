@@ -10,6 +10,10 @@ package com.alignmentsystems.matching.enumerations;
  *	Description		:
  *****************************************************************************/
 
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public enum OperationEventType {
 	MATCHEVENT("Match"),
 	NEWORDEREVENT("NewOrder");

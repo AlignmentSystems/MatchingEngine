@@ -19,7 +19,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderToStringProcessor;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class OrderToStringPreProcessor implements Runnable, InterfaceOrderToStringProcessor{
 	private final static String CLASSNAME = OrderToStringPreProcessor.class.getSimpleName().toString();
 	private ConcurrentLinkedQueue<InterfaceOrder> inQueue;

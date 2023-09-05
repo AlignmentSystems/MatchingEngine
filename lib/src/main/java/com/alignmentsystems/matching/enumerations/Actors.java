@@ -13,8 +13,8 @@ package com.alignmentsystems.matching.enumerations;
 import com.alignmentsystems.matching.constants.Constants;
 
 /**
- * Actors - used by Helper to get properties from the configuration file.
- * @author John Greenan john.greenan@alignment-systems.com
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
  */
 public enum Actors {
 		A("MemberA"),

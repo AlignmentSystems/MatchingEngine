@@ -16,7 +16,7 @@ import java.util.HashMap;
 import com.alignmentsystems.matching.datatypes.NameAndAssociatedShortID;
 
 /**
- * @author <a href="mailto:john.greenan@alignment-systems.com">John Greenan</a>
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
 public enum Encodings {	

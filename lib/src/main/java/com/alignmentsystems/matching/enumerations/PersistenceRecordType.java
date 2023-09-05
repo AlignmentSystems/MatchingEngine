@@ -11,8 +11,9 @@ package com.alignmentsystems.matching.enumerations;
  *****************************************************************************/
 
 /**
-* @author John Greenan john.greenan@alignment-systems.com
-*/
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public enum  PersistenceRecordType {
 	INFO ("[INFO] "),
 	ERROR("[ERROR] "),

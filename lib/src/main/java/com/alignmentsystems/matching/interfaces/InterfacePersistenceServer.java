@@ -15,6 +15,12 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.alignmentsystems.matching.enumerations.Actors;
+
+
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public interface InterfacePersistenceServer {
 	public void writeLineAtClose(String toWrite) ;
 	public String getFileNameAndPathUsed();

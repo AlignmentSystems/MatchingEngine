@@ -11,12 +11,15 @@ package com.alignmentsystems.matching.interfaces;
  *****************************************************************************/
 
 import com.alignmentsystems.matching.enumerations.Encodings;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public interface InterfaceSimpleBinaryEncodingMessage {
 	public byte[] getByteArray(Encodings encoding);
 	public void setByteArray(byte[] match, Encodings encoding);
-	public void setMessage(InterfaceMatchTrade match);
-	public InterfaceMatchTrade getMessage();
+	public void setMessage(InterfaceMatch match);
+	public InterfaceMatch getMessage();
 	public Long getSequenceNumber();
 	public void setSequenceNumber(Long sequenceNumber);
 	public Encodings getEncoding();

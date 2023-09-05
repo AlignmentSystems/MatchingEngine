@@ -1,4 +1,14 @@
 package com.alignmentsystems.matching.udp;
+/******************************************************************************
+ * 
+ *	Author			:	John Greenan 
+ *	Contact			:	sales@alignment-systems.com
+ *	Date            :	4th September 2023
+ *	Copyright       :	Alignment Systems Ltd 2023
+ *	Project			:	Alignment Matching Toy
+ *	Artefact		:	MulticastServer
+ *	Description		:
+ *****************************************************************************/
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -17,17 +27,19 @@ import com.alignmentsystems.matching.PersistenceToFileClient;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.Actors;
 import com.alignmentsystems.matching.enumerations.ConfigurationProperties;
-import com.alignmentsystems.matching.enumerations.Encodings;
-import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
+import com.alignmentsystems.matching.interfaces.InterfaceMatch;
 import com.alignmentsystems.matching.interfaces.InterfaceMulticastServer;
 import com.alignmentsystems.matching.library.LibraryFunctions;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class MulticastServer implements Runnable, InterfaceMulticastServer{
 	private final static String CLASSNAME = MulticastServer.class.getSimpleName().toString();
 	private DatagramSocket socket;
 	private InetAddress group;
 	private LogEncapsulation log = null;
-	private ConcurrentLinkedQueue<InterfaceMatchTrade> marketDataToPublishQueue = null;
+	private ConcurrentLinkedQueue<InterfaceMatch> marketDataToPublishQueue = null;
 	private PersistenceToFileClient debugger = null; 
 	private String host = null;
 	private int port = 0;
@@ -86,7 +98,7 @@ public class MulticastServer implements Runnable, InterfaceMulticastServer{
 
 
 	@Override
-	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceMatchTrade> marketDataToPublishQueue,
+	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceMatch> marketDataToPublishQueue,
 			PersistenceToFileClient debugger, String host, int port) {
 		this.log = log;
 		this.marketDataToPublishQueue = marketDataToPublishQueue;
@@ -108,7 +120,7 @@ public class MulticastServer implements Runnable, InterfaceMulticastServer{
 
 		while (running.get()){
 
-			InterfaceMatchTrade inMarketDataToPublish = marketDataToPublishQueue.poll();
+			InterfaceMatch inMarketDataToPublish = marketDataToPublishQueue.poll();
 
 			if (inMarketDataToPublish!=null) {
 				try {
@@ -147,7 +159,7 @@ public class MulticastServer implements Runnable, InterfaceMulticastServer{
 	}
 
 	@Override
-	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceMatchTrade> marketDataToPublishQueue,
+	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceMatch> marketDataToPublishQueue,
 			PersistenceToFileClient debugger) {
 		this.log = log;
 		this.marketDataToPublishQueue = marketDataToPublishQueue;
@@ -159,7 +171,7 @@ public class MulticastServer implements Runnable, InterfaceMulticastServer{
 	}
 
 	@Override
-	public ConcurrentLinkedQueue<InterfaceMatchTrade> getMarketDataQueue() {
+	public ConcurrentLinkedQueue<InterfaceMatch> getMarketDataQueue() {
 		return this.marketDataToPublishQueue;
 	}
 

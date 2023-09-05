@@ -28,9 +28,9 @@ import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 
-
 /**
- * 
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
  */
 public class AlignmentOrder implements InterfaceOrder{
 	private String symbol = null;

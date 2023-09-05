@@ -34,6 +34,10 @@ import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 
 import quickfix.FieldNotFound;
 
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class LibraryOrders {
 
 

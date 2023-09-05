@@ -32,8 +32,8 @@ import com.alignmentsystems.matching.library.LibraryFunctions;
 
 
 /**
- * ToFlatFile - write from the logger queue to a flat text file that is human readable
- * @author John Greenan john.greenan@alignment-systems.com
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
  */
 class PersistenceToFileServer implements Runnable , InterfacePersistenceServer{
 	private ConcurrentLinkedQueue<String> logQueue = null;

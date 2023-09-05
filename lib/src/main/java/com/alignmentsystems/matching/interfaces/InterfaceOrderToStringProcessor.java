@@ -11,7 +11,10 @@ package com.alignmentsystems.matching.interfaces;
  *****************************************************************************/
 
 import java.util.concurrent.ConcurrentLinkedQueue;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public interface InterfaceOrderToStringProcessor {
 	public boolean initialise(ConcurrentLinkedQueue<InterfaceOrder> inQueue, ConcurrentLinkedQueue<String> outQueue);
 }

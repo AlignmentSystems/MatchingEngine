@@ -21,13 +21,15 @@ import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.Actors;
 import com.alignmentsystems.matching.enumerations.MessageDirection;
 import com.alignmentsystems.matching.enumerations.OperationEventType;
-import com.alignmentsystems.matching.enumerations.PersistenceRecordType;
 import com.alignmentsystems.matching.interfaces.InterfaceCustomLoggerMessage;
-import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
+import com.alignmentsystems.matching.interfaces.InterfaceMatch;
 import com.alignmentsystems.matching.library.LibraryFunctions;
 
 import quickfix.SessionID;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 	private Logger innerLog = null;
 
@@ -140,7 +142,7 @@ public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 
 
 	@Override
-	public void infoMatchingEvent(OperationEventType operationEventType, InterfaceMatchTrade match) {
+	public void infoMatchingEvent(OperationEventType operationEventType, InterfaceMatch match) {
 		StringBuilder sb = new StringBuilder()
 				.append(LibraryFunctions.wrapNameSquareBrackets(operationEventType.value))
 				.append(Constants.TAB)

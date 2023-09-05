@@ -16,12 +16,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.interfaces.InterfaceAddedOrderToOrderBook;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchEvent;
-import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
+import com.alignmentsystems.matching.interfaces.InterfaceMatch;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchingEngine;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.matching.udp.MulticastServer;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class MatchingEngine implements Runnable , InterfaceMatchEvent, InterfaceMatchingEngine , InterfaceAddedOrderToOrderBook{
 	private final static String CLASSNAME = MatchingEngine.class.getSimpleName();
 	private LogEncapsulation log = null;
@@ -31,7 +34,7 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 	private AtomicBoolean running = new AtomicBoolean(false);
 	private PersistenceToFileClient debugger = null;
 	private MulticastServer mdOut = null;
-	private ConcurrentLinkedQueue<InterfaceMatchTrade> marketDataToPublishQueue = null;
+	private ConcurrentLinkedQueue<InterfaceMatch> marketDataToPublishQueue = null;
 
 	@Override
 	public void run() {
@@ -93,14 +96,14 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 	}
 
 	@Override
-	public void matchHappened(InterfaceMatchTrade match) {
+	public void matchHappened(InterfaceMatch match) {
 		sendExecutionReportsForMatch(match, log);
 		publishMarketDataToPublishQueue(match);			
 	}
 
 
 	@Override
-	public void publishMarketDataToPublishQueue(InterfaceMatchTrade match) {
+	public void publishMarketDataToPublishQueue(InterfaceMatch match) {
 		final String methodName ="publishMarketDataToPublishQueue";
 		if (match.getIsEligibleForMarketData()) {
 			marketDataToPublishQueue.add(match);	

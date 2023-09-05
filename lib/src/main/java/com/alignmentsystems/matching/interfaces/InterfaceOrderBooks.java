@@ -16,7 +16,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import com.alignmentsystems.matching.LogEncapsulation;
 import com.alignmentsystems.matching.PersistenceToFileClient;
 import com.alignmentsystems.matching.exceptions.OrderBookNotFound;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public interface InterfaceOrderBooks {
 	public InterfaceOrderBook getOrderBookForSymbol(String symbol) throws OrderBookNotFound;	
 	public Set<Thread> getOrderBookThreads();

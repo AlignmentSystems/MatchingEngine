@@ -15,7 +15,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class Sequence implements Runnable{
 	private final static String CLASSNAME = Sequence.class.getSimpleName().toString();
 	private ConcurrentLinkedQueue<InterfaceOrder> sequencedIn;

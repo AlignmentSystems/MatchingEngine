@@ -22,7 +22,10 @@ import com.alignmentsystems.matching.enumerations.OrderBookSide;
 
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public interface InterfaceOrder{
 	public OffsetDateTime getTimestamp();	
 	public NewOrderSingle getNewOrderSingle();

@@ -9,7 +9,10 @@ package com.alignmentsystems.matching.constants;
  *	Artefact		:	FailureConditionConstants
  *	Description		:
  *****************************************************************************/
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class FailureConditionConstants {
 	private final static int FIX_BASE_MEMBER = 666;
 	public final static int ERROR_MEMBER_FIX_PROPERTIES_FILE = FIX_BASE_MEMBER + 1;

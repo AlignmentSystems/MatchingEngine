@@ -11,9 +11,9 @@ package com.alignmentsystems.matching.enumerations;
  *****************************************************************************/
 
 /**
-* TimestampUsage - where is a timestamp used - impacts in use of semi-colon and colon in text
-* @author John Greenan john.greenan@alignment-systems.com
-*/
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public enum TimestampUsage {
 	FILENAME,
 	INFILE

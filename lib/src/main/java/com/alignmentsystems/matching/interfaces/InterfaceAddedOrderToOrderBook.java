@@ -10,6 +10,10 @@ package com.alignmentsystems.matching.interfaces;
  *	Description		:
  *****************************************************************************/
 
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public interface InterfaceAddedOrderToOrderBook {
 	public void addedOrderToOrderBook(InterfaceOrder nos);
 }

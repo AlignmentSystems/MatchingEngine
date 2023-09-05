@@ -14,7 +14,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -23,12 +22,15 @@ import com.alignmentsystems.matching.annotations.NotYetImplemented;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.OrderBookSide;
 import com.alignmentsystems.matching.interfaces.InterfaceAddedOrderToOrderBook;
+import com.alignmentsystems.matching.interfaces.InterfaceMatch;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchEvent;
-import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.matching.library.LibraryFunctions;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
 	private final static String CLASSNAME = OrderBook.class.getSimpleName();
 	private Thread orderBookThread = null;
@@ -435,7 +437,7 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	}
 
 	@Override
-	public void matchHappened(InterfaceMatchTrade match) {
+	public void matchHappened(InterfaceMatch match) {
 		for (InterfaceMatchEvent hl : listenersMatchEvent)
 			hl.matchHappened(match);	
 	}

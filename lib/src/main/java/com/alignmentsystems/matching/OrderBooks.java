@@ -21,12 +21,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import com.alignmentsystems.matching.exceptions.OrderBookNotFound;
 import com.alignmentsystems.matching.interfaces.InterfaceAddedOrderToOrderBook;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchEvent;
-import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
+import com.alignmentsystems.matching.interfaces.InterfaceMatch;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.matching.interfaces.InterfaceOrderBooks;
 import com.alignmentsystems.matching.library.LibraryFunctions;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class OrderBooks implements InterfaceOrderBooks , InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
 	private final static String CLASSNAME = OrderBooks.class.getSimpleName();
 
@@ -118,7 +121,7 @@ public class OrderBooks implements InterfaceOrderBooks , InterfaceMatchEvent, In
 
 
 	@Override
-	public void matchHappened(InterfaceMatchTrade match) {
+	public void matchHappened(InterfaceMatch match) {
 		for (InterfaceMatchEvent hl : listenersMatchEvent)
 			hl.matchHappened(match);	
 		

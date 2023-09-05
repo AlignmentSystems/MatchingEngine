@@ -34,7 +34,10 @@ import quickfix.FieldNotFound;
 import quickfix.Session;
 import quickfix.SessionID;
 import quickfix.SessionNotFound;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public interface InterfaceMatchingEngine {
 	
 	
@@ -45,7 +48,7 @@ public interface InterfaceMatchingEngine {
 			, PersistenceToFileClient debugger
 			, MulticastServer mdOut);
 
-	public void publishMarketDataToPublishQueue(InterfaceMatchTrade match);
+	public void publishMarketDataToPublishQueue(InterfaceMatch match);
 
 	
 	
@@ -79,7 +82,7 @@ public interface InterfaceMatchingEngine {
 	 * @param match
 	 * @param log
 	 */
-	public default void sendExecutionReportsForMatch(InterfaceMatchTrade match, LogEncapsulation log) {
+	public default void sendExecutionReportsForMatch(InterfaceMatch match, LogEncapsulation log) {
 		final String methodName ="matchHappened";
 
 		log.infoMatchingEvent(OperationEventType.MATCHEVENT, match);

@@ -9,7 +9,10 @@ package com.alignmentsystems.matching.enumerations;
  *	Artefact		:	MessageDirection
  *	Description		:
  *****************************************************************************/
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public enum MessageDirection {
 		INDETERMINATE("INDETERMINATE"),
 		SENT("SENT"),

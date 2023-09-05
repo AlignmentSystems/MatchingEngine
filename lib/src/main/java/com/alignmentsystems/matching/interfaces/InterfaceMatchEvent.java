@@ -9,8 +9,11 @@ package com.alignmentsystems.matching.interfaces;
  *	Artefact		:	InterfaceMatchEvent
  *	Description		:
  *****************************************************************************/
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public interface InterfaceMatchEvent {
-	public void matchHappened(InterfaceMatchTrade match);
+	public void matchHappened(InterfaceMatch match);
 
 }

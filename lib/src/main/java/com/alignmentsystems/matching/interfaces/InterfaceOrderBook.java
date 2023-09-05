@@ -17,7 +17,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import com.alignmentsystems.matching.LogEncapsulation;
 import com.alignmentsystems.matching.PersistenceToFileClient;
 import com.alignmentsystems.matching.enumerations.OrderBookSide;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public interface InterfaceOrderBook {
 	public Boolean initialise(String symbol, LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, Thread orderBookThread, PersistenceToFileClient debugger);
 	public Boolean initialise(

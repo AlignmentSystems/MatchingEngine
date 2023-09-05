@@ -31,10 +31,9 @@ import java.lang.annotation.Target;
 
 
 /**
-* 
-* A way to tag an interface or other object type as being experimental
-* @author John Greenan john.greenan@alignment-systems.com
-*/
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 @Documented
 @Retention(RUNTIME)
 @Target({TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE, ANNOTATION_TYPE, PACKAGE, TYPE_PARAMETER, TYPE_USE, MODULE})

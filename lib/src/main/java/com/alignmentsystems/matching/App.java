@@ -9,7 +9,10 @@ package com.alignmentsystems.matching;
  *	Artefact		:	App
  *	Description		:
  *****************************************************************************/
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class App {
 	
 	public static void main(String[] args) {		

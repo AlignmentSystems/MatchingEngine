@@ -14,11 +14,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.alignmentsystems.matching.LogEncapsulation;
 import com.alignmentsystems.matching.PersistenceToFileClient;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public interface InterfaceMulticastServer {
-	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceMatchTrade> marketDataToPublishQueue, PersistenceToFileClient debugger, String host, int port);
-	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceMatchTrade> marketDataToPublishQueue, PersistenceToFileClient debugger);
+	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceMatch> marketDataToPublishQueue, PersistenceToFileClient debugger, String host, int port);
+	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceMatch> marketDataToPublishQueue, PersistenceToFileClient debugger);
 	public void multicastThis(byte[] multicastBytes) throws IOException;
-	public ConcurrentLinkedQueue<InterfaceMatchTrade> getMarketDataQueue();
+	public ConcurrentLinkedQueue<InterfaceMatch> getMarketDataQueue();
 	public Long getCurrentSequenceNumber();
 }

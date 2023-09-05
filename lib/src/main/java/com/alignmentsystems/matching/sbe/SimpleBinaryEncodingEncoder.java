@@ -10,6 +10,10 @@ package com.alignmentsystems.matching.sbe;
  *	Description		:
  *****************************************************************************/
 
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class SimpleBinaryEncodingEncoder {
 
 	public SimpleBinaryEncodingEncoder() {

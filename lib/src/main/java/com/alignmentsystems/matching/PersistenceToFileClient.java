@@ -26,8 +26,8 @@ import com.alignmentsystems.matching.library.LibraryFunctions;
 
 
 /**
- * The main part of the logger that wraps up the logqueue and the PersistenceToFileServer class...
- * @author John Greenan john.greenan@alignment-systems.com
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
  */
 public class PersistenceToFileClient implements InterfacePersistenceClient{
 	private ConcurrentLinkedQueue<String> logQueue = new ConcurrentLinkedQueue<String>();

@@ -13,7 +13,10 @@ package com.alignmentsystems.matching.interfaces;
 import com.alignmentsystems.fix44.ExecutionReport;
 
 import quickfix.SessionID;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public interface InterfaceExecutionReport {
 	public void setExecutionReport(String execID, ExecutionReport er, SessionID sessionId);
 	public ExecutionReport getExecutionReport();

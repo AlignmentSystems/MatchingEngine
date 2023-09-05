@@ -16,7 +16,10 @@ import java.nio.ByteOrder;
 import com.alignmentsystems.matching.enumerations.Encodings;
 import com.alignmentsystems.matching.enumerations.VersionSOFH;
 import com.alignmentsystems.matching.interfaces.InterfaceSimpleOpenFramingHeaderMessage;
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class SimpleOpenFramingHeaderMessage implements InterfaceSimpleOpenFramingHeaderMessage {
 	private SimpleBinaryEncodingMessage sbe = null;
 	

@@ -17,8 +17,8 @@ import java.time.ZoneOffset;
 import com.alignmentsystems.matching.enumerations.Actors;
 
 /**
- * Constants - keep all re-used constants in one place...
- * @author John Greenan john.greenan@alignment-systems.com
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
  */
 public class Constants {
 		public final static String EQUALS = "=".intern();

@@ -9,7 +9,10 @@ package com.alignmentsystems.matching.interfaces;
  *	Artefact		:	InterfaceOperationEvent
  *	Description		:
  *****************************************************************************/
-
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public interface InterfaceOperationEvent {
 	void OperationEventHappened(InterfaceOperationEventInner inner);
 }

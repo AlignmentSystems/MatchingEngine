@@ -12,8 +12,7 @@ package com.alignmentsystems.matching.datatypes;
 
 
 /**
- * 
- * @author <a href="mailto:john.greenan@alignment-systems.com">John Greenan</a>
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
 public class NameAndAssociatedShortID {
