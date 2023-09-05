@@ -109,6 +109,10 @@ public class SimpleBinaryEncodingMessage implements InterfaceSimpleBinaryEncodin
 	@Override
 	public void setSequenceNumber(Long sequenceNumber) {
 		this.sequenceNumber = sequenceNumber;
+	}
 
+	@Override
+	public Encodings getEncoding() {
+		return this.encoding;
 	}
 }

@@ -10,15 +10,18 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
+import java.nio.ByteBuffer;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.annotations.Experimental;
 import com.alignmentsystems.matching.enumerations.Encodings;
+import com.alignmentsystems.matching.exceptions.RepresentationSBENotAvailable;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchTrade;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.sbe.SimpleBinaryEncodingMessage;
+import com.alignmentsystems.matching.sbe.SimpleOpenFramingHeaderMessage;
 
 public class Match implements InterfaceMatchTrade {
 	private Double matchQuantity = 0d;
@@ -34,8 +37,12 @@ public class Match implements InterfaceMatchTrade {
 	private UUID matchId = null;
 	private Boolean isEligibleForMarketData = Boolean.FALSE;
 	private byte[] innerSBERepresentation = null;
-
-
+	private byte[] innerSOFHRepresentation = null;
+	private SimpleBinaryEncodingMessage sbe = null;
+	
+	
+	
+	
 	public Match() {		
 	}
 
@@ -152,21 +159,8 @@ public class Match implements InterfaceMatchTrade {
 		return this.sellOrderId;
 	}
 
-	@Override
-	@Experimental
-	public  byte[] getSBERepresentation(Long sequenceNumber) {
 
-		if (innerSBERepresentation==null) {
-			SimpleBinaryEncodingMessage sbe = new SimpleBinaryEncodingMessage(sequenceNumber);
-			sbe.setMessage(this);
-			Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
-			this.innerSBERepresentation = sbe.getByteArray(encoding);
-			return this.innerSBERepresentation;
-		}else {
-			return this.innerSBERepresentation;
-		}
-	}
-	
+
 	@Override
 	public UUID getMatchId() {
 		return this.matchId;
@@ -178,5 +172,30 @@ public class Match implements InterfaceMatchTrade {
 	@Override
 	public Boolean getIsEligibleForMarketData() {
 		return this.isEligibleForMarketData;
+	}
+
+	@Override
+	@Experimental
+	public byte[] getSBERepresentation(Long sequenceNumber) {
+
+		if (innerSBERepresentation==null) {
+			sbe = new SimpleBinaryEncodingMessage(sequenceNumber);
+			sbe.setMessage(this);
+			Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
+			this.innerSBERepresentation = sbe.getByteArray(encoding);
+			return this.innerSBERepresentation;
+		}else {
+			return this.innerSBERepresentation;
+		}
+	}
+
+	@Override
+	public byte[] getSOFHRepresentation() throws RepresentationSBENotAvailable{
+		if (innerSOFHRepresentation==null) {
+			throw new RepresentationSBENotAvailable("SBE Representation not available. Call getSBERepresentation(Long sequenceNumber) first");
+		}
+		
+		SimpleOpenFramingHeaderMessage sofh = new SimpleOpenFramingHeaderMessage(this.sbe);
+		return sofh.getSOFHWrappedSBEMessage();
 	}
 }

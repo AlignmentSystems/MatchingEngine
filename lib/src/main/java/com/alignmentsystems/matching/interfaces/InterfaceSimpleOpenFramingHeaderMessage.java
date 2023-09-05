@@ -9,15 +9,8 @@ package com.alignmentsystems.matching.interfaces;
  *	Artefact		:	InterfaceSimpleBinaryEncodingMessage
  *	Description		:
  *****************************************************************************/
+import com.alignmentsystems.matching.exceptions.RepresentationSBENotAvailable;
 
-import com.alignmentsystems.matching.enumerations.Encodings;
-
-public interface InterfaceSimpleBinaryEncodingMessage {
-	public byte[] getByteArray(Encodings encoding);
-	public void setByteArray(byte[] match, Encodings encoding);
-	public void setMessage(InterfaceMatchTrade match);
-	public InterfaceMatchTrade getMessage();
-	public Long getSequenceNumber();
-	public void setSequenceNumber(Long sequenceNumber);
-	public Encodings getEncoding();
+public interface InterfaceSimpleOpenFramingHeaderMessage {
+	public byte[] getSOFHWrappedSBEMessage() throws RepresentationSBENotAvailable;
 }

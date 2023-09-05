@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.annotations.Experimental;
+import com.alignmentsystems.matching.exceptions.RepresentationSBENotAvailable;
 
 public interface InterfaceMatchTrade {
 	public OffsetDateTime getTimestamp();
@@ -32,5 +33,5 @@ public interface InterfaceMatchTrade {
 	public Boolean getIsEligibleForMarketData();
 	@Experimental
 	public byte[] getSBERepresentation(Long sequenceNumber);
-	
+	public byte[] getSOFHRepresentation() throws RepresentationSBENotAvailable;
 }

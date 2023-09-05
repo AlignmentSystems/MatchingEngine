@@ -113,9 +113,9 @@ public class MulticastServer implements Runnable, InterfaceMulticastServer{
 			if (inMarketDataToPublish!=null) {
 				try {
 					
+					inMarketDataToPublish.getSBERepresentation(this.getCurrentSequenceNumber());
 					//debugger.info(inMarketDataToPublish.toString());
-					ByteBuffer bb = ByteBuffer.wrap(inMarketDataToPublish.getSBERepresentation(this.getCurrentSequenceNumber()));
-					bb.order(Encodings.FIXSBELITTLEENDIAN.getByteOrder());
+					ByteBuffer bb = ByteBuffer.wrap(inMarketDataToPublish.getSOFHRepresentation());					
 					String payload = Constants.CHARSET.decode(bb).toString();
 					debugger.info(inMarketDataToPublish.toString() + "SBE payload==> " + payload );
 
