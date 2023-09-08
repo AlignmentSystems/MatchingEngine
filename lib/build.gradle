@@ -81,6 +81,7 @@ dependencies {
 	implementation('org.quickfixj:quickfixj-messages:2.3.1')
 	implementation("ch.qos.logback:logback-core:+")
 	implementation("org.slf4j:slf4j-api:+")
+	implementation("org.apache.kafka:kafka-clients:3.5.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
