@@ -1,6 +1,5 @@
 package com.alignmentsystems.matching;
 
-import com.alignmentsystems.matching.enumerations.Actors;
 import com.alignmentsystems.matching.enumerations.InstanceType;
 import com.alignmentsystems.matching.library.LibraryFunctions;
 

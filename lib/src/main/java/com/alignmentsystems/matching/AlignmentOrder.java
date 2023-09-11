@@ -10,6 +10,7 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
+import java.nio.ByteBuffer;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -191,5 +192,21 @@ public class AlignmentOrder implements InterfaceOrder{
 	@Override
 	public String getTarget() {
 		return this.target;
+	}
+
+
+
+	@Override
+	public void setBinaryOrderData(ByteBuffer bb) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+	@Override
+	public ByteBuffer getBinaryOrderData() {
+		// TODO Auto-generated method stub
+		return null;
 	}	
 }

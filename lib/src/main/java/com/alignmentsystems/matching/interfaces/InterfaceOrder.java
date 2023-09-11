@@ -10,6 +10,7 @@ package com.alignmentsystems.matching.interfaces;
  *	Description		:
  *****************************************************************************/
 
+import java.nio.ByteBuffer;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -34,6 +35,8 @@ public interface InterfaceOrder{
 	public OrderQty getOrderQty();
 	public Price getLimitPrice();
 	public SessionID getSessionId();
+	public void setBinaryOrderData(ByteBuffer bb); 
+	public ByteBuffer getBinaryOrderData();
 	public String getSymbol();
 	public String getSender();
 	public String getTarget();

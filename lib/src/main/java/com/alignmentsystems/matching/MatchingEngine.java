@@ -45,7 +45,7 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 	private PersistenceToFileClient debugger = null;
 	private MulticastServer mdOut = null;
 	private ConcurrentLinkedQueue<InterfaceMatch> marketDataToPublishQueue = null;
-	private KafkaProducer<String, String> kafkaProducer = null;
+	private KafkaProducer<String, byte[]> kafkaProducerB = null;
 	private OrderDistributionModel orderDistributionModel = null;
 
 
@@ -120,9 +120,9 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 		}
 		
 		if(this.orderDistributionModel==OrderDistributionModel.KAFKA){
-			if (this.kafkaProducer == null) {
+			if (this.kafkaProducerB == null) {
 				Properties props = LibraryFunctions.getProperties(Actors.KAFKA);
-				this.kafkaProducer = new KafkaProducer<>(props);
+				this.kafkaProducerB = new KafkaProducer<>(props);				
 			}
 		}
 		

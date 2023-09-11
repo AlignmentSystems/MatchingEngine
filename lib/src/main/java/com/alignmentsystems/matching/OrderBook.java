@@ -171,10 +171,10 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 			}
 		}
 		return snapShotOrderBook;
-
-
 	}
 
+	
+	
 	private void runMatch() {
 
 		InterfaceOrder topOfBuyBook = buy.peek();
