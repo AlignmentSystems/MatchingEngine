@@ -1,18 +1,25 @@
-package com.alignmentsystems.matching.interfaces;
+package com.alignmentsystems.matching.enumerations;
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
  *	Contact			:	sales@alignment-systems.com
- *	Date            :	31st August 2023
+ *	Date            :	8th September 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	InterfaceMatchingWrapper
+ *	Artefact		:	OrderDistributionModel
  *	Description		:
  *****************************************************************************/
+
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public interface InterfaceMatchingWrapper {
-	public boolean initialise();
-}
+public enum OrderDistributionModel {
+	CONCURRENTLINKEDQUEUE("concurrentlinkedqueue")	,
+	KAFKA("kafka");
+		
+		public final String distributionModel;
+		OrderDistributionModel(String distributionModel){
+			this.distributionModel = distributionModel;
+		}
+	}

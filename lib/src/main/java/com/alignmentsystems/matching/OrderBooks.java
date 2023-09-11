@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.alignmentsystems.matching.enumerations.OrderDistributionModel;
 import com.alignmentsystems.matching.exceptions.OrderBookNotFound;
 import com.alignmentsystems.matching.interfaces.InterfaceAddedOrderToOrderBook;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchEvent;
@@ -40,6 +41,7 @@ public class OrderBooks implements InterfaceOrderBooks , InterfaceMatchEvent, In
 	private PersistenceToFileClient debugger = null;
 	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
 	private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
+	private OrderDistributionModel orderDistributionModel = null;
 
 	
 	@Override
@@ -73,7 +75,7 @@ public class OrderBooks implements InterfaceOrderBooks , InterfaceMatchEvent, In
 			Runnable runnableOrderBook = (Runnable) orderBook;
 
 			Thread newThread = new Thread(runnableOrderBook);
-			orderBook.initialise(symbol, log, outboundSequenced, newThread, debugger, this, this);
+			orderBook.initialise(symbol, log, outboundSequenced, newThread, debugger, this, this, this.orderDistributionModel);
 			
 			orderBooks.put(symbol, orderBook);
 
@@ -110,28 +112,27 @@ public class OrderBooks implements InterfaceOrderBooks , InterfaceMatchEvent, In
 			, PersistenceToFileClient debugger
 			, InterfaceMatchEvent toAddMatch
 			, InterfaceAddedOrderToOrderBook toAddOrder
+			, OrderDistributionModel orderDistributionModel
 			) {
 		this.log = log;
 		this.outboundSequenced = outboundSequenced;
 		this.debugger = debugger;
 		this.addMatchEventListener(toAddMatch);
 		this.addAddedOrderToOrderBookListener(toAddOrder);
+		this.orderDistributionModel = orderDistributionModel;
 		return true;
 	}
-
 
 	@Override
 	public void matchHappened(InterfaceMatch match) {
 		for (InterfaceMatchEvent hl : listenersMatchEvent)
-			hl.matchHappened(match);	
-		
+			hl.matchHappened(match);			
 	}
 
 
 	@Override
 	public void addMatchEventListener(InterfaceMatchEvent toAdd) {
 		this.listenersMatchEvent.add(toAdd);
-		
 	}
 
 
@@ -143,7 +144,6 @@ public class OrderBooks implements InterfaceOrderBooks , InterfaceMatchEvent, In
 
 	@Override
 	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd) {
-		this.listenersAddedOrderToOrderBook.add(toAdd);
-		
+		this.listenersAddedOrderToOrderBook.add(toAdd);		
 	}
 }

@@ -21,6 +21,7 @@ import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.annotations.NotYetImplemented;
 import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.enumerations.OrderBookSide;
+import com.alignmentsystems.matching.enumerations.OrderDistributionModel;
 import com.alignmentsystems.matching.interfaces.InterfaceAddedOrderToOrderBook;
 import com.alignmentsystems.matching.interfaces.InterfaceMatch;
 import com.alignmentsystems.matching.interfaces.InterfaceMatchEvent;
@@ -35,15 +36,16 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	private final static String CLASSNAME = OrderBook.class.getSimpleName();
 	private Thread orderBookThread = null;
 
+	
+	private final static int buyPriorityQueueSize = 100;
+	private final static int sellPriorityQueueSize = 100;
 	private AlignmentOrderComparatorBuy aboc = new AlignmentOrderComparatorBuy();
 	private AlignmentOrderComparatorSell asoc = new AlignmentOrderComparatorSell();
-	private PriorityQueue<InterfaceOrder>  buy = new PriorityQueue<InterfaceOrder> (100, aboc);
-	private PriorityQueue<InterfaceOrder>  sell = new PriorityQueue<InterfaceOrder> (100,asoc); 
+	private PriorityQueue<InterfaceOrder>  buy = new PriorityQueue<InterfaceOrder> (buyPriorityQueueSize, aboc);
+	private PriorityQueue<InterfaceOrder>  sell = new PriorityQueue<InterfaceOrder> (sellPriorityQueueSize ,asoc); 
 
 	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
 	private PersistenceToFileClient debugger = null;
-
-
 
 	private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
 	private ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced = null;
@@ -55,10 +57,16 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 
 	private OffsetDateTime orderBookCreationTime = null;
 	private OffsetDateTime orderBookLastUpdateTime = null;
+	private OrderDistributionModel orderDistributionModel = null;
 
 
-	private Boolean innerInitialise(String symbol, LogEncapsulation log,
-			ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, Thread orderBookThread , PersistenceToFileClient debugger) {
+	private Boolean innerInitialise(
+			String symbol
+			, LogEncapsulation log
+			, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced
+			, Thread orderBookThread 
+			, PersistenceToFileClient debugger
+			) {
 		Boolean returnValue = Boolean.FALSE;
 		this.orderBookCreationTime = OffsetDateTime.now(Constants.HERE);
 		this.symbol = symbol;
@@ -72,8 +80,13 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	}
 
 	@Override
-	public Boolean initialise(String symbol, LogEncapsulation log,
-			ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, Thread orderBookThread , PersistenceToFileClient debugger) {
+	public Boolean initialise(
+			String symbol
+			, LogEncapsulation log
+			, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced
+			, Thread orderBookThread 
+			, PersistenceToFileClient debugger
+			) {
 
 		Boolean returnValue = innerInitialise(symbol, log, inboundSequenced, orderBookThread, debugger);
 
@@ -83,11 +96,15 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	}
 
 	@Override
-	public Boolean initialise(String symbol, LogEncapsulation log,
-			ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, Thread orderBookThread,
-			PersistenceToFileClient debugger
+	public Boolean initialise(
+			String symbol
+			, LogEncapsulation log
+			, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced
+			, Thread orderBookThread
+			, PersistenceToFileClient debugger
 			, InterfaceMatchEvent toAddMatch
 			, InterfaceAddedOrderToOrderBook toAddOrder
+			, OrderDistributionModel orderDistributionModel
 			) {
 		
 		Boolean returnValue = innerInitialise(symbol, log, inboundSequenced, orderBookThread, debugger);
@@ -96,7 +113,7 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 		this.addAddedOrderToOrderBookListener(toAddOrder);
 
 		this.initialised.set(returnValue); 
-
+		this.orderDistributionModel = orderDistributionModel;
 		return this.initialised.get();	
 		
 	}
@@ -111,28 +128,6 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	}
 
 
-//	private boolean addOrder(InterfaceOrder nos) {
-//		OrderBookSide orderBookSide = nos.getOrderBookSide(); 
-//
-//		Boolean returnValue = Boolean.FALSE;
-//
-//		if(orderBookSide==OrderBookSide.BUY) {
-//			returnValue = buy.add(nos);
-//		}else if(orderBookSide==OrderBookSide.SELL) {
-//			returnValue = sell.add(nos);
-//		}else {
-//			returnValue = Boolean.FALSE;
-//		}
-//
-//		//TODO - this is not the right way to do this, the event should be queued rather than sent here.
-//
-//		if(returnValue) {
-//			addedOrderToOrderBook(nos);
-//		}
-//
-//		return returnValue;
-//
-//	}
 
 	@NotYetImplemented
 	private boolean cancelOrder(InterfaceOrder nos) {

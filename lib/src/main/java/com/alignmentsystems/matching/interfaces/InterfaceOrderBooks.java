@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.alignmentsystems.matching.LogEncapsulation;
 import com.alignmentsystems.matching.PersistenceToFileClient;
+import com.alignmentsystems.matching.enumerations.OrderDistributionModel;
 import com.alignmentsystems.matching.exceptions.OrderBookNotFound;
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
@@ -29,6 +30,7 @@ public interface InterfaceOrderBooks {
 			, PersistenceToFileClient debugger
 			, InterfaceMatchEvent toAddMatch
 			, InterfaceAddedOrderToOrderBook toAddOrder
+			, OrderDistributionModel orderDistributionModel
 			);
 	public void addMatchEventListener(InterfaceMatchEvent toAdd);
 	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd);

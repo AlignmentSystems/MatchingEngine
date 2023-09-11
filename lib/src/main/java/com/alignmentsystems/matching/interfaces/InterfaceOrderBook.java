@@ -17,12 +17,19 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import com.alignmentsystems.matching.LogEncapsulation;
 import com.alignmentsystems.matching.PersistenceToFileClient;
 import com.alignmentsystems.matching.enumerations.OrderBookSide;
+import com.alignmentsystems.matching.enumerations.OrderDistributionModel;
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
 public interface InterfaceOrderBook {
-	public Boolean initialise(String symbol, LogEncapsulation log, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced, Thread orderBookThread, PersistenceToFileClient debugger);
+	public Boolean initialise(
+			String symbol
+			, LogEncapsulation log
+			, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced
+			, Thread orderBookThread
+			, PersistenceToFileClient debugger
+			);
 	public Boolean initialise(
 			String symbol
 			, LogEncapsulation log
@@ -31,6 +38,7 @@ public interface InterfaceOrderBook {
 			, PersistenceToFileClient debugger
 			, InterfaceMatchEvent toAdd
 			, InterfaceAddedOrderToOrderBook toAddOrder
+			, OrderDistributionModel orderDistributionModel
 			);
 	public String getThisOrderBookSymbol();
 	public ConcurrentLinkedQueue<InterfaceOrder> getInboundSequenced();
@@ -43,6 +51,5 @@ public interface InterfaceOrderBook {
 	public void addMatchEventListener(InterfaceMatchEvent toAdd);
 	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd);
 	public void upsertTopOfBook(InterfaceOrder nos);
-	public void updateLevelsOfDepth();
-	
+	public void updateLevelsOfDepth();	
 }

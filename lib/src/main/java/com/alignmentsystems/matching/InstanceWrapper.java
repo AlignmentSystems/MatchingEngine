@@ -18,8 +18,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.alignmentsystems.matching.constants.FailureConditionConstants;
 import com.alignmentsystems.matching.enumerations.Actors;
+import com.alignmentsystems.matching.enumerations.InstanceType;
+import com.alignmentsystems.matching.enumerations.OrderDistributionModel;
+import com.alignmentsystems.matching.interfaces.InterfaceInstanceWrapper;
 import com.alignmentsystems.matching.interfaces.InterfaceMatch;
-import com.alignmentsystems.matching.interfaces.InterfaceMatchingWrapper;
 import com.alignmentsystems.matching.interfaces.InterfaceOrder;
 import com.alignmentsystems.matching.library.LibraryFunctions;
 import com.alignmentsystems.matching.udp.MulticastServer;
@@ -30,7 +32,7 @@ import quickfix.Initiator;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class MatchingEngineWrapper implements InterfaceMatchingWrapper{
+public class InstanceWrapper implements InterfaceInstanceWrapper{
 	private final String CLASSNAME = this.getClass().getSimpleName();
 	private final int milliSleep = 200;
 	private List<ApplicationFIXEngine> engines = new ArrayList<ApplicationFIXEngine>();
@@ -40,28 +42,63 @@ public class MatchingEngineWrapper implements InterfaceMatchingWrapper{
 	private ConcurrentLinkedQueue<String> deduplicatedPersistence = new ConcurrentLinkedQueue<String>(); 
 
 	private ConcurrentLinkedQueue<InterfaceMatch> marketDataQueue = new ConcurrentLinkedQueue<InterfaceMatch>(); 
+	private OrderDistributionModel orderDistributionModel = null;
 
+	private InstanceType instanceType ;
 	
-	private String[] args = null;
-
-	LogEncapsulation log = new LogEncapsulation(this.getClass());
-
-	public MatchingEngineWrapper(String[] args) {
-		this.args=args;
-	}
-
+	private LogEncapsulation log = new LogEncapsulation(this.getClass());
 
 	@Override
-	public boolean initialise() {
-		log.info(CLASSNAME + " Started version=" + LibraryFunctions.getVersion(this.getClass()));
+	public boolean initialise(InstanceType instanceType) {
 		
+		this.instanceType = instanceType;
+		
+		StringBuilder sb = new StringBuilder();
+		
+		sb
+		.append(CLASSNAME)
+		.append(" Started instance=")
+		.append(this.instanceType.type)
+		.append(" Started version=")
+		.append(LibraryFunctions.getVersion(this.getClass()));
+		
+		log.info(sb.toString());
+		
+		
+		
+		
+		//What do we do here?
+		//If this instance is 
+		//a Actors.MATCHINGENGINE;
+		//b Actors.ORDERBOOK;
+		//c Actors.ALLINONE;
+		//Then there is a clear segregation of duties.
+		
+		switch(instanceType){
+		case ALLINONE:
+			return initialiseAllInOne();			
+		case MATCHINGENGINE:
+			return false;
+		case ORDERBOOK:
+			return false;
+		default:
+			return false;	
+		}
+		
+		
+		
+
+		//If we get to here then the Acceptor and the initiators are started, the code is now executing....		
+
+	}
+	
+	public Boolean initialiseAllInOne() {
 		PersistenceToFileClient debugger = new PersistenceToFileClient();
 		try {
 			debugger.initialise(Actors.MATCHINGENGINE);
 			debugger.info("Working...");
 		} catch (IllegalThreadStateException | FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage() , e );
 		}
 		
 		Thread sequencerThread = new Thread(new Sequence(log, sequenced, sequencedPersistence));
@@ -73,8 +110,7 @@ public class MatchingEngineWrapper implements InterfaceMatchingWrapper{
 		try {
 			persistence.initialise(deduplicatedPersistence, Actors.PERSISTENCE, milliSleep);
 		} catch ( IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage() , e );
 		}
 		
 		MulticastServer mdOut = new MulticastServer(); 
@@ -83,9 +119,7 @@ public class MatchingEngineWrapper implements InterfaceMatchingWrapper{
 		Thread mdOutThread = new Thread(mdOut);
 		
 		MatchingEngine matchingEngine = new MatchingEngine();
-		matchingEngine.initialise(args, log, sequenced, debugger, mdOut);
-
-
+		matchingEngine.initialise(log, sequenced, debugger, mdOut, OrderDistributionModel.CONCURRENTLINKEDQUEUE);
 		
 		Thread matchingEngineThread = new Thread(matchingEngine);
 		Thread preProcessorThread = new Thread(preProcessor);
@@ -158,9 +192,6 @@ public class MatchingEngineWrapper implements InterfaceMatchingWrapper{
 		LibraryFunctions.threadStatusCheck(preProcessorThread, log);
 		LibraryFunctions.threadStatusCheck(persistenceThread, log);
 
-		return true;		
-
-		//If we get to here then the Acceptor and the initiators are started, the code is now executing....		
-
+		return true;			
 	}
 }

@@ -17,18 +17,23 @@ import com.alignmentsystems.matching.constants.Constants;
  *
  */
 public enum Actors {
-		A("MemberA"),
-		B("MemberB" ),
-		EXCHANGE("Exchange" ),
-		PERSISTENCE("Persistence"),
-		MATCHINGENGINE("MatchingEngine"),
-		MULTICASTSERVER("MulticastServer");
-		
-		public final String targetActor;
-		public String getProperties() {
-			return this.targetActor + Constants.DOTPROPERTIES;
-		};
-		Actors(String actor){
-			this.targetActor = actor;
-		}
+	UNKNOWN("Unknown"),
+	A("MemberA"),
+	B("MemberB" ),
+	EXCHANGE("Exchange" ),
+	PERSISTENCE("Persistence"),
+	MATCHINGENGINE("MatchingEngine"),
+	MULTICASTSERVER("MulticastServer"),
+	ORDERBOOK("OrderBook"),
+	KAFKA("kafka"),
+	ALLINONE("AllInOne")
+	;
+
+	public final String targetActor;
+	public String getProperties() {
+		return this.targetActor + Constants.DOTPROPERTIES;
+	};
+	Actors(String actor){
+		this.targetActor = actor;
 	}
+}

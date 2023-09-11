@@ -15,17 +15,18 @@ package com.alignmentsystems.matching.enumerations;
  *
  */
 public enum ConfigurationProperties {
-		PASSWORD("Password"),
-		USERNAME("Username"),
-		LOGFILEDIRECTORY("LogFileDirectory"),
-		LOGFILENAMESUFFIX("LogFileNameSuffix"),
+	PASSWORD("Password"),
+	USERNAME("Username"),
+	LOGFILEDIRECTORY("LogFileDirectory"),
+	LOGFILENAMESUFFIX("LogFileNameSuffix"),
 	MULTICASTHOST("Host"),
-	MULTICASTPORT("Port");
-		
-		public final String targetProperty;
-		
-		ConfigurationProperties(String requestedProperty){
-			this.targetProperty = requestedProperty;
-		}
+	MULTICASTPORT("Port"),
+	BOOTSTRAPSERVERS("bootstrap.servers")	;
+
+	public final String targetProperty;
+
+	ConfigurationProperties(String requestedProperty){
+		this.targetProperty = requestedProperty;
 	}
+}
 

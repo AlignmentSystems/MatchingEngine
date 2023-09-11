@@ -27,6 +27,7 @@ import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.matching.LogEncapsulation;
 import com.alignmentsystems.matching.PersistenceToFileClient;
 import com.alignmentsystems.matching.enumerations.OperationEventType;
+import com.alignmentsystems.matching.enumerations.OrderDistributionModel;
 import com.alignmentsystems.matching.library.LibraryOrders;
 import com.alignmentsystems.matching.udp.MulticastServer;
 
@@ -39,19 +40,18 @@ import quickfix.SessionNotFound;
  *
  */
 public interface InterfaceMatchingEngine {
-	
-	
-	public boolean initialise(
-			String[] args
-			, LogEncapsulation log
+	public boolean initialise(			
+			LogEncapsulation log
 			, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced
 			, PersistenceToFileClient debugger
-			, MulticastServer mdOut);
+			, MulticastServer mdOut
+			, OrderDistributionModel orderDistributionModel
+			);
 
 	public void publishMarketDataToPublishQueue(InterfaceMatch match);
 
-	
-	
+
+
 	/**
 	 * 
 	 * @param nos
@@ -60,22 +60,22 @@ public interface InterfaceMatchingEngine {
 	public default void sendExecutionReportAcknowledgementForReceivedOrder(InterfaceOrder nos , LogEncapsulation log) {
 		final String methodName ="sendExecutionReportAcknowledgementForReceivedOrder";
 		ExecutionReport er;
-		
+
 		try {
 			er = LibraryOrders.getExecutionReportAcknowledgementForOrder(nos);
 		} catch (FieldNotFound e) {
 			return;
 		}
-		
+
 		SessionID sessionID  = nos.getSessionId();
-				
+
 		try {
 			Session.sendToTarget(er, sessionID);
 		} catch (SessionNotFound e) {
 			log.error(e.getMessage(), e);
 		};			
 	}
-	
+
 
 	/**
 	 * 
@@ -135,9 +135,9 @@ public interface InterfaceMatchingEngine {
 				, b_avgPx)
 				;
 		buyExecRpt.set(b_ClOrdId);
-		
-		
-		
+
+
+
 		//TODO - clean up the above
 		//Repeat the same code with s_ instead of b_ 
 		OrderID s_orderId = new OrderID(match.getSellOrderId());
@@ -181,7 +181,7 @@ public interface InterfaceMatchingEngine {
 				, s_avgPx)
 				;
 		buyExecRpt.set(s_ClOrdId);
-		
+
 		try {
 			Session.sendToTarget(sellExecRpt, sellSession);
 			Session.sendToTarget(buyExecRpt, buySession);

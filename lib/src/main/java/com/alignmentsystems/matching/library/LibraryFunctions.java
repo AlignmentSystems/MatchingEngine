@@ -34,6 +34,7 @@ import com.alignmentsystems.matching.constants.Constants;
 import com.alignmentsystems.matching.constants.FailureConditionConstants;
 import com.alignmentsystems.matching.enumerations.Actors;
 import com.alignmentsystems.matching.enumerations.ConfigurationProperties;
+import com.alignmentsystems.matching.enumerations.InstanceType;
 import com.alignmentsystems.matching.enumerations.OrderBookState;
 import com.alignmentsystems.matching.enumerations.TimestampUsage;
 
@@ -258,13 +259,10 @@ public class LibraryFunctions {
 
 	/**
 	 * 
-	 * @param actor The actor for whom properties are requested
-	 * @param configurationProperties The specific property requested
-	 * @return The value of the specific property requested
+	 * @param actor
+	 * @return
 	 */
-	public static String getProperty(Actors actor, ConfigurationProperties configurationProperties) {
-		String targetProperty = null;
-
+	public static Properties getProperties(Actors actor) {
 		InputStream inputStream = App.class.getClassLoader().getResourceAsStream(actor.getProperties());
 
 		Properties prop = new Properties();
@@ -273,22 +271,37 @@ public class LibraryFunctions {
 			prop.load(inputStream);
 		} catch (IOException e) {
 			System.err.println(e.getMessage());	
-			System.exit(0);
+			System.exit(FailureConditionConstants.KAFKA_ERROR_PROPERTIES_FILE);
 		}catch (IllegalArgumentException e) {
 			System.err.println(e.getMessage());
-			System.exit(0);
+			System.exit(FailureConditionConstants.KAFKA_ERROR_PROPERTIES_FILE);
 		}catch (NullPointerException e) {
 			System.err.println(e.getMessage());
-			System.exit(0);
+			System.exit(FailureConditionConstants.KAFKA_ERROR_PROPERTIES_FILE);
 		}
 
 		try {
-			targetProperty = prop.getProperty(configurationProperties.targetProperty).trim();			
 			inputStream.close();
 		} catch (IOException e) {
-			System.err.println(e.getMessage());
-			System.exit(0);
+			System.err.println(e.getMessage());	
+			System.exit(FailureConditionConstants.KAFKA_ERROR_PROPERTIES_FILE);
 		}
+
+		return prop;
+	}
+
+	/**
+	 * 
+	 * @param actor The actor for whom properties are requested
+	 * @param configurationProperties The specific property requested
+	 * @return The value of the specific property requested
+	 */
+	public static String getProperty(Actors actor, ConfigurationProperties configurationProperties) {
+		String targetProperty = null;
+
+		Properties prop = getProperties(actor);
+
+		targetProperty = prop.getProperty(configurationProperties.targetProperty).trim();			
 
 		return targetProperty;
 
@@ -298,7 +311,11 @@ public class LibraryFunctions {
 
 
 
-
+	/**
+	 * 
+	 * @param wrapName
+	 * @return
+	 */
 	public static String wrapNameBrackets(String wrapName) {
 		return new StringBuilder()
 				.append(Constants.SQUAREBRACKETOPEN)
@@ -565,6 +582,15 @@ public class LibraryFunctions {
 
 	}
 
+	public final static String getVersionWithTitle(Class<?> classVersionToTest) {
+		final String version = "Version=";
+		final String codeValue = getVersion(classVersionToTest);
+		StringBuilder sb = new StringBuilder().append(version).append(codeValue);
+		return sb.toString();
+
+	}
+
+
 	/**
 	 * 
 	 * @param classVersionToTest Class to check
@@ -572,13 +598,13 @@ public class LibraryFunctions {
 	 */
 	public final static String getVersion(Class<?> classVersionToTest) {
 		String retVal = "n/a";
-		String className = classVersionToTest.getSimpleName() + ".class";
-		String classPath = classVersionToTest.getResource(className).toString();
+		final String className = classVersionToTest.getSimpleName() + ".class";
+		final String classPath = classVersionToTest.getResource(className).toString();
 		if (!classPath.startsWith("jar")) {
 			// Class not from JAR
 			return null;
 		}
-		String manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1) + 
+		final String manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1) + 
 				"/META-INF/MANIFEST.MF";
 		Manifest manifest;
 
@@ -592,4 +618,62 @@ public class LibraryFunctions {
 		}
 		return retVal;
 	}
+
+
+
+
+	public final static InstanceType getInstanceActor(String... args){
+		/*
+			 -DActor=javaloader 			 
+		 */
+		//parse out the arguments here and populate the class..		
+
+
+		InstanceType returnValue = InstanceType.UNKNOWN;
+
+		for (String item : args) {
+			if(item.indexOf(Constants.EQUALS)==-1) {
+				if(item.compareTo("/help")==0) {
+					showHelp();
+				}
+			}else {
+
+				String[] Payload = item.split("=");
+				if (Payload[0].startsWith(Constants.COMMANDDELIMITER)){
+					Payload[0] = Payload[0].replace(Constants.COMMANDDELIMITER, "");		
+					if (Payload[0].equals(InstanceType.MATCHINGENGINE.toString())){
+						returnValue = InstanceType.MATCHINGENGINE;
+					} else if (Payload[0].equals(InstanceType.ORDERBOOK.toString())){
+						returnValue = InstanceType.ORDERBOOK;
+					}else{
+						//We have an unknown parameter...
+						returnValue = InstanceType.UNKNOWN;
+					}
+				}
+			}
+		}
+		return returnValue;
+	}
+
+
+
+
+	private static void showHelp() {
+		System.out.println("Help will go here..");
+		System.out.println(getVersionWithTitle(LibraryFunctions.class));
+		for (InstanceType it : InstanceType.values()) {
+			System.out.println(it.type + " is creatable=" + it.creatable);
+			if (it.creatable) {
+				System.out.println("Call with command line = " + Constants.COMMANDDELIMITER + it.type);
+			}
+			if (it.isDefault) {
+				System.out.println("Empty command line will be identical to " + Constants.COMMANDDELIMITER + it.type);
+			}
+		}
+
+		System.exit(0);
+	}
+
+
+
 }

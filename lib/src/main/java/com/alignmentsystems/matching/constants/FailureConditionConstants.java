@@ -24,4 +24,9 @@ public class FailureConditionConstants {
 	public final static int ERROR_EXCHANGE_FIX_PROPERTIES = FIX_BASE_EXCHANGE + 2; 
 	public final static int ERROR_EXCHANGE_FIX_APPLICATION = FIX_BASE_EXCHANGE + 3;
 	
+	private final static int KAFKA_PROPERTIES_BASE_MEMBER = 3666;
+	public final static int KAFKA_ERROR_PROPERTIES_FILE = KAFKA_PROPERTIES_BASE_MEMBER + 1;
+	
+	
+	
 }

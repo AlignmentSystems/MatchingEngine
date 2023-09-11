@@ -25,6 +25,9 @@ public class Constants {
 		public final static String BLOCKER = Constants.EQUALS.repeat(100).intern();
 		public final static Long REAPER_SLEEP =  200L;
 		
+		public final static String COMMANDDELIMITER="-D";
+		
+		
 		public final static String SQUAREBRACKETOPEN = "[".intern();
 		public final static String SQUAREBRACKETCLOSE = "]".intern();
 		
