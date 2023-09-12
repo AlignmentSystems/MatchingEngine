@@ -1,8 +1,4 @@
 package com.alignmentsystems.matching;
-
-import com.alignmentsystems.library.enumerations.InstanceType;
-import com.alignmentsystems.library.LibraryFunctions;
- 
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -13,6 +9,10 @@ import com.alignmentsystems.library.LibraryFunctions;
  *	Artefact		:	App
  *	Description		:
  *****************************************************************************/
+import com.alignmentsystems.library.enumerations.InstanceType;
+import com.alignmentsystems.library.LibraryFunctions;
+ 
+
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *

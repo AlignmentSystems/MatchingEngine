@@ -34,7 +34,7 @@ import com.alignmentsystems.library.interfaces.InterfacePersistenceServer;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class PersistenceToFileServer implements Runnable , InterfacePersistenceServer{
+class PersistenceToFileServer implements Runnable , InterfacePersistenceServer{
 	private ConcurrentLinkedQueue<String> logQueue = null;
 	private final static String CLASSNAME = PersistenceToFileServer.class.getSimpleName().toString();
 	private String fullPathAndFileNameToUse = null;
@@ -50,7 +50,8 @@ public class PersistenceToFileServer implements Runnable , InterfacePersistenceS
 			ConcurrentLinkedQueue<String> queue
 			, InstanceType instanceType
 			, String tag
-			, int milliSleep) throws FileNotFoundException, IOException {
+			, int milliSleep
+			) throws FileNotFoundException, IOException {
 
 		this.logQueue = queue;
 		this.tag = tag;
