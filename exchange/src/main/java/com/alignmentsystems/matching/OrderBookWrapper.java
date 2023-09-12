@@ -25,7 +25,7 @@ import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.library.interfaces.InterfaceMatch;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
-import com.alignmentsystems.library.interfaces.InterfaceOrderBooks;
+import com.alignmentsystems.library.interfaces.InterfaceOrderBookWrapper;
 import com.alignmentsystems.library.LibraryFunctions;
 import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.PersistenceToFileClient;
@@ -33,7 +33,7 @@ import com.alignmentsystems.library.PersistenceToFileClient;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class OrderBookWrapper implements InterfaceOrderBooks , InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
+public class OrderBookWrapper implements InterfaceOrderBookWrapper , InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
 	private final static String CLASSNAME = OrderBookWrapper.class.getSimpleName();
 
 	private Map<String, InterfaceOrderBook> orderBooks = new HashMap<String, InterfaceOrderBook>();

@@ -97,7 +97,9 @@ public class InstanceWrapper implements InterfaceInstanceWrapper{
 		} catch (IllegalThreadStateException | FileNotFoundException e) {
 			log.error(e.getMessage() , e );
 		}
-		OrderBookWrapper obw = new OrderBookWrapper(); 
+		OrderBookWrapper obw = new OrderBookWrapper();
+		
+		obw.initialise(log, sequenced, debugger, obw, obw, orderDistributionModel)
 		return true;
 		
 	}
