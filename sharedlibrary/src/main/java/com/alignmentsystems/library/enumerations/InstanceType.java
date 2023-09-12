@@ -19,7 +19,7 @@ import com.alignmentsystems.library.constants.Constants;
 public enum InstanceType {
 	UNKNOWN("Unknown", Boolean.FALSE, Boolean.TRUE),
 	PERSISTENCE("Persistence" , Boolean.FALSE , Boolean.FALSE),
-	MATCHINGENGINE("MatchingEngine" , Boolean.TRUE, Boolean.FALSE),
+	FIXMESSAGINGINFRA("FIXMessagingInfra" , Boolean.TRUE, Boolean.FALSE),
 	EXCHANGEFIXACCEPTOR("ExchangeFIXAcceptor" , Boolean.TRUE, Boolean.FALSE),
 	MULTICASTSERVER("MulticastServer" , Boolean.FALSE, Boolean.FALSE),
 	ORDERBOOK("OrderBook" , Boolean.TRUE, Boolean.FALSE),

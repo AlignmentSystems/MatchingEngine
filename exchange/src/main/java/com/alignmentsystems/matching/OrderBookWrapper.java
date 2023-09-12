@@ -33,8 +33,8 @@ import com.alignmentsystems.library.PersistenceToFileClient;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class OrderBooks implements InterfaceOrderBooks , InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
-	private final static String CLASSNAME = OrderBooks.class.getSimpleName();
+public class OrderBookWrapper implements InterfaceOrderBooks , InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
+	private final static String CLASSNAME = OrderBookWrapper.class.getSimpleName();
 
 	private Map<String, InterfaceOrderBook> orderBooks = new HashMap<String, InterfaceOrderBook>();
 	private LogEncapsulation log = null;
@@ -77,7 +77,7 @@ public class OrderBooks implements InterfaceOrderBooks , InterfaceMatchEvent, In
 			Runnable runnableOrderBook = (Runnable) orderBook;
 
 			Thread newThread = new Thread(runnableOrderBook);
-			orderBook.initialise(symbol, log, outboundSequenced, newThread, debugger, this, this, this.orderDistributionModel);
+			orderBook.initialise(symbol, log, debugger, this, this);
 			
 			orderBooks.put(symbol, orderBook);
 

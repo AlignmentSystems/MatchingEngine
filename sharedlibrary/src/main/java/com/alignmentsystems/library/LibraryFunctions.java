@@ -494,8 +494,8 @@ public class LibraryFunctions {
 
 			if (item.startsWith(Constants.COMMANDDELIMITER)){
 				item = item.replace(Constants.COMMANDDELIMITER, "");		
-				if (item.equalsIgnoreCase(InstanceType.MATCHINGENGINE.toString())){
-					returnValue = InstanceType.MATCHINGENGINE;
+				if (item.equalsIgnoreCase(InstanceType.FIXMESSAGINGINFRA.toString())){
+					returnValue = InstanceType.FIXMESSAGINGINFRA;
 				} else if (item.equalsIgnoreCase(InstanceType.ORDERBOOK.toString())){
 					returnValue = InstanceType.ORDERBOOK;
 				} else if (item.equalsIgnoreCase(InstanceType.MEMBERA.toString())){

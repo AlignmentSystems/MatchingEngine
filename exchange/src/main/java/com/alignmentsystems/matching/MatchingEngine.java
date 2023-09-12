@@ -10,29 +10,19 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
-import java.util.Properties;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.json.JsonObject;
-
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-
+import com.alignmentsystems.library.LogEncapsulation;
+import com.alignmentsystems.library.PersistenceToFileClient;
 import com.alignmentsystems.library.constants.Constants;
-import com.alignmentsystems.library.enumerations.Actors;
-import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.enumerations.OrderDistributionModel;
 import com.alignmentsystems.library.interfaces.InterfaceAddedOrderToOrderBook;
-import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.library.interfaces.InterfaceMatch;
+import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.library.interfaces.InterfaceMatchingEngine;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
-import com.alignmentsystems.library.LibraryFunctions;
-import com.alignmentsystems.library.LibraryKafka;
-import com.alignmentsystems.library.LogEncapsulation;
-import com.alignmentsystems.library.PersistenceToFileClient;
 import com.alignmentsystems.matching.udp.MulticastServer;
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
@@ -42,7 +32,7 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 	private final static String CLASSNAME = MatchingEngine.class.getSimpleName();
 	private LogEncapsulation log = null;
 	private ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced = null;
-	private OrderBooks orderBooks = null; 
+	private OrderBookWrapper orderBooks = null; 
 	private static final int milliSleep = 200;
 	private AtomicBoolean running = new AtomicBoolean(false);
 	private PersistenceToFileClient debugger = null;
@@ -68,7 +58,7 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 				symbol = inSeq.getSymbol();
 
 				orderBook = orderBooks.getOrderBookForSymbol(symbol);
-				orderBook.getInboundSequenced().add(inSeq);
+				//orderBook.getInboundSequenced().add(inSeq);
 
 				debugger.info(CLASSNAME + " Added order for symbol=" + symbol);
 
@@ -113,7 +103,7 @@ public class MatchingEngine implements Runnable , InterfaceMatchEvent, Interface
 		this.orderDistributionModel = orderDistributionModel;
 		
 		if(this.orderDistributionModel==OrderDistributionModel.CONCURRENTLINKEDQUEUE){
-			orderBooks = new OrderBooks();
+			orderBooks = new OrderBookWrapper();
 			orderBooks.initialise(this.log, this.inboundSequenced, this.debugger, this, this, this.orderDistributionModel);			
 		}
 				

@@ -40,8 +40,6 @@ import com.alignmentsystems.library.PersistenceToFileClient;
 public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
 	private final static String CLASSNAME = OrderBook.class.getSimpleName();
 	private Thread orderBookThread = null;
-
-	
 	private final static int buyPriorityQueueSize = 100;
 	private final static int sellPriorityQueueSize = 100;
 	private AlignmentOrderComparatorBuy aboc = new AlignmentOrderComparatorBuy();
@@ -53,7 +51,6 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	private PersistenceToFileClient debugger = null;
 
 	private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
-	private ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced = null;
 	private AtomicBoolean running = new AtomicBoolean(false);
 	private AtomicBoolean initialised = new AtomicBoolean(false);
 	private String symbol = null;
@@ -64,61 +61,27 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	private OffsetDateTime orderBookLastUpdateTime = null;
 	private OrderDistributionModel orderDistributionModel = null;
 
-
-	private Boolean innerInitialise(
+	@Override
+	public Boolean initialise(
 			String symbol
 			, LogEncapsulation log
-			, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced
-			, Thread orderBookThread 
 			, PersistenceToFileClient debugger
+			, InterfaceMatchEvent toAddMatch
+			, InterfaceAddedOrderToOrderBook toAddOrder
 			) {
 		Boolean returnValue = Boolean.FALSE;
 		this.orderBookCreationTime = OffsetDateTime.now(Constants.HERE);
 		this.symbol = symbol;
 		this.log = log;
-		this.inboundSequenced = inboundSequenced;
-		this.orderBookThread = orderBookThread;
-		this.orderBookThread.setName(symbol);
 		this.debugger = debugger;
-		returnValue = Boolean.TRUE;
-		return returnValue ; 
-	}
-
-	@Override
-	public Boolean initialise(
-			String symbol
-			, LogEncapsulation log
-			, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced
-			, Thread orderBookThread 
-			, PersistenceToFileClient debugger
-			) {
-
-		Boolean returnValue = innerInitialise(symbol, log, inboundSequenced, orderBookThread, debugger);
-
-		this.initialised.set(returnValue); 
-
-		return this.initialised.get();
-	}
-
-	@Override
-	public Boolean initialise(
-			String symbol
-			, LogEncapsulation log
-			, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced
-			, Thread orderBookThread
-			, PersistenceToFileClient debugger
-			, InterfaceMatchEvent toAddMatch
-			, InterfaceAddedOrderToOrderBook toAddOrder
-			, OrderDistributionModel orderDistributionModel
-			) {
 		
-		Boolean returnValue = innerInitialise(symbol, log, inboundSequenced, orderBookThread, debugger);
-
+		
 		this.addMatchEventListener(toAddMatch);
 		this.addAddedOrderToOrderBookListener(toAddOrder);
-
+		returnValue = Boolean.TRUE;
+		
+		
 		this.initialised.set(returnValue); 
-		this.orderDistributionModel = orderDistributionModel;
 		return this.initialised.get();	
 		
 	}
@@ -347,7 +310,7 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 		StringBuilder sb = new StringBuilder();
 
 		while (running.get()){
-			inSeq = inboundSequenced.poll();
+			//inSeq = inboundSequenced.poll();
 			if (inSeq!=null) {
 				sb = new StringBuilder()
 						.append(CLASSNAME)
@@ -402,29 +365,13 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 	}
 
 
-	@Override
-	public Thread getThread() {
-		return this.orderBookThread;
-	}
-
+	
 	@Override
 	@NotYetImplemented
 	public List<String> getOrderBookVisualisation() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-
-	@Override
-	public ConcurrentLinkedQueue<InterfaceOrder> getInboundSequenced() {
-		if(this.initialised.get()) {
-			return this.inboundSequenced;
-		}else {
-			return null;	
-		}
-	}
-
-
 
 	@Override
 	public OffsetDateTime getOrderBookCreationTime() {

@@ -12,7 +12,7 @@ package com.alignmentsystems.library.interfaces;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
+
 
 import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.PersistenceToFileClient;
@@ -26,27 +26,15 @@ public interface InterfaceOrderBook {
 	public Boolean initialise(
 			String symbol
 			, LogEncapsulation log
-			, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced
-			, Thread orderBookThread
-			, PersistenceToFileClient debugger
-			);
-	public Boolean initialise(
-			String symbol
-			, LogEncapsulation log
-			, ConcurrentLinkedQueue<InterfaceOrder> inboundSequenced
-			, Thread orderBookThread
 			, PersistenceToFileClient debugger
 			, InterfaceMatchEvent toAdd
 			, InterfaceAddedOrderToOrderBook toAddOrder
-			, OrderDistributionModel orderDistributionModel
 			);
 	public String getThisOrderBookSymbol();
-	public ConcurrentLinkedQueue<InterfaceOrder> getInboundSequenced();
 	public List<InterfaceOrder> getOrdersBySide(OrderBookSide orderBookSide );
 	public List<String> getOrderBookVisualisation();
 	public OffsetDateTime getOrderBookCreationTime();
 	public OffsetDateTime getOrderBookLastUpdateTime();
-	public Thread getThread();
 	public int getOrderCountBySide(OrderBookSide orderBookSide );
 	public void addMatchEventListener(InterfaceMatchEvent toAdd);
 	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd);

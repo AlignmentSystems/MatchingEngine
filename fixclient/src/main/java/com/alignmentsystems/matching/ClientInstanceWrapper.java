@@ -91,7 +91,7 @@ public class ClientInstanceWrapper implements InterfaceInstanceWrapper{
 	public Boolean initialiseMember() {
 		PersistenceToFileClient debugger = new PersistenceToFileClient();
 		try {
-			debugger.initialise(InstanceType.MATCHINGENGINE);
+			debugger.initialise(instanceType);
 			debugger.info("Working...");
 		} catch (IllegalThreadStateException | FileNotFoundException e) {
 			log.error(e.getMessage() , e );

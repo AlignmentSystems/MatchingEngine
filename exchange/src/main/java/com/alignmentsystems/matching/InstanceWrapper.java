@@ -80,8 +80,8 @@ public class InstanceWrapper implements InterfaceInstanceWrapper{
 
 		switch(instanceType){		
 						
-		case MATCHINGENGINE:
-			return initialiseMatchingEngine();
+		case FIXMESSAGINGINFRA:
+			return initialiseFIXMessagingInfrastructure();
 		case ORDERBOOK:
 			return false;
 		default:
@@ -89,10 +89,25 @@ public class InstanceWrapper implements InterfaceInstanceWrapper{
 		}
 	}
 
-	public Boolean initialiseMatchingEngine() {
+	private Boolean initialiseOrderBook() {
 		PersistenceToFileClient debugger = new PersistenceToFileClient();
 		try {
-			debugger.initialise(InstanceType.MATCHINGENGINE);
+			debugger.initialise(InstanceType.ORDERBOOK);
+			debugger.info("Working...");
+		} catch (IllegalThreadStateException | FileNotFoundException e) {
+			log.error(e.getMessage() , e );
+		}
+		OrderBookWrapper obw = new OrderBookWrapper(); 
+		return true;
+		
+	}
+	
+	
+	
+	private Boolean initialiseFIXMessagingInfrastructure() {
+		PersistenceToFileClient debugger = new PersistenceToFileClient();
+		try {
+			debugger.initialise(InstanceType.FIXMESSAGINGINFRA);
 			debugger.info("Working...");
 		} catch (IllegalThreadStateException | FileNotFoundException e) {
 			log.error(e.getMessage() , e );
