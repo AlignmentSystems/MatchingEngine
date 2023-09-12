@@ -13,4 +13,6 @@ plugins {
 }
 
 rootProject.name = 'AlignmentMatching'
-include('lib')
+include('exchange')
+include('fixclient')
+include('sharedlibrary')
