@@ -27,16 +27,16 @@ import com.alignmentsystems.library.sbe.SimpleOpenFramingHeaderMessage;
  *
  */
 public class Match implements InterfaceMatch {
-	private Double matchQuantity = 0d;
-	private Double matchPrice = 0d;
+	private Long matchQuantity = 0L;
+	private Long matchPrice = 0L;
 	private InterfaceOrder buyOrder = null;
 	private InterfaceOrder sellOrder = null;
 	private Side aggressorSide = null;
 	private OffsetDateTime timestamp = null;
-	private String buyClOrdId = null;
-	private String sellClOrdId = null;
-	private String buyOrderId = null;
-	private String sellOrderId = null;	
+	private UUID buyClOrdId = null;
+	private UUID sellClOrdId = null;
+	private UUID buyOrderId = null;
+	private UUID sellOrderId = null;	
 	private UUID matchId = null;
 	private Boolean isEligibleForMarketData = Boolean.FALSE;
 	private byte[] innerSBERepresentation = null;
@@ -44,23 +44,21 @@ public class Match implements InterfaceMatch {
 	private SimpleBinaryEncodingMessage sbe = null;
 	
 	
-	
-	
 	public Match() {		
 	}
 
 
 	public Match(
-			Double matchQuantity
-			, Double matchPrice
+			Long matchQuantity
+			, Long matchPrice
 			, InterfaceOrder buyOrder
 			, InterfaceOrder sellOrder
 			, Side aggressorSide
 			, OffsetDateTime timestamp
-			, String buyClOrdId 
-			, String sellClOrdId
-			, String buyOrderId
-			, String sellOrderId
+			, UUID buyClOrdId 
+			, UUID sellClOrdId
+			, UUID buyOrderId
+			, UUID sellOrderId
 			, Boolean getIsEligibleForMarketData
 			) {
 		super();
@@ -113,12 +111,12 @@ public class Match implements InterfaceMatch {
 	}
 
 	@Override
-	public Double getMatchQuantity() {
+	public Long getMatchQuantity() {
 		return this.matchQuantity;
 	}
 
 	@Override
-	public Double getMatchPrice() {
+	public Long getMatchPrice() {
 		return this.matchPrice;
 	}
 
@@ -143,26 +141,24 @@ public class Match implements InterfaceMatch {
 	}
 
 	@Override
-	public String getBuyClOrdId() {
+	public UUID getBuyClOrdId() {
 		return this.buyClOrdId;
 	}
 
 	@Override
-	public String getSellClOrdId() {
+	public UUID getSellClOrdId() {
 		return this.sellClOrdId;
 	}
 
 	@Override
-	public String getBuyOrderId() {
+	public UUID getBuyOrderId() {
 		return this.buyOrderId;
 	}
 
 	@Override
-	public String getSellOrderId() {
+	public UUID getSellOrderId() {
 		return this.sellOrderId;
 	}
-
-
 
 	@Override
 	public UUID getMatchId() {

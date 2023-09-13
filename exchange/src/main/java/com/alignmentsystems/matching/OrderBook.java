@@ -15,6 +15,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -147,10 +148,10 @@ public class OrderBook
 			return;
 		}
 
-		final Double topOfBuyBookPrice = topOfBuyBook.getLimitPrice().getValue();
-		final Double topOfSellBookPrice = topOfSellBook.getLimitPrice().getValue();
-		Double tradedQuantity = 0d;
-		Double tradedPrice = 0d;
+		final Long topOfBuyBookPrice = topOfBuyBook.getLimitPrice();
+		final Long topOfSellBookPrice = topOfSellBook.getLimitPrice();
+		Long tradedQuantity = null;
+		Long tradedPrice = null;
 		// If buy top of book price is greater than or equal to the sell top of book
 		// then we have got a buyer
 		// who has crossed the spread. So we have a trade, yay!
@@ -178,14 +179,14 @@ public class OrderBook
 				aggressor = new Side(Side.BUY);
 			}
 
-			Double topOfBuyBookQty = topOfBuyBook.getOrderQty().getValue();
-			Double topOfSellBookQty = topOfBuyBook.getOrderQty().getValue();
+			Long topOfBuyBookQty = topOfBuyBook.getOrderQty();
+			Long topOfSellBookQty = topOfBuyBook.getOrderQty();
 
 			tradedQuantity = Math.min(topOfBuyBookQty, topOfSellBookQty);
 
 			switch (aggressor.getValue()) {
 			case Side.SELL:
-				tradedPrice = Math.max(topOfBuyBookPrice, topOfSellBookPrice);
+				tradedPrice = Math. max(topOfBuyBookPrice, topOfSellBookPrice);
 				break;
 			case Side.BUY:
 				tradedPrice = Math.min(topOfBuyBookPrice, topOfSellBookPrice);
@@ -193,10 +194,10 @@ public class OrderBook
 			}
 			OffsetDateTime executionTimestamp = OffsetDateTime.now(Constants.HERE);
 
-			String buyClOrdID = topOfBuyBook.getClOrdID();
-			String sellClOrdID = topOfSellBook.getClOrdID();
-			String buyOrderID = topOfBuyBook.getOrderId();
-			String sellOrderID = topOfSellBook.getOrderId();
+			UUID  buyClOrdID = topOfBuyBook.getClOrdID();
+			UUID  sellClOrdID = topOfSellBook.getClOrdID();
+			UUID buyOrderID = topOfBuyBook.getOrderId();
+			UUID sellOrderID = topOfSellBook.getOrderId();
 			final boolean isEligibleForMarketData = true;
 
 			Match match = new Match(tradedQuantity, tradedPrice, topOfBuyBook, topOfSellBook, aggressor,

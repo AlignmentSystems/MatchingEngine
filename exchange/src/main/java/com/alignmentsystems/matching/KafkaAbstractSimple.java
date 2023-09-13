@@ -11,7 +11,8 @@ package com.alignmentsystems.matching;
  *****************************************************************************/
 
 /**
- * The type Abstract class SimpleKafka
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
  */
 public abstract class KafkaAbstractSimple {
 	/**

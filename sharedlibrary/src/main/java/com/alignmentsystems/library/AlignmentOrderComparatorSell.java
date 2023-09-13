@@ -42,8 +42,8 @@ public class AlignmentOrderComparatorSell implements Comparator<InterfaceOrder>{
 	public int compare(InterfaceOrder o1, InterfaceOrder o2) {
 		final int lessThan = -1;
 		final int moreThan = 1;
-		final double thisPrice = o1.getLimitPrice().getValue();
-		final double thatPrice = o2.getLimitPrice().getValue();
+		final double thisPrice = o1.getLimitPrice();
+		final double thatPrice = o2.getLimitPrice();
 
 		
 		if (thisPrice > thatPrice) {

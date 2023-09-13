@@ -13,11 +13,10 @@ package com.alignmentsystems.library.interfaces;
 import java.nio.ByteBuffer;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import com.alignmentsystems.fix44.ExecutionReport;
 import com.alignmentsystems.fix44.NewOrderSingle;
-import com.alignmentsystems.fix44.field.OrderQty;
-import com.alignmentsystems.fix44.field.Price;
 import com.alignmentsystems.library.enumerations.MessageDirection;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
 
@@ -30,20 +29,25 @@ import quickfix.SessionID;
 public interface InterfaceOrder{
 	public OffsetDateTime getTimestamp();	
 	public NewOrderSingle getNewOrderSingle();
-	public void setNewOrderSingle(NewOrderSingle nos, SessionID sessionId, MessageDirection messageDirection, String orderId, OrderBookSide orderBookSide) throws FieldNotFound;
+	public void setNewOrderSingle(
+			NewOrderSingle nos
+			, SessionID sessionId
+			, UUID orderId
+			, OrderBookSide orderBookSide
+			) throws FieldNotFound;
 	public OrderBookSide getOrderBookSide();
-	public OrderQty getOrderQty();
-	public Price getLimitPrice();
+	public Long getOrderQty();
+	public Long getLimitPrice();
 	public SessionID getSessionId();
 	public void setBinaryOrderData(ByteBuffer bb); 
 	public ByteBuffer getBinaryOrderData();
 	public String getSymbol();
 	public String getSender();
 	public String getTarget();
-	public String getClOrdID();
+	public UUID getClOrdID();
 	public void execute(ExecutionReport execution);
 	public List<ExecutionReport> getExecutionReports();
-	public void setOrderId(String OrderId);
-	public String getOrderId();
+	public void setOrderId(UUID OrderId);
+	public UUID getOrderId();
 	public String getOrderUniquenessTuple();
 }

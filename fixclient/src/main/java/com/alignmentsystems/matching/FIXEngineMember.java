@@ -56,8 +56,7 @@ public class FIXEngineMember extends MessageCracker implements quickfix.Applicat
 	public void onCreate(SessionID sessionId) {
 		// TODO Auto-generated method stub
 		final String METHODNAME = "onCreate".intern();
-
-
+		
 		StringBuilder sb = new StringBuilder()
 				.append(sessionId.toString())
 				;

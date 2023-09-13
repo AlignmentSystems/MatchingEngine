@@ -21,15 +21,15 @@ import com.alignmentsystems.library.exceptions.RepresentationSBENotAvailable;
  */
 public interface InterfaceMatch {
 	public OffsetDateTime getTimestamp();
-	public Double getMatchQuantity();
-	public Double getMatchPrice();
+	public Long getMatchQuantity();
+	public Long getMatchPrice();
 	public InterfaceOrder getBuyOrder();
 	public InterfaceOrder getSellOrder();
 	public Side getAggressorSide();
-	public String getBuyClOrdId();
-	public String getSellClOrdId();
-	public String getBuyOrderId();
-	public String getSellOrderId();
+	public UUID getBuyClOrdId();
+	public UUID getSellClOrdId();
+	public UUID getBuyOrderId();
+	public UUID getSellOrderId();
 	public UUID getMatchId();
 	public void setMatchId(UUID matchID);
 	public Boolean getIsEligibleForMarketData();

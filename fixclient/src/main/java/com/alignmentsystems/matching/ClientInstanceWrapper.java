@@ -47,7 +47,7 @@ public class ClientInstanceWrapper implements InterfaceInstanceWrapper{
 	public boolean initialise(InstanceType instanceType) {
 
 		this.instanceType = instanceType;
-
+Boolean returnValue = Boolean.FALSE;
 		StringBuilder sb = new StringBuilder();
 
 		sb
@@ -72,11 +72,18 @@ public class ClientInstanceWrapper implements InterfaceInstanceWrapper{
 		switch(instanceType){
 		case MEMBERA:
 		case MEMBERB:
-			return initialiseMember(instanceType);			
+			returnValue = initialiseMember(instanceType);			
 		default:
-			return false;	
+			returnValue = false;	
 		}
-
+		 while (returnValue) {
+	            try {
+	                this.wait(2000);
+	            } catch (InterruptedException e) {
+	                log.error(e.getMessage() , e );
+	            }
+	        }
+		 return returnValue;
 
 
 

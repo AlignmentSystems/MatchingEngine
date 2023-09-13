@@ -47,6 +47,8 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 		sb.append(CLASSNAME).append(" Started instance=").append(this.instanceType.type).append(" Started version=")
 				.append(LibraryFunctions.getVersion(this.getClass()));
 
+		
+		Boolean returnValue = Boolean.FALSE;
 		log.info(sb.toString());
 
 		// What do we do here?
@@ -58,12 +60,22 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 		switch (instanceType) {
 
 		case FIXMESSAGINGINFRA:
-			return initialiseFIXMessagingInfrastructure(instanceType);
+			returnValue = initialiseFIXMessagingInfrastructure(instanceType);
 		case ORDERBOOK:
-			return initialiseOrderBook(instanceType) ;
+			returnValue = initialiseOrderBook(instanceType) ;
 		default:
-			return false;
+			returnValue = false;
 		}
+		 while (returnValue) {
+	            try {
+	                this.wait(2000);
+	            } catch (InterruptedException e) {
+	                log.error(e.getMessage() , e );
+	            }
+	        }
+		 return returnValue;
+		
+		
 	}
 
 	private Boolean initialiseOrderBook(InstanceType instanceType)  {

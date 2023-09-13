@@ -49,7 +49,7 @@ public class LibraryOrders {
 	}
 
 	public static ExecutionReport getExecutionReportAcknowledgementForOrder(InterfaceOrder nos) throws FieldNotFound {
-		OrderID orderId = new OrderID(nos.getOrderId());
+		OrderID orderId = new OrderID(nos.getOrderId().toString());
 		ExecID execID = new ExecID (UUID.randomUUID().toString());		
 		ExecType execType = new ExecType(ExecType.NEW);		
 		OrdStatus ordStatus = new OrdStatus(OrdStatus.NEW);

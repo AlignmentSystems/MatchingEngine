@@ -18,6 +18,11 @@ import com.alignmentsystems.library.LibraryFunctions;
 import com.alignmentsystems.library.enumerations.ConfigurationProperties;
 import com.alignmentsystems.library.enumerations.InstanceType;
 
+
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class KafkaLibrary {
 
 	public static JsonObject getMessageLogEntryJSON(String source, String topic, String key, String message)

@@ -26,8 +26,8 @@ import com.alignmentsystems.library.interfaces.InterfaceSimpleBinaryEncodingMess
  *
  */
 public class SimpleBinaryEncodingMessage implements InterfaceSimpleBinaryEncodingMessage {
-	private Double marketDataPrice = null;
-	private Double marketDataQuantity = null;
+	private Long marketDataPrice = null;
+	private Long marketDataQuantity = null;
 	private OffsetDateTime timestamp = null;
 	private UUID marketDataId = null;
 	private Encodings encoding = null;
@@ -84,8 +84,8 @@ public class SimpleBinaryEncodingMessage implements InterfaceSimpleBinaryEncodin
 		Long mostSignificantBits = buf.getLong();
 
 		this.marketDataId = new UUID(mostSignificantBits, leastSignificantBits);		
-		this.marketDataPrice = buf.getDouble();
-		this.marketDataQuantity = buf.getDouble();
+		this.marketDataPrice = buf.getLong();
+		this.marketDataQuantity = buf.getLong();
 		Instant instant = Instant.ofEpochMilli(buf.getLong());
 		this.timestamp = OffsetDateTime.ofInstant(instant, Constants.HERE);
 

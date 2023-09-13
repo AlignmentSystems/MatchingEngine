@@ -15,6 +15,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.alignmentsystems.fix44.ExecutionReport;
 import com.alignmentsystems.fix44.NewOrderSingle;
@@ -22,6 +23,7 @@ import com.alignmentsystems.fix44.field.OrderQty;
 import com.alignmentsystems.fix44.field.Price;
 import com.alignmentsystems.library.annotations.Experimental;
 import com.alignmentsystems.library.constants.Constants;
+import com.alignmentsystems.library.enumerations.Encodings;
 import com.alignmentsystems.library.enumerations.MessageDirection;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
@@ -36,8 +38,8 @@ import quickfix.SessionID;
 public class AlignmentOrder implements InterfaceOrder{
 	private String symbol = null;
 	private OrderBookSide orderBookSide = null;
-	private OrderQty orderQty = null;
-	private Price limitPrice = null;
+	private Long orderQty = null;
+	private Long limitPrice = null;
 	private SessionID sessionId = null;
 	private NewOrderSingle nos = null;
 	private OffsetDateTime ts;
@@ -45,39 +47,36 @@ public class AlignmentOrder implements InterfaceOrder{
 	private String target = null;
 	private final static ZoneOffset zo = Constants.HERE;
 	private List<ExecutionReport> executions =  new ArrayList<ExecutionReport>();
-	private String orderId = null;
-	private String clOrdId = null;
-	private MessageDirection messageDirection = MessageDirection.INDETERMINATE; 
-
-
+	private UUID orderId = null;
+	private UUID clOrdId = null;
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder()
-		.append("AlignmentOrder [limitPrice=")
-		.append(this.limitPrice)
-		.append(", ts=")
-		.append(this.ts)
-		.append(", target=")
-		.append(this.target)
-		.append(", sender=")
-		.append(this.sender)
-		.append(", OrderID=")
-		.append(this.orderId)
-		
-		.append(", ClOrdID=")
-		.append(this.clOrdId)
+				.append("AlignmentOrder [limitPrice=")
+				.append(Long.toString(this.limitPrice))
+				.append(", ts=")
+				.append(this.ts)
+				.append(", target=")
+				.append(this.target)
+				.append(", sender=")
+				.append(this.sender)
+				.append(", OrderID=")
+				.append(this.orderId)
 
-		.append(", symbol=")
-		.append(this.symbol)
-		.append(", side=")
-		.append(this.orderBookSide.sideValue)
-		.append(", orderQty=")
-		.append(this.orderQty)
-		.append(", sessionId=")
-		.append(this.sessionId)
-		.append("]")
-		;
+				.append(", ClOrdID=")
+				.append(this.clOrdId)
+
+				.append(", symbol=")
+				.append(this.symbol)
+				.append(", side=")
+				.append(this.orderBookSide.sideValue)
+				.append(", orderQty=")
+				.append(Long.toString(this.orderQty))
+				.append(", sessionId=")
+				.append(this.sessionId)
+				.append("]")
+				;
 		return builder.toString();
 	}
 
@@ -89,27 +88,26 @@ public class AlignmentOrder implements InterfaceOrder{
 	}
 
 	@Override
-	public void setNewOrderSingle(NewOrderSingle nos, SessionID sessionId, MessageDirection messageDirection, String orderId, OrderBookSide orderBookSide) throws FieldNotFound {
+	public void setNewOrderSingle(
+			NewOrderSingle nos
+			, SessionID sessionId
+			, UUID orderId
+			, OrderBookSide orderBookSide
+			) throws FieldNotFound {
 		this.ts = OffsetDateTime.now(zo);
 		this.nos = nos;
 		this.sessionId = sessionId;
 		this.orderId = orderId;
 		this.orderBookSide = orderBookSide;
-		this.messageDirection = messageDirection;
 
 		try {
 			String receivedTarget = sessionId.getSenderCompID(); 	
 			String receivedSender = sessionId.getTargetCompID();		
-			if (messageDirection==MessageDirection.RECEIVED) {
-				this.sender = receivedSender;
-				this.target = receivedTarget;
-			}else {
-				this.sender = receivedSender;
-				this.target = receivedTarget;
-			}
-			this.clOrdId = nos.getClOrdID().getValue().toString();
-			this.orderQty = nos.getOrderQty();
-			this.limitPrice = nos.getPrice();			
+			this.sender = receivedSender;
+			this.target = receivedTarget;
+			this.clOrdId = UUID.fromString(nos.getClOrdID().getValue().toString());
+			this.orderQty = (long) nos.getOrderQty().getValue();
+			this.limitPrice = (long) nos.getPrice().getValue();			
 			this.symbol = nos.getSymbol().getValue();
 		} catch (FieldNotFound e) {
 			throw e;
@@ -122,12 +120,12 @@ public class AlignmentOrder implements InterfaceOrder{
 	}
 
 	@Override
-	public OrderQty getOrderQty() {
+	public Long getOrderQty() {
 		return this.orderQty;
 	}
 
 	@Override
-	public Price getLimitPrice() {
+	public Long getLimitPrice() {
 		return this.limitPrice;
 	}
 
@@ -145,7 +143,7 @@ public class AlignmentOrder implements InterfaceOrder{
 
 
 	@Override
-	public String getClOrdID()  {
+	public UUID getClOrdID()  {
 		return this.clOrdId;
 	}
 
@@ -167,20 +165,20 @@ public class AlignmentOrder implements InterfaceOrder{
 	}
 
 	@Override
-	public void setOrderId(String orderId) {
+	public void setOrderId(UUID orderId) {
 		this.orderId = orderId;
 
 	}
 
 	@Override
-	public String getOrderId() {
+	public UUID getOrderId() {
 		return this.orderId;
 	}
 
 	@Override
 	@Experimental
 	public String getOrderUniquenessTuple() {
-		return this.orderId;
+		return this.orderId.toString();
 	}
 
 	@Override
@@ -200,13 +198,16 @@ public class AlignmentOrder implements InterfaceOrder{
 	public void setBinaryOrderData(ByteBuffer bb) {
 		// TODO Auto-generated method stub
 		
+		
+
 	}
 
 
 
 	@Override
 	public ByteBuffer getBinaryOrderData() {
-		// TODO Auto-generated method stub
+		
+			
 		return null;
 	}	
 }

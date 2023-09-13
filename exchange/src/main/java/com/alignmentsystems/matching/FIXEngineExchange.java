@@ -238,8 +238,7 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 
 		AlignmentOrder ao = new AlignmentOrder();
 
-		ao.setNewOrderSingle(message, sessionID, MessageDirection.RECEIVED, UUID.randomUUID().toString(),
-				orderBookSide);
+		ao.setNewOrderSingle(message, sessionID, UUID.randomUUID(), orderBookSide);
 
 		StringBuilder sb = new StringBuilder().append(" OrderID=(").append(ao.getOrderId()).append(" ClOrdID=(")
 				.append(ao.getClOrdID()).append(" Side=(").append(ao.getOrderBookSide().sideValue)

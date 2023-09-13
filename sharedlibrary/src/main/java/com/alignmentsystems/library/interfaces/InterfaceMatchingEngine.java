@@ -89,11 +89,11 @@ public interface InterfaceMatchingEngine {
 		NewOrderSingle sell = match.getSellOrder().getNewOrderSingle();
 		SessionID buySession  = match.getBuyOrder().getSessionId();
 		SessionID sellSession  = match.getSellOrder().getSessionId();
-		Double executionQuantity = match.getMatchQuantity();
+		Long executionQuantity = match.getMatchQuantity();
 
 
-		OrderID b_orderId = new OrderID(match.getBuyOrderId());
-		ClOrdID b_ClOrdId = new ClOrdID(match.getBuyClOrdId()); 
+		OrderID b_orderId = new OrderID(match.getBuyOrderId().toString());
+		ClOrdID b_ClOrdId = new ClOrdID(match.getBuyClOrdId().toString()); 
 		ExecID b_execID = new ExecID(UUID.randomUUID().toString());
 		CumQty b_cumQty = new CumQty(match.getMatchQuantity());
 		AvgPx b_avgPx = new AvgPx(match.getMatchPrice());
@@ -101,12 +101,12 @@ public interface InterfaceMatchingEngine {
 
 		ExecType b_execType = null; 
 		OrdStatus b_ordStatus = null; 
-		Double b_orderQty = null;
-		LeavesQty b_leavesQty =  null;
-
+		Long b_orderQty = null;
+		LeavesQty  b_leavesQty =  null;
+//b_leavesQty = new LeavesQty(buy.getOrderQty().getValue() - b_cumQty.getValue());	
 		try {
-			b_orderQty = buy.getOrderQty().getValue();
-			b_leavesQty = new LeavesQty(buy.getOrderQty().getValue() - b_cumQty.getValue());	
+			b_orderQty = (long) buy.getOrderQty().getValue();
+			b_leavesQty = new LeavesQty(b_orderQty - match.getMatchQuantity());
 		} catch (FieldNotFound e) {
 			log.error(e.getMessage() , e);
 		}
@@ -138,8 +138,8 @@ public interface InterfaceMatchingEngine {
 
 		//TODO - clean up the above
 		//Repeat the same code with s_ instead of b_ 
-		OrderID s_orderId = new OrderID(match.getSellOrderId());
-		ClOrdID s_ClOrdId = new ClOrdID(match.getBuyClOrdId());
+		OrderID s_orderId = new OrderID(match.getSellOrderId().toString());
+		ClOrdID s_ClOrdId = new ClOrdID(match.getBuyClOrdId().toString());
 		ExecID s_execID = new ExecID(UUID.randomUUID().toString());
 		CumQty s_cumQty = new CumQty(match.getMatchQuantity());
 		AvgPx s_avgPx = new AvgPx(match.getMatchPrice());
@@ -147,11 +147,11 @@ public interface InterfaceMatchingEngine {
 
 		ExecType s_execType = null; 
 		OrdStatus s_ordStatus = null; 
-		Double s_orderQty = null;
+		Long s_orderQty = null;
 		LeavesQty s_leavesQty =  null;
 
 		try {
-			s_orderQty = sell.getOrderQty().getValue();
+			s_orderQty = (long) sell.getOrderQty().getValue();
 			s_leavesQty = new LeavesQty(sell.getOrderQty().getValue() - s_cumQty.getValue());	
 		} catch (FieldNotFound e) {
 			log.error(e.getMessage() , e);

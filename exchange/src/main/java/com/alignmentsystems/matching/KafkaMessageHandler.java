@@ -14,6 +14,7 @@ package com.alignmentsystems.matching;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 /**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  * The interface KafkaMessageHandler.
  *
  * This interface is the template callback functions that can be passed to an
