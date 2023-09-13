@@ -82,7 +82,7 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 		
 		PersistenceToFileClient debugger = new PersistenceToFileClient();
 		try {
-			debugger.initialise(InstanceType.ORDERBOOK);
+			debugger.initialise(InstanceWrapper.class, InstanceType.ORDERBOOK);
 			debugger.info("Working...");
 		} catch (IllegalThreadStateException | IOException e) {
 			log.error(e.getMessage(), e);
@@ -90,7 +90,12 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 		}
 		OrderBookWrapper obw = new OrderBookWrapper();
 
-		obw.initialise(log, debugger);
+		try {
+			obw.initialise(this.log, debugger);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			return false;
+		}
 		return true;
 
 	}
@@ -98,7 +103,7 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 	private Boolean initialiseFIXMessagingInfrastructure() {
 		PersistenceToFileClient debugger = new PersistenceToFileClient();
 		try {
-			debugger.initialise(InstanceType.FIXMESSAGINGINFRA);
+			debugger.initialise(this.getClass() , InstanceType.FIXMESSAGINGINFRA);
 			debugger.info("Working...");
 		} catch (IllegalThreadStateException | IOException e) {
 			log.error(e.getMessage(), e);

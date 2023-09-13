@@ -90,11 +90,11 @@ public class LibraryFunctions {
 	}
 
 
-	public static int getPropertyAsInt(InstanceType instanceType , ConfigurationProperties configurationProperties) throws FileNotFoundException, NullPointerException{
+	public static int getPropertyAsInt(ClassLoader cl , InstanceType instanceType , ConfigurationProperties configurationProperties) throws FileNotFoundException, NullPointerException{
 		String innerValue;
 
 		try {
-			innerValue = getProperty(instanceType, configurationProperties);
+			innerValue = getProperty(cl, instanceType, configurationProperties);
 		} catch (FileNotFoundException | NullPointerException e) {
 			throw e;
 		}
@@ -116,11 +116,12 @@ public class LibraryFunctions {
 	 * @param actor
 	 * @return
 	 */
-	public static Properties getProperties(InstanceType instanceType) throws FileNotFoundException , NullPointerException{
+	public static Properties getProperties(ClassLoader cl , InstanceType instanceType) throws FileNotFoundException , NullPointerException{
 
 		InputStream inputStream = null;
 		try {
-			inputStream = LibraryFunctions.class.getClassLoader().getResourceAsStream(instanceType.getProperties());
+			String propertyToGet = instanceType.getProperties();			 
+			inputStream = cl.getResourceAsStream(propertyToGet);
 
 		}catch(NullPointerException  e) {
 			throw e;
@@ -166,12 +167,12 @@ public class LibraryFunctions {
 	 * @param configurationProperties The specific property requested
 	 * @return The value of the specific property requested
 	 */
-	public static String getProperty(InstanceType instanceType, ConfigurationProperties configurationProperties) throws FileNotFoundException , NullPointerException {
+	public static String getProperty(ClassLoader cl , InstanceType instanceType, ConfigurationProperties configurationProperties) throws FileNotFoundException , NullPointerException {
 		String targetProperty = null;
 
 		Properties prop;
 		try {
-			prop = getProperties(instanceType);
+			prop = getProperties(cl, instanceType);
 		} catch (FileNotFoundException | NullPointerException e) {
 			throw e;
 		}
@@ -241,11 +242,11 @@ public class LibraryFunctions {
 	 * @throws NullPointerException 
 	 * @throws FileNotFoundException 
 	 */
-	public static String  getLogFileLocation(InstanceType instanceType) throws FileNotFoundException, NullPointerException {
+	public static String  getLogFileLocation(ClassLoader cl , InstanceType instanceType) throws FileNotFoundException, NullPointerException {
 		String targetProperty = null;
 
 		try {
-			targetProperty = getProperty(instanceType, ConfigurationProperties.LOGFILEDIRECTORY);
+			targetProperty = getProperty(cl, instanceType, ConfigurationProperties.LOGFILEDIRECTORY);
 		} catch (FileNotFoundException | NullPointerException e) {
 			throw e;
 		}
@@ -257,11 +258,11 @@ public class LibraryFunctions {
 	 * 
 	 * @return String The value of the property requested
 	 */
-	public static String  getFileNameSuffix(InstanceType instanceType)  throws FileNotFoundException, NullPointerException{
+	public static String  getFileNameSuffix(ClassLoader cl , InstanceType instanceType)  throws FileNotFoundException, NullPointerException{
 		String targetProperty = null;
 
 		try {
-			targetProperty = getProperty(instanceType, ConfigurationProperties.LOGFILENAMESUFFIX);
+			targetProperty = getProperty(cl, instanceType, ConfigurationProperties.LOGFILENAMESUFFIX);
 		} catch (FileNotFoundException | NullPointerException e) {
 			throw e;
 		}

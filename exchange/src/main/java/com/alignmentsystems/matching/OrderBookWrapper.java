@@ -67,7 +67,7 @@ public class OrderBookWrapper
 	}
 
 	@Override
-	public boolean initialise(LogEncapsulation log, PersistenceToFileClient debugger) {
+	public boolean initialise(LogEncapsulation log, PersistenceToFileClient debugger) throws Exception {
 		this.log = log;
 		this.debugger = debugger;
 
@@ -75,19 +75,31 @@ public class OrderBookWrapper
 
 		OrderBookKafka obk = null;
 		try {
-			obk = new OrderBookKafka();
+			obk = new OrderBookKafka();			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage() ,  e);
+			throw e;
 		}
+		
+		if(obk.initialise(this.log)) {
+			
+		}else{
+			return false;
+		};
+		
+		
 		OrderBook orderBook = new OrderBook();
-		orderBook.initialise(symbol, log, debugger, this, this);
+		if(orderBook.initialise(symbol, this.log, this.debugger, this, this)) {
+			
+		}else{
+			return false;
+		};
 
 		try {
 			obk.runAlways(symbol, orderBook);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//log.error(e.getMessage() ,  e);
+			throw e;
 		}
 
 		return true;

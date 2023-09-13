@@ -48,7 +48,7 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 		if (this.kafkaProducerB == null) {
 			Properties props;
 			try {
-				props = LibraryFunctions.getProperties(InstanceType.KAFKA);
+				props = LibraryFunctions.getProperties(this.getClass(), InstanceType.KAFKA);
 			} catch (FileNotFoundException | NullPointerException e) {
 				log.error(e.getMessage() , e);
 				throw e;

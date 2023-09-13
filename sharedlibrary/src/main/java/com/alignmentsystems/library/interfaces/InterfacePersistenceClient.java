@@ -21,25 +21,9 @@ import com.alignmentsystems.library.exceptions.LogMessageIsNull;
  *
  */
 public interface InterfacePersistenceClient {
-	/**
-	 * 
-	 * @param actor
-	 * @param tag
-	 * @return
-	 * @throws FileNotFoundException The file to which the logger has been directed cannot be found.
-	 * @throws IllegalThreadStateException There is a thread state issue - this has not been seen in testing
-	 */
-	public boolean initialise(InstanceType instanceType , String tag) throws FileNotFoundException, IllegalThreadStateException , IOException;
 	
-	
-	/**
-	 * 
-	 * @param actor
-	 * @return
-	 * @throws FileNotFoundException The file to which the logger has been directed cannot be found.
-	 * @throws IllegalThreadStateException There is a thread state issue - this has not been seen in testing
-	 */
-	public boolean initialise(InstanceType instanceType) throws FileNotFoundException, IllegalThreadStateException , IOException;
+	public boolean initialise(ClassLoader cl , InstanceType instanceType , String tag) throws FileNotFoundException, IllegalThreadStateException , IOException;	
+	public boolean initialise(ClassLoader cl , InstanceType instanceType) throws FileNotFoundException, IllegalThreadStateException , IOException;
 	
 	/**
 	 * Shutdown the logger

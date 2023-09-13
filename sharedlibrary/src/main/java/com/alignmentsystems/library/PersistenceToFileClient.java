@@ -41,13 +41,13 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 
 
 	@Override
-	public boolean initialise(InstanceType instanceType) throws FileNotFoundException, IllegalThreadStateException, IOException {
+	public boolean initialise(ClassLoader cl , InstanceType instanceType) throws FileNotFoundException, IllegalThreadStateException, IOException {
 		if(hasExecutedInit.get()) {
 		}else {
 	
 			PersistenceToFileServer persistenceToFileServer = new PersistenceToFileServer();
 			try {
-				persistenceToFileServer.initialise(this.logQueue, instanceType, PersistenceToFileClient.MILLISLEEP);
+				persistenceToFileServer.initialise(cl, this.logQueue, instanceType, PersistenceToFileClient.MILLISLEEP);
 			} catch (FileNotFoundException e) {				
 				throw e;
 			} catch (IOException e) {
@@ -73,7 +73,7 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 
 
 	@Override
-	public boolean initialise(InstanceType instanceType, String tag) throws FileNotFoundException, IllegalThreadStateException , IOException {
+	public boolean initialise(ClassLoader cl , InstanceType instanceType, String tag) throws FileNotFoundException, IllegalThreadStateException , IOException {
 
 		if(hasExecutedInit.get()) {
 		}else {
@@ -82,7 +82,7 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 
 			PersistenceToFileServer persistenceToFileServer = new PersistenceToFileServer();
 			try {
-				persistenceToFileServer.initialise(this.logQueue, instanceType, this.tag, PersistenceToFileClient.MILLISLEEP);
+				persistenceToFileServer.initialise(cl, this.logQueue, instanceType, this.tag, PersistenceToFileClient.MILLISLEEP);
 			} catch (IOException e) {
 				throw e;
 			}

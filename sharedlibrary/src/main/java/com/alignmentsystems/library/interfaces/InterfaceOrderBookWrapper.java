@@ -18,8 +18,5 @@ import com.alignmentsystems.library.exceptions.OrderBookNotFound;
  *
  */
 public interface InterfaceOrderBookWrapper {
-	public boolean initialise(
-			LogEncapsulation log			
-			, PersistenceToFileClient debugger
-			);
+	public boolean initialise(LogEncapsulation log , PersistenceToFileClient debugger) throws Exception;
 }

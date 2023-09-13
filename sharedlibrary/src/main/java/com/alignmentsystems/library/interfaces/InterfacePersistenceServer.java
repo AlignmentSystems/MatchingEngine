@@ -14,7 +14,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import com.alignmentsystems.library.enumerations.Actors;
 import com.alignmentsystems.library.enumerations.InstanceType;
 
 
@@ -25,7 +24,7 @@ import com.alignmentsystems.library.enumerations.InstanceType;
 public interface InterfacePersistenceServer {
 	public void writeLineAtClose(String toWrite) ;
 	public String getFileNameAndPathUsed();
-	public boolean initialise(ConcurrentLinkedQueue<String> queue , InstanceType instanceType , String tag , int NanoSleep) throws FileNotFoundException, IOException  ;
-	public boolean initialise(ConcurrentLinkedQueue<String> queue , InstanceType instanceType , int NanoSleep) throws FileNotFoundException, IOException  ;
+	public boolean initialise(ClassLoader cl, ConcurrentLinkedQueue<String> queue , InstanceType instanceType , String tag , int NanoSleep) throws FileNotFoundException, IOException  ;
+	public boolean initialise(ClassLoader cl , ConcurrentLinkedQueue<String> queue , InstanceType instanceType , int NanoSleep) throws FileNotFoundException, IOException  ;
 
 }

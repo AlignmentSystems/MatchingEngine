@@ -1,5 +1,7 @@
 package com.alignmentsystems.matching;
 
+import java.io.FileNotFoundException;
+
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -49,7 +51,7 @@ public class OrderBookKafka extends KafkaAbstractSimple {
 	}
 
 	void run(String topicName, KafkaMessageHandler callback, Integer numberOfRecords) throws Exception {
-		Properties props = LibraryFunctions.getProperties(InstanceType.KAFKA);
+		Properties props = LibraryFunctions.getProperties(this.getClass(), InstanceType.KAFKA);
 		// See if the number of records is provided
 		Optional<Integer> recs = Optional.ofNullable(numberOfRecords);
 
@@ -105,7 +107,13 @@ public class OrderBookKafka extends KafkaAbstractSimple {
 
 	@Override
 	public void runAlways(String topicName, KafkaMessageHandler callback) throws Exception {
-		Properties props = LibraryFunctions.getProperties(InstanceType.KAFKA);
+		Properties props;
+		try {
+			props = LibraryFunctions.getProperties(OrderBookKafka.class , InstanceType.KAFKA);
+		} catch (FileNotFoundException | NullPointerException e) {
+			//log.error(e.getMessage() , e);
+			throw e;
+		}
 		// make the consumer available for graceful shutdown
 		setKafkaConsumer(new KafkaConsumer<>(props));
 
