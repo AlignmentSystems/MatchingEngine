@@ -14,32 +14,33 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+
 import com.alignmentsystems.fix44.field.Side;
-import com.alignmentsystems.library.annotations.NotYetImplemented;
-import com.alignmentsystems.library.constants.Constants;
-import com.alignmentsystems.library.enumerations.OrderBookSide;
-import com.alignmentsystems.library.enumerations.OrderDistributionModel;
-import com.alignmentsystems.library.interfaces.InterfaceAddedOrderToOrderBook;
-import com.alignmentsystems.library.interfaces.InterfaceMatch;
-import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
-import com.alignmentsystems.library.interfaces.InterfaceOrder;
-import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.library.AlignmentOrderComparatorBuy;
 import com.alignmentsystems.library.AlignmentOrderComparatorSell;
 import com.alignmentsystems.library.LibraryFunctions;
 import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.Match;
 import com.alignmentsystems.library.PersistenceToFileClient;
+import com.alignmentsystems.library.annotations.NotYetImplemented;
+import com.alignmentsystems.library.constants.Constants;
+import com.alignmentsystems.library.enumerations.OrderBookSide;
+import com.alignmentsystems.library.interfaces.InterfaceAddedOrderToOrderBook;
+import com.alignmentsystems.library.interfaces.InterfaceMatch;
+import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
+import com.alignmentsystems.library.interfaces.InterfaceOrder;
+import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ * <a href="https://kafka.apache.org/35/javadoc/org/apache/kafka/clients/consumer/package-summary.html">Consumer</a>
  *
  */
-public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
+public class OrderBook implements KafkaMessageHandler, InterfaceOrderBook , InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
 	private final static String CLASSNAME = OrderBook.class.getSimpleName();
-	private Thread orderBookThread = null;
+
 	private final static int buyPriorityQueueSize = 100;
 	private final static int sellPriorityQueueSize = 100;
 	private AlignmentOrderComparatorBuy aboc = new AlignmentOrderComparatorBuy();
@@ -59,7 +60,9 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 
 	private OffsetDateTime orderBookCreationTime = null;
 	private OffsetDateTime orderBookLastUpdateTime = null;
-	private OrderDistributionModel orderDistributionModel = null;
+
+
+
 
 	@Override
 	public Boolean initialise(
@@ -74,16 +77,14 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 		this.symbol = symbol;
 		this.log = log;
 		this.debugger = debugger;
-		
-		
+
+
 		this.addMatchEventListener(toAddMatch);
 		this.addAddedOrderToOrderBookListener(toAddOrder);
 		returnValue = Boolean.TRUE;
-		
-		
+
 		this.initialised.set(returnValue); 
 		return this.initialised.get();	
-		
 	}
 
 
@@ -141,8 +142,8 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 		return snapShotOrderBook;
 	}
 
-	
-	
+
+
 	private void runMatch() {
 
 		InterfaceOrder topOfBuyBook = buy.peek();
@@ -211,8 +212,8 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 			String buyOrderID = topOfBuyBook.getOrderId();
 			String sellOrderID = topOfSellBook.getOrderId();
 			final boolean isEligibleForMarketData = true;
-			
-			
+
+
 			Match match = new Match(
 					tradedQuantity
 					, tradedPrice
@@ -302,70 +303,48 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 		}
 	}
 
-	@Override
-	public void run() {
-
-		running.set(true);
-		InterfaceOrder inSeq = null;
-		StringBuilder sb = new StringBuilder();
-
-		while (running.get()){
-			//inSeq = inboundSequenced.poll();
-			if (inSeq!=null) {
-				sb = new StringBuilder()
-						.append(CLASSNAME)
-						.append(LibraryFunctions.wrapNameSquareBracketsAndSpaces(inSeq.getSymbol()))
-						.append(" add to =")
-						.append(inSeq.getOrderBookSide().sideValue)
-						//.append(" OrderId=")
-						//.append(inSeq.getOrderId())
-						.append(" OUT=(")
-						.append(inSeq.getOrderUniquenessTuple())
-						.append(")")
-						;
-
-				debugger.info(sb.toString());
-				if (inSeq.getOrderBookSide()==OrderBookSide.BUY) {
-					this.buy.add(inSeq);
-					
-
-				}else if (inSeq.getOrderBookSide()==OrderBookSide.SELL) {
-					this.sell.add(inSeq);
-
-				}else {
-					//TODO Error - how do we handle this?
-				}
-				addedOrderToOrderBook(inSeq);
-				this.orderBookLastUpdateTime = OffsetDateTime.now(Constants.HERE);
-				//this.snapShotOrderBook();
-				this.runMatch();
-
-
-			}else {
-				try {
-					Thread.currentThread();
-					Thread.sleep(milliSleep);
-
-				}catch(InterruptedException e){
-
-					running.set(false);
-
-					Thread.currentThread().interrupt();
-
-					System.err.println(e.getMessage());
-
-					System.err.println(new StringBuilder()
-							.append(CLASSNAME)
-							.append(Constants.SPACE)
-							.append(e.getMessage())
-							.toString());			
-				}			
-			}
-		}
-	}
-
-
 	
+
+	/*
+	 * void run() {
+	 * 
+	 * running.set(true); InterfaceOrder inSeq = null; StringBuilder sb = new
+	 * StringBuilder();
+	 * 
+	 * while (running.get()){ //inSeq = inboundSequenced.poll(); if (inSeq!=null) {
+	 * sb = new StringBuilder() .append(CLASSNAME)
+	 * .append(LibraryFunctions.wrapNameSquareBracketsAndSpaces(inSeq.getSymbol()))
+	 * .append(" add to =") .append(inSeq.getOrderBookSide().sideValue)
+	 * //.append(" OrderId=") //.append(inSeq.getOrderId()) .append(" OUT=(")
+	 * .append(inSeq.getOrderUniquenessTuple()) .append(")") ;
+	 * 
+	 * debugger.info(sb.toString()); if
+	 * (inSeq.getOrderBookSide()==OrderBookSide.BUY) { this.buy.add(inSeq);
+	 * 
+	 * 
+	 * }else if (inSeq.getOrderBookSide()==OrderBookSide.SELL) {
+	 * this.sell.add(inSeq);
+	 * 
+	 * }else { //TODO Error - how do we handle this? } addedOrderToOrderBook(inSeq);
+	 * this.orderBookLastUpdateTime = OffsetDateTime.now(Constants.HERE);
+	 * //this.snapShotOrderBook(); this.runMatch();
+	 * 
+	 * 
+	 * }else { try { Thread.currentThread(); Thread.sleep(milliSleep);
+	 * 
+	 * }catch(InterruptedException e){
+	 * 
+	 * running.set(false);
+	 * 
+	 * Thread.currentThread().interrupt();
+	 * 
+	 * System.err.println(e.getMessage());
+	 * 
+	 * System.err.println(new StringBuilder() .append(CLASSNAME)
+	 * .append(Constants.SPACE) .append(e.getMessage()) .toString()); } } } }
+	 */
+
+
 	@Override
 	@NotYetImplemented
 	public List<String> getOrderBookVisualisation() {
@@ -388,4 +367,29 @@ public class OrderBook implements Runnable, InterfaceOrderBook , InterfaceMatchE
 		for (InterfaceMatchEvent hl : listenersMatchEvent)
 			hl.matchHappened(match);	
 	}
+
+
+	@Override
+	public void processMessage(String topicName, ConsumerRecord<String, byte[]> message) throws Exception {
+		// TODO Auto-generated method stub
+		
+		
+		
+//	 if (inSeq.getOrderBookSide()==OrderBookSide.SELL) {
+//		 * this.sell.add(inSeq);
+//		 * 
+//		 * }else { //TODO Error - how do we handle this? } addedOrderToOrderBook(inSeq);
+//		 * this.orderBookLastUpdateTime = OffsetDateTime.now(Constants.HERE);
+//		 * //this.snapShotOrderBook(); this.runMatch();
+//		 * 
+		
+		
+	}
+
+	
+	
+	
+
+	
+
 }	

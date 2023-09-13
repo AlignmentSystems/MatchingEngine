@@ -10,25 +10,17 @@ package com.alignmentsystems.library;
  *	Description		:
  *****************************************************************************/
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.alignmentsystems.fix44.ExecutionReport;
-import com.alignmentsystems.fix44.NewOrderSingle;
 import com.alignmentsystems.fix44.field.AvgPx;
-import com.alignmentsystems.fix44.field.ClOrdID;
 import com.alignmentsystems.fix44.field.CumQty;
 import com.alignmentsystems.fix44.field.ExecID;
 import com.alignmentsystems.fix44.field.ExecType;
 import com.alignmentsystems.fix44.field.LeavesQty;
 import com.alignmentsystems.fix44.field.OrdStatus;
-import com.alignmentsystems.fix44.field.OrdType;
 import com.alignmentsystems.fix44.field.OrderID;
-import com.alignmentsystems.fix44.field.OrderQty;
-import com.alignmentsystems.fix44.field.Price;
 import com.alignmentsystems.fix44.field.Side;
-import com.alignmentsystems.fix44.field.Symbol;
-import com.alignmentsystems.fix44.field.TransactTime;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 

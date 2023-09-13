@@ -99,7 +99,7 @@ public class InstanceWrapper implements InterfaceInstanceWrapper{
 		}
 		OrderBookWrapper obw = new OrderBookWrapper();
 		
-		obw.initialise(log, sequenced, debugger, obw, obw, orderDistributionModel)
+		obw.initialise(log, debugger);
 		return true;
 		
 	}
@@ -138,25 +138,25 @@ public class InstanceWrapper implements InterfaceInstanceWrapper{
 		MulticastServer mdOut = new MulticastServer(); 
 		mdOut.initialise(log, marketDataQueue, debugger);
 
-		Thread mdOutThread = new Thread(mdOut);
+	//	Thread mdOutThread = new Thread(mdOut);
 
-		MatchingEngine matchingEngine = new MatchingEngine();
-		matchingEngine.initialise(log, sequenced, debugger, OrderDistributionModel.CONCURRENTLINKEDQUEUE);
+		//MatchingEngine matchingEngine = new MatchingEngine();
+		//matchingEngine.initialise(log, sequenced, debugger, OrderDistributionModel.CONCURRENTLINKEDQUEUE);
 
-		Thread matchingEngineThread = new Thread(matchingEngine);
+		//Thread matchingEngineThread = new Thread(matchingEngine);
 //		Thread persistenceThread = new Thread(persistence);
 
 		//Set some descriptive thread names to help with debugging...
 		Thread.currentThread().setName(this.CLASSNAME);		
 
-		mdOutThread.setName(MulticastServer.class.getSimpleName());
+		//mdOutThread.setName(MulticastServer.class.getSimpleName());
 		queueNonSequencedThread.setName(QueueNonSequenced.class.getSimpleName());
 		queueSequencedThread.setName(QueueSequenced.class.getSimpleName());
-		matchingEngineThread.setName(MatchingEngine.class.getSimpleName());
+		//matchingEngineThread.setName(MatchingEngine.class.getSimpleName());
 //		persistenceThread.setName(PersistenceToFileServer.class.getSimpleName());
 
-		mdOutThread.start();
-		matchingEngineThread.start();
+		//mdOutThread.start();
+		//matchingEngineThread.start();
 //		persistenceThread.start();
 		queueSequencedThread.start();
 		queueNonSequencedThread.start();
@@ -181,8 +181,8 @@ public class InstanceWrapper implements InterfaceInstanceWrapper{
 
 
 		LibraryFunctions.threadStatusCheck(Thread.currentThread(), log);
-		LibraryFunctions.threadStatusCheck(mdOutThread, log);
-		LibraryFunctions.threadStatusCheck(matchingEngineThread, log);
+		//LibraryFunctions.threadStatusCheck(mdOutThread, log);
+		//LibraryFunctions.threadStatusCheck(matchingEngineThread, log);
 		LibraryFunctions.threadStatusCheck(queueNonSequencedThread, log);
 		LibraryFunctions.threadStatusCheck(queueSequencedThread, log);
 //		LibraryFunctions.threadStatusCheck(persistenceThread, log);

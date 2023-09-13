@@ -16,19 +16,31 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.UUID;
 
-import com.alignmentsystems.library.enumerations.OrderDistributionModel;
+import com.alignmentsystems.fix44.ExecutionReport;
+import com.alignmentsystems.fix44.field.AvgPx;
+import com.alignmentsystems.fix44.field.CumQty;
+import com.alignmentsystems.fix44.field.ExecID;
+import com.alignmentsystems.fix44.field.ExecType;
+import com.alignmentsystems.fix44.field.LeavesQty;
+import com.alignmentsystems.fix44.field.OrdStatus;
+import com.alignmentsystems.fix44.field.OrderID;
+import com.alignmentsystems.fix44.field.Side;
+import com.alignmentsystems.library.LogEncapsulation;
+import com.alignmentsystems.library.PersistenceToFileClient;
 import com.alignmentsystems.library.exceptions.OrderBookNotFound;
 import com.alignmentsystems.library.interfaces.InterfaceAddedOrderToOrderBook;
-import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.library.interfaces.InterfaceMatch;
+import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBookWrapper;
-import com.alignmentsystems.library.LibraryFunctions;
-import com.alignmentsystems.library.LogEncapsulation;
-import com.alignmentsystems.library.PersistenceToFileClient;
+
+import quickfix.FieldNotFound;
+import quickfix.Session;
+import quickfix.SessionID;
+import quickfix.SessionNotFound;
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
@@ -38,14 +50,11 @@ public class OrderBookWrapper implements InterfaceOrderBookWrapper , InterfaceMa
 
 	private Map<String, InterfaceOrderBook> orderBooks = new HashMap<String, InterfaceOrderBook>();
 	private LogEncapsulation log = null;
-	private ConcurrentLinkedQueue<InterfaceOrder> outboundSequenced = null;
-	private final Set<Thread> orderBookThreads = new HashSet<Thread>();
 	private PersistenceToFileClient debugger = null;
 	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
-	private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
-	private OrderDistributionModel orderDistributionModel = null;
+	//private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
 
-	
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -58,70 +67,35 @@ public class OrderBookWrapper implements InterfaceOrderBookWrapper , InterfaceMa
 	}
 
 
-	@Override
-	public InterfaceOrderBook getOrderBookForSymbol(String symbol) throws OrderBookNotFound {
-
-		final String errString = new StringBuilder().append("Cannot find order book for symbol=").append(symbol).toString();
-		InterfaceOrderBook returnValue = orderBooks.get(symbol); 
-		if (returnValue!=null) {
-			debugger.info(
-					new StringBuilder()
-					.append(CLASSNAME)
-					.append(" Existing OrderBook returned=")
-					.append(symbol)
-					.toString());
-			return returnValue;
-		}else {
-			InterfaceOrderBook orderBook = new OrderBook();
-
-			Runnable runnableOrderBook = (Runnable) orderBook;
-
-			Thread newThread = new Thread(runnableOrderBook);
-			orderBook.initialise(symbol, log, debugger, this, this);
-			
-			orderBooks.put(symbol, orderBook);
-
-			returnValue = orderBooks.get(symbol); 
-
-			orderBookThreads.add(newThread); 			
-
-			newThread.start();	
-			debugger.info(
-					new StringBuilder()
-					.append(CLASSNAME)
-					.append(" New OrderBook Thread created=")
-					.append(newThread.getName())
-					.toString());
-			
-			LibraryFunctions.threadStatusCheck(newThread, log);
-		}
-		if (returnValue!=null) {
-			return returnValue;	
-		}else {
-			throw new OrderBookNotFound(errString);
-		}
-	}
-
-	@Override
-	public Set<Thread> getOrderBookThreads() {
-		return this.orderBookThreads;
-	}
 
 	@Override
 	public boolean initialise(
-			LogEncapsulation log
-			, ConcurrentLinkedQueue<InterfaceOrder> outboundSequenced
+			LogEncapsulation log	
 			, PersistenceToFileClient debugger
-			, InterfaceMatchEvent toAddMatch
-			, InterfaceAddedOrderToOrderBook toAddOrder
-			, OrderDistributionModel orderDistributionModel
 			) {
 		this.log = log;
-		this.outboundSequenced = outboundSequenced;
 		this.debugger = debugger;
-		this.addMatchEventListener(toAddMatch);
-		this.addAddedOrderToOrderBookListener(toAddOrder);
-		this.orderDistributionModel = orderDistributionModel;
+		
+		final String symbol = "Badger.W";
+
+		OrderBookKafka obk = null;
+		try {
+			obk = new OrderBookKafka();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		OrderBook orderBook = new OrderBook();
+		orderBook.initialise(symbol, log, debugger, this, this);
+		
+		try {
+			obk.runAlways(symbol, orderBook);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 		return true;
 	}
 
@@ -131,21 +105,61 @@ public class OrderBookWrapper implements InterfaceOrderBookWrapper , InterfaceMa
 			hl.matchHappened(match);			
 	}
 
-
-	@Override
-	public void addMatchEventListener(InterfaceMatchEvent toAdd) {
-		this.listenersMatchEvent.add(toAdd);
-	}
-
-
 	@Override
 	public void addedOrderToOrderBook(InterfaceOrder nos) {
-		for (InterfaceAddedOrderToOrderBook hl : listenersAddedOrderToOrderBook)
-			hl.addedOrderToOrderBook(nos);	
+		sendExecutionReportAcknowledgementForReceivedOrder(nos);
+		//		for (InterfaceAddedOrderToOrderBook hl : listenersAddedOrderToOrderBook)
+		//			hl.addedOrderToOrderBook(nos);	
 	}
 
-	@Override
-	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd) {
-		this.listenersAddedOrderToOrderBook.add(toAdd);		
+	private void sendExecutionReportAcknowledgementForReceivedOrder(InterfaceOrder nos ) {
+		final String methodName ="sendExecutionReportAcknowledgementForReceivedOrder";
+		ExecutionReport er;
+
+		try {
+			er = getExecutionReportAcknowledgementForOrder(nos);
+		} catch (FieldNotFound e) {
+			return;
+		}
+
+		SessionID sessionID  = nos.getSessionId();
+
+		try {
+			Session.sendToTarget(er, sessionID);
+		} catch (SessionNotFound e) {
+			log.error(e.getMessage(), e);
+		};			
+	}
+
+	private static ExecutionReport getExecutionReportAcknowledgementForOrder(InterfaceOrder nos) throws FieldNotFound {
+		OrderID orderId = new OrderID(nos.getOrderId());
+		ExecID execID = new ExecID (UUID.randomUUID().toString());		
+		ExecType execType = new ExecType(ExecType.NEW);		
+		OrdStatus ordStatus = new OrdStatus(OrdStatus.NEW);
+		Side side = null;
+		LeavesQty leavesQty  = null;
+		CumQty cumQty = new CumQty(0d);
+		AvgPx avgPx = new AvgPx(0d);
+
+		try {
+			side = new Side(nos.getNewOrderSingle().getSide().getValue());
+			leavesQty = new LeavesQty(nos.getNewOrderSingle().getOrderQty().getValue());		
+
+		} catch (FieldNotFound e) {
+			throw e;
+		}
+
+		ExecutionReport er = new ExecutionReport(
+				orderId
+				, execID
+				, execType
+				, ordStatus
+				, side
+				, leavesQty
+				, cumQty
+				, avgPx
+				);
+
+		return er;
 	}
 }

@@ -10,8 +10,6 @@ package com.alignmentsystems.library.interfaces;
  *	Description		:
  *****************************************************************************/
 
-import java.util.Set;
-
 import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.PersistenceToFileClient;
 import com.alignmentsystems.library.exceptions.OrderBookNotFound;
@@ -20,13 +18,8 @@ import com.alignmentsystems.library.exceptions.OrderBookNotFound;
  *
  */
 public interface InterfaceOrderBookWrapper {
-	public InterfaceOrderBook getOrderBookForSymbol(String symbol) throws OrderBookNotFound;	
 	public boolean initialise(
 			LogEncapsulation log			
 			, PersistenceToFileClient debugger
-			, InterfaceMatchEvent toAddMatch
-			, InterfaceAddedOrderToOrderBook toAddOrder
 			);
-	public void addMatchEventListener(InterfaceMatchEvent toAdd);
-	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd);
 }
