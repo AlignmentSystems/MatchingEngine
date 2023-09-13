@@ -160,8 +160,8 @@ public class MulticastServer implements Runnable, InterfaceMulticastServer {
 		this.marketDataToPublishQueue = marketDataToPublishQueue;
 		this.debugger = debugger;
 		try {
-			this.host = LibraryFunctions.getProperty(MulticastServer.class.getClassLoader() , InstanceType.MULTICASTSERVER, ConfigurationProperties.MULTICASTHOST);
-			this.port = LibraryFunctions.getPropertyAsInt(MulticastServer.class.getClassLoader() , InstanceType.MULTICASTSERVER, ConfigurationProperties.MULTICASTPORT);
+			this.host = LibraryFunctions.getProperty(MulticastServer.class.getClassLoader() , InstanceType.MULTICASTSERVER.getProperties(), ConfigurationProperties.MULTICASTHOST);
+			this.port = LibraryFunctions.getPropertyAsInt(MulticastServer.class.getClassLoader() , InstanceType.MULTICASTSERVER.getProperties(), ConfigurationProperties.MULTICASTPORT);
 		} catch (FileNotFoundException | NullPointerException e) {
 			log.error(e.getMessage() , e);
 			throw e;

@@ -14,8 +14,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 
-import com.alignmentsystems.library.enumerations.Actors;
-
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
@@ -40,11 +38,7 @@ public class Constants {
 		public final static String TRAILER = "<=====".intern();
 		
 		public final static String DOTPROPERTIES = ".properties".intern();
-		
-		public final static String MEMBERASETTINGS = Actors.A.getProperties();
-		public final static String MEMBERBSETTINGS = Actors.B.getProperties();
-		public final static String EXCHANGESETTINGS = Actors.EXCHANGE.getProperties();
-		
+			
 		public final static int NANOSLEEP = 100;
 
 		public final static String LINESEPARATORSTRING = "line.separator".intern();

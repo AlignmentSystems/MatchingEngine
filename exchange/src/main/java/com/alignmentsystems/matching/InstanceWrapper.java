@@ -1,17 +1,5 @@
 package com.alignmentsystems.matching;
 
-/******************************************************************************
- * 
- *	Author			:	John Greenan 
- *	Contact			:	sales@alignment-systems.com
- *	Date            :	24th August 2023
- *	Copyright       :	Alignment Systems Ltd 2023
- *	Project			:	Alignment Matching Toy
- *	Artefact		:	MatchingEngineWrapper
- *	Description		:
- *****************************************************************************/
-
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -70,19 +58,19 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 		switch (instanceType) {
 
 		case FIXMESSAGINGINFRA:
-			return initialiseFIXMessagingInfrastructure();
+			return initialiseFIXMessagingInfrastructure(instanceType);
 		case ORDERBOOK:
-			return initialiseOrderBook();
+			return initialiseOrderBook(instanceType) ;
 		default:
 			return false;
 		}
 	}
 
-	private Boolean initialiseOrderBook() {
+	private Boolean initialiseOrderBook(InstanceType instanceType)  {
 		
 		PersistenceToFileClient debugger = new PersistenceToFileClient();
 		try {
-			debugger.initialise(InstanceWrapper.class.getClassLoader(), InstanceType.ORDERBOOK);
+			debugger.initialise(InstanceWrapper.class.getClassLoader(), InstanceType.ORDERBOOK.getProperties());
 			debugger.info("Working...");
 		} catch (IllegalThreadStateException | IOException e) {
 			log.error(e.getMessage(), e);
@@ -96,14 +84,18 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 			log.error(e.getMessage(), e);
 			return false;
 		}
+		
+		Thread.currentThread().setName(instanceType.toString());
+		
+		
 		return true;
 
 	}
 
-	private Boolean initialiseFIXMessagingInfrastructure() {
+	private Boolean initialiseFIXMessagingInfrastructure(InstanceType instanceType)  {
 		PersistenceToFileClient debugger = new PersistenceToFileClient();
 		try {
-			debugger.initialise(this.getClass().getClassLoader() , InstanceType.FIXMESSAGINGINFRA);
+			debugger.initialise(this.getClass().getClassLoader() , InstanceType.FIXMESSAGINGINFRA.getProperties());
 			debugger.info("Working...");
 		} catch (IllegalThreadStateException | IOException e) {
 			log.error(e.getMessage(), e);
@@ -128,7 +120,7 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 		Thread fixToBinaryProcessorThread = new Thread(null, fixToBinaryProcessor, FIXToBinaryProcessor.CLASSNAME);
 		
 		
-		Thread.currentThread().setName(this.CLASSNAME);
+		Thread.currentThread().setName(instanceType.type );
 
 		fixToBinaryProcessorThread.start();
 		queueSequencedThread.start();
@@ -152,11 +144,9 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 		}
 
 		LibraryFunctions.threadStatusCheck(Thread.currentThread(), log);
-		// LibraryFunctions.threadStatusCheck(mdOutThread, log);
-		// LibraryFunctions.threadStatusCheck(matchingEngineThread, log);
 		LibraryFunctions.threadStatusCheck(queueNonSequencedThread, log);
 		LibraryFunctions.threadStatusCheck(queueSequencedThread, log);
-//		LibraryFunctions.threadStatusCheck(persistenceThread, log);
+		LibraryFunctions.threadStatusCheck(fixToBinaryProcessorThread, log);
 
 		return true;
 	}

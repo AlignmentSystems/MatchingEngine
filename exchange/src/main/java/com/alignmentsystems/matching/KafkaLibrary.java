@@ -23,7 +23,7 @@ public class KafkaLibrary {
 	public static JsonObject getMessageLogEntryJSON(String source, String topic, String key, String message)
 			throws Exception {
 
-		String bootstrapServers = LibraryFunctions.getProperty(KafkaLibrary.class.getClassLoader(), InstanceType.KAFKA,
+		String bootstrapServers = LibraryFunctions.getProperty(KafkaLibrary.class.getClassLoader(), InstanceType.KAFKA.getProperties(),
 				ConfigurationProperties.BOOTSTRAPSERVERS);
 
 		JsonObject model = Json.createObjectBuilder().add("bootstrapServers", bootstrapServers).add("source", source)

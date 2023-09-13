@@ -1,5 +1,4 @@
 package com.alignmentsystems.library.interfaces;
-import java.nio.ByteBuffer;
 /******************************************************************************
  * 
  *	Author			:	John Greenan 

@@ -10,7 +10,6 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -21,10 +20,8 @@ import com.alignmentsystems.library.LibraryFunctions;
 import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.PersistenceToFileClient;
 import com.alignmentsystems.library.constants.FailureConditionConstants;
-import com.alignmentsystems.library.enumerations.Actors;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceInstanceWrapper;
-import com.alignmentsystems.matching.FIXEngineMember;
 
 import quickfix.ConfigError;
 import quickfix.FileLogFactory;
@@ -74,9 +71,8 @@ public class ClientInstanceWrapper implements InterfaceInstanceWrapper{
 
 		switch(instanceType){
 		case MEMBERA:
-			return initialiseMember();			
 		case MEMBERB:
-			return initialiseMember();	
+			return initialiseMember(instanceType);			
 		default:
 			return false;	
 		}
@@ -88,11 +84,12 @@ public class ClientInstanceWrapper implements InterfaceInstanceWrapper{
 
 	}
 
-	public Boolean initialiseMember() {
+	public Boolean initialiseMember(InstanceType instanceType) {
 		PersistenceToFileClient debugger = new PersistenceToFileClient();
-		try {
-			debugger.initialise(ClientInstanceWrapper.class.getClassLoader() , instanceType);
-			debugger.info("Working...");
+		try {			
+			debugger.initialise(ClientInstanceWrapper.class.getClassLoader() , instanceType.getLoggerProperties());
+			log.debug("Using " + instanceType.getLoggerProperties());
+			debugger.info("Using " + instanceType.getLoggerProperties());
 		} catch (IllegalThreadStateException | IOException e) {
 			log.error(e.getMessage() , e );
 			return false;
@@ -101,11 +98,10 @@ public class ClientInstanceWrapper implements InterfaceInstanceWrapper{
 		FIXEngineMember engineMember = new FIXEngineMember(log, this.instanceType);
 		engines.add(engineMember);
 
-		String[] initiators = {Actors.A.getProperties()};
-		log.debug("get" + initiators[0]);
+		String[] initiators = {instanceType.getProperties()};
+		log.debug("Using " + initiators[0]);
 
 		Initiator memberToCreate = null;
-
 
 		try {
 			memberToCreate = getMemberEnvironment(initiators[0], engineMember);

@@ -12,7 +12,6 @@ package com.alignmentsystems.library.interfaces;
 
 import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.PersistenceToFileClient;
-import com.alignmentsystems.library.exceptions.OrderBookNotFound;
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *

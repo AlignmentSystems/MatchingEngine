@@ -22,8 +22,8 @@ import com.alignmentsystems.library.exceptions.LogMessageIsNull;
  */
 public interface InterfacePersistenceClient {
 	
-	public boolean initialise(ClassLoader cl , InstanceType instanceType , String tag) throws FileNotFoundException, IllegalThreadStateException , IOException;	
-	public boolean initialise(ClassLoader cl , InstanceType instanceType) throws FileNotFoundException, IllegalThreadStateException , IOException;
+	public boolean initialise(ClassLoader cl , String instanceTypeName , String tag) throws FileNotFoundException, IllegalThreadStateException , IOException;	
+	public boolean initialise(ClassLoader cl , String instanceTypeName) throws FileNotFoundException, IllegalThreadStateException , IOException;
 	
 	/**
 	 * Shutdown the logger

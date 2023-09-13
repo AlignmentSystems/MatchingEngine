@@ -205,7 +205,7 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 			throw e;
 		}
 
-		log.infoFIXSession(message.toRawString(), sessionId, MessageDirection.RECEIVED, METHODNAME, this.CLASSNAME,
+		log.infoFIXSession(message.toRawString(), sessionId, MessageDirection.RECEIVED, METHODNAME, FIXEngineExchange.CLASSNAME,
 				instanceType);
 
 		try {

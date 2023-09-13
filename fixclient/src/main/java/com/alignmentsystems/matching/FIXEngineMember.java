@@ -235,7 +235,7 @@ public class FIXEngineMember extends MessageCracker implements quickfix.Applicat
 		}
 
 
-		log.infoFIXSession(message.toRawString(), sessionId, MessageDirection.RECEIVED, METHODNAME, this.CLASSNAME, this.instanceType);
+		log.infoFIXSession(message.toRawString(), sessionId, MessageDirection.RECEIVED, METHODNAME, FIXEngineMember.CLASSNAME, this.instanceType);
 
 		try {
 			crack(message, sessionId);

@@ -13,11 +13,9 @@ package com.alignmentsystems.library.interfaces;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-
 import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.PersistenceToFileClient;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
-import com.alignmentsystems.library.enumerations.OrderDistributionModel;
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *

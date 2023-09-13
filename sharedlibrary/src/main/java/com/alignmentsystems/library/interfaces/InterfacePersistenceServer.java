@@ -24,7 +24,7 @@ import com.alignmentsystems.library.enumerations.InstanceType;
 public interface InterfacePersistenceServer {
 	public void writeLineAtClose(String toWrite) ;
 	public String getFileNameAndPathUsed();
-	public boolean initialise(ClassLoader cl, ConcurrentLinkedQueue<String> queue , InstanceType instanceType , String tag , int NanoSleep) throws FileNotFoundException, IOException  ;
-	public boolean initialise(ClassLoader cl , ConcurrentLinkedQueue<String> queue , InstanceType instanceType , int NanoSleep) throws FileNotFoundException, IOException  ;
+	public boolean initialise(ClassLoader cl, ConcurrentLinkedQueue<String> queue , String instanceTypeName , String tag , int NanoSleep) throws FileNotFoundException, IOException  ;
+	public boolean initialise(ClassLoader cl , ConcurrentLinkedQueue<String> queue , String instanceTypeName, int NanoSleep) throws FileNotFoundException, IOException  ;
 
 }

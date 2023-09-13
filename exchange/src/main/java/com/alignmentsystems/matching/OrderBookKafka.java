@@ -35,15 +35,27 @@ public class OrderBookKafka extends KafkaAbstractSimple {
 	private KafkaConsumer<String, byte[]> kafkaConsumer = null;
 	private final AtomicBoolean closed = new AtomicBoolean(false);
 	private LogEncapsulation log = null;
-
+	private Properties props = null;
+	
+	
+	
+	
+	
 	public OrderBookKafka() throws Exception {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public Boolean initialise(LogEncapsulation log) {
+	public Boolean initialise(LogEncapsulation log) throws FileNotFoundException , NullPointerException{
 		this.log = log;
-		return Boolean.TRUE;
+		
+		try {
+			props = LibraryFunctions.getProperties(OrderBookKafka.class.getClassLoader(), InstanceType.KAFKA.getProperties());
+		} catch (FileNotFoundException  |NullPointerException e) {
+			throw e;
+		}
+
+		return Boolean.TRUE;			
 	}
 
 	public void setKafkaConsumer(KafkaConsumer<String, byte[]> kafkaConsumer) {
@@ -51,7 +63,6 @@ public class OrderBookKafka extends KafkaAbstractSimple {
 	}
 
 	void run(String topicName, KafkaMessageHandler callback, Integer numberOfRecords) throws Exception {
-		Properties props = LibraryFunctions.getProperties(OrderBookKafka.class.getClassLoader(), InstanceType.KAFKA);
 		// See if the number of records is provided
 		Optional<Integer> recs = Optional.ofNullable(numberOfRecords);
 
@@ -109,7 +120,7 @@ public class OrderBookKafka extends KafkaAbstractSimple {
 	public void runAlways(String topicName, KafkaMessageHandler callback) throws Exception {
 		Properties props;
 		try {
-			props = LibraryFunctions.getProperties(OrderBookKafka.class.getClassLoader() , InstanceType.KAFKA);
+			props = LibraryFunctions.getProperties(OrderBookKafka.class.getClassLoader() , InstanceType.KAFKA.getProperties());
 		} catch (FileNotFoundException | NullPointerException e) {
 			//log.error(e.getMessage() , e);
 			throw e;

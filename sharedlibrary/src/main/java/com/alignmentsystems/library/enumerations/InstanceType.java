@@ -23,18 +23,24 @@ public enum InstanceType {
 	EXCHANGEFIXACCEPTOR("ExchangeFIXAcceptor" , Boolean.TRUE, Boolean.FALSE),
 	MULTICASTSERVER("MulticastServer" , Boolean.FALSE, Boolean.FALSE),
 	ORDERBOOK("OrderBook" , Boolean.TRUE, Boolean.FALSE),
-	MEMBERA("MemberA" , Boolean.TRUE, Boolean.FALSE),
 	KAFKA("Kafka" , Boolean.FALSE, Boolean.FALSE),
-	MEMBERB("MemberB" , Boolean.TRUE, Boolean.FALSE)
+	MEMBERA("MemberA" , Boolean.TRUE, Boolean.FALSE),
+	MEMBERB("MemberB" , Boolean.TRUE, Boolean.FALSE),
 	;
 
 	public final String type;
 	public final Boolean creatable;
 	public final Boolean isDefault;
+	private final static String LOG = "Log";
 
 	public String getProperties() {
 		return new StringBuilder(this.type).append(Constants.DOTPROPERTIES).toString();
 	};
+
+	public String getLoggerProperties() {
+		return new StringBuilder(this.type).append(LOG).append(Constants.DOTPROPERTIES).toString();
+	};
+
 	
 	
 	InstanceType(String actor, Boolean creatable , Boolean isDefault){

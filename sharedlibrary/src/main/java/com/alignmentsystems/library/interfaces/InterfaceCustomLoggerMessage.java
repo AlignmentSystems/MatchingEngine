@@ -12,7 +12,6 @@ package com.alignmentsystems.library.interfaces;
 
 import java.util.List;
 
-import com.alignmentsystems.library.enumerations.Actors;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.enumerations.MessageDirection;
 import com.alignmentsystems.library.enumerations.OperationEventType;

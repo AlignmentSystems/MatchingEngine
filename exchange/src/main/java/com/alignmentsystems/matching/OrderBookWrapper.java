@@ -7,7 +7,7 @@ package com.alignmentsystems.matching;
  *	Date            :	24th August 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	OrderBooks
+ *	Artefact		:	OrderBookWrapper
  *	Description		:
  *****************************************************************************/
 
@@ -45,7 +45,7 @@ import quickfix.SessionNotFound;
  *
  */
 public class OrderBookWrapper
-		implements InterfaceOrderBookWrapper, InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
+implements InterfaceOrderBookWrapper, InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
 	private final static String CLASSNAME = OrderBookWrapper.class.getSimpleName();
 
 	private Map<String, InterfaceOrderBook> orderBooks = new HashMap<String, InterfaceOrderBook>();
@@ -75,22 +75,16 @@ public class OrderBookWrapper
 
 		OrderBookKafka obk = null;
 		try {
-			obk = new OrderBookKafka();			
+			obk = new OrderBookKafka();
+			obk.initialise(this.log);			
 		} catch (Exception e) {
-			log.error(e.getMessage() ,  e);
+			//log.error(e.getMessage() ,  e);
 			throw e;
 		}
-		
-		if(obk.initialise(this.log)) {
-			
-		}else{
-			return false;
-		};
-		
-		
+
 		OrderBook orderBook = new OrderBook();
 		if(orderBook.initialise(symbol, this.log, this.debugger, this, this)) {
-			
+
 		}else{
 			return false;
 		};

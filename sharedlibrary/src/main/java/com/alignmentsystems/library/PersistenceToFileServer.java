@@ -49,7 +49,7 @@ class PersistenceToFileServer implements Runnable , InterfacePersistenceServer{
 	public boolean initialise(
 			ClassLoader cl
 			, ConcurrentLinkedQueue<String> queue
-			, InstanceType instanceType
+			, String instanceTypeName
 			, String tag
 			, int milliSleep
 			) throws FileNotFoundException, IOException {
@@ -57,8 +57,8 @@ class PersistenceToFileServer implements Runnable , InterfacePersistenceServer{
 		this.logQueue = queue;
 		this.tag = tag;
 
-		final String logFileDirectory = LibraryFunctions.getLogFileLocation(cl , instanceType);
-		final String filenameSuffix = LibraryFunctions.getFileNameSuffix(cl , instanceType);
+		final String logFileDirectory = LibraryFunctions.getLogFileLocation(cl , instanceTypeName);
+		final String filenameSuffix = LibraryFunctions.getFileNameSuffix(cl , instanceTypeName);
 
 		this.fullPathAndFileNameToUse = LibraryFunctions.getFileNameToUseForPersistence(logFileDirectory , tag , filenameSuffix);
 		this.milliSleep = milliSleep;
@@ -74,7 +74,7 @@ class PersistenceToFileServer implements Runnable , InterfacePersistenceServer{
 	public boolean initialise(
 			ClassLoader cl
 			, ConcurrentLinkedQueue<String> queue
-			, InstanceType instanceType 
+			, String instanceTypeName
 			, int milliSleep)
 			throws FileNotFoundException, IOException {
 		
@@ -85,8 +85,8 @@ class PersistenceToFileServer implements Runnable , InterfacePersistenceServer{
 		String filenameSuffix;
 
 		try {
-			logFileDirectory = LibraryFunctions.getLogFileLocation(cl, instanceType);
-			filenameSuffix = LibraryFunctions.getFileNameSuffix(cl, instanceType);
+			logFileDirectory = LibraryFunctions.getLogFileLocation(cl, instanceTypeName);
+			filenameSuffix = LibraryFunctions.getFileNameSuffix(cl, instanceTypeName);
 			this.fullPathAndFileNameToUse = LibraryFunctions.getFileNameToUseForPersistence(logFileDirectory , null , filenameSuffix);			
 		} catch (FileNotFoundException | NullPointerException e) {
 			throw e;
