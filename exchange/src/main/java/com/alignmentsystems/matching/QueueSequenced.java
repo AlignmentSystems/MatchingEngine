@@ -1,5 +1,4 @@
 package com.alignmentsystems.matching;
-
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -19,16 +18,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
-import com.alignmentsystems.library.interfaces.InterfaceOrderToStringProcessor;
+import com.alignmentsystems.library.interfaces.InterfaceQueueSequencedDeduplicated;
 
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class QueueSequenced implements Runnable, InterfaceOrderToStringProcessor {
+public class QueueSequenced implements Runnable, InterfaceQueueSequencedDeduplicated {
 	protected final static String CLASSNAME = QueueSequenced.class.getSimpleName().toString();
 	private ConcurrentLinkedQueue<InterfaceOrder> inQueue;
-	private ConcurrentLinkedQueue<String> outQueue;
+	private ConcurrentLinkedQueue<InterfaceOrder> outQueue;
 	private final int milliSleep = 200;
 	private final int arrayListSize = 100;
 	private final int initialCapacityHashSet = 100;
@@ -43,7 +42,7 @@ public class QueueSequenced implements Runnable, InterfaceOrderToStringProcessor
 	}
 
 	@Override
-	public boolean initialise(ConcurrentLinkedQueue<InterfaceOrder> inQueue, ConcurrentLinkedQueue<String> outQueue) {
+	public boolean initialise(ConcurrentLinkedQueue<InterfaceOrder> inQueue, ConcurrentLinkedQueue<InterfaceOrder> outQueue) {
 		this.inQueue = inQueue;
 		this.outQueue = outQueue;
 		return true;
@@ -70,7 +69,7 @@ public class QueueSequenced implements Runnable, InterfaceOrderToStringProcessor
 				uniqueNessTuple = inSeq.getOrderUniquenessTuple();
 				if (seen.add(uniqueNessTuple)) {
 					deDupedOrders.add(inSeq);
-					outQueue.add(trialString);
+					outQueue.add(inSeq);
 				}
 
 			}

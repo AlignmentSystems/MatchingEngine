@@ -29,7 +29,7 @@ import com.alignmentsystems.library.interfaces.InterfaceFIXToBinaryProcessor;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 
 public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProcessor {
-	private final static String CLASSNAME = FIXToBinaryProcessor.class.getSimpleName().toString();
+	protected final static String CLASSNAME = FIXToBinaryProcessor.class.getSimpleName().toString();
 	private LogEncapsulation log = null;
 	private ConcurrentLinkedQueue<InterfaceOrder> inQueue = null;
 	private KafkaProducer<String, byte[]> kafkaProducerB = null;

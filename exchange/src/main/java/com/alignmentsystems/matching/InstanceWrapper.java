@@ -44,7 +44,7 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 	private final String CLASSNAME = this.getClass().getSimpleName();
 	private List<FIXEngineExchange> engines = new ArrayList<FIXEngineExchange>();
 	private ConcurrentLinkedQueue<InterfaceOrder> sequenced = new ConcurrentLinkedQueue<InterfaceOrder>();
-	private ConcurrentLinkedQueue<String> deduplicatedPersistence = new ConcurrentLinkedQueue<String>();
+	private ConcurrentLinkedQueue<InterfaceOrder> deduplicatedSequenced = new ConcurrentLinkedQueue<InterfaceOrder>();
 	private ConcurrentLinkedQueue<InterfaceMatch> marketDataQueue = new ConcurrentLinkedQueue<InterfaceMatch>();
 	private InstanceType instanceType;
 	private LogEncapsulation log = new LogEncapsulation(this.getClass());
@@ -107,6 +107,7 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 			debugger.info("Working...");
 		} catch (IllegalThreadStateException | IOException e) {
 			log.error(e.getMessage(), e);
+			return false;
 		}
 
 		QueueNonSequenced queueNonSequenced = new QueueNonSequenced();
@@ -115,10 +116,21 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 
 		QueueSequenced queueSequenced = new QueueSequenced();
 		Thread queueSequencedThread = new Thread(null, queueSequenced, QueueSequenced.CLASSNAME);
-		queueSequenced.initialise(sequenced, deduplicatedPersistence);
+		queueSequenced.initialise(sequenced, deduplicatedSequenced);
 
+		FIXToBinaryProcessor fixToBinaryProcessor = new FIXToBinaryProcessor();
+		try {
+			fixToBinaryProcessor.initialise(deduplicatedSequenced , log);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			return false;
+		}
+		Thread fixToBinaryProcessorThread = new Thread(null, fixToBinaryProcessor, FIXToBinaryProcessor.CLASSNAME);
+		
+		
 		Thread.currentThread().setName(this.CLASSNAME);
 
+		fixToBinaryProcessorThread.start();
 		queueSequencedThread.start();
 		queueNonSequencedThread.start();
 
