@@ -3,6 +3,7 @@
 	<name>lib</name>
 	<comment></comment>
 	<projects>
+		<project>sharedlibrary</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

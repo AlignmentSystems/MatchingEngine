@@ -77,12 +77,21 @@ class PersistenceToFileServer implements Runnable , InterfacePersistenceServer{
 			throws FileNotFoundException, IOException {
 		
 		this.logQueue = queue;
-		
-		final String logFileDirectory = LibraryFunctions.getLogFileLocation(instanceType);
-		final String filenameSuffix = LibraryFunctions.getFileNameSuffix(instanceType);
-
-		this.fullPathAndFileNameToUse = LibraryFunctions.getFileNameToUseForPersistence(logFileDirectory , null , filenameSuffix);
 		this.milliSleep = milliSleep;
+		
+		String logFileDirectory;
+		String filenameSuffix;
+
+		try {
+			logFileDirectory = LibraryFunctions.getLogFileLocation(instanceType);
+			filenameSuffix = LibraryFunctions.getFileNameSuffix(instanceType);
+			this.fullPathAndFileNameToUse = LibraryFunctions.getFileNameToUseForPersistence(logFileDirectory , null , filenameSuffix);			
+		} catch (FileNotFoundException | NullPointerException e) {
+			throw e;
+		}
+		
+
+		
 		
 		StandardOpenOption option = getOpenOption();
 		String toWrite = getFormattedMessage(fullPathAndFileNameToUse);

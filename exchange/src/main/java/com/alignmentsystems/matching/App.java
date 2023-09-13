@@ -1,4 +1,7 @@
 package com.alignmentsystems.matching;
+
+import com.alignmentsystems.library.LibraryFunctions;
+import com.alignmentsystems.library.constants.FailureConditionConstants;
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -10,19 +13,19 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 import com.alignmentsystems.library.enumerations.InstanceType;
-import com.alignmentsystems.library.LibraryFunctions;
- 
 
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
 public class App {
-	
-	public static void main(String[] args) {		
+
+	public static void main(String[] args) {
 		InstanceType instanceType = LibraryFunctions.getInstanceActor(args);
-		
+
 		InstanceWrapper wrapper = new InstanceWrapper();
-		wrapper.initialise(instanceType);
-	} 
+		if (wrapper.initialise(instanceType)) {
+			System.exit(FailureConditionConstants.INSTANCE_WRAPPER_INITIALISATION_ERROR);
+		};
+	}
 }

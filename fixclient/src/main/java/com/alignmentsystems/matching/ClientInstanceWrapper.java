@@ -93,8 +93,9 @@ public class ClientInstanceWrapper implements InterfaceInstanceWrapper{
 		try {
 			debugger.initialise(instanceType);
 			debugger.info("Working...");
-		} catch (IllegalThreadStateException | FileNotFoundException e) {
+		} catch (IllegalThreadStateException | IOException e) {
 			log.error(e.getMessage() , e );
+			return false;
 		}
 
 		FIXEngineMember engineMember = new FIXEngineMember(log, this.instanceType);

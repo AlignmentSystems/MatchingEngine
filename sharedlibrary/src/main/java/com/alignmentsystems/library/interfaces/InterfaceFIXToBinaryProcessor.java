@@ -5,5 +5,5 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import com.alignmentsystems.library.LogEncapsulation;
 
 public interface InterfaceFIXToBinaryProcessor {
-	public boolean initialise(ConcurrentLinkedQueue<InterfaceOrder> inQueue , LogEncapsulation log );
+	public boolean initialise(ConcurrentLinkedQueue<InterfaceOrder> inQueue , LogEncapsulation log ) throws Exception;
 }

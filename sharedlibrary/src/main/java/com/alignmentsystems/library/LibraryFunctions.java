@@ -90,8 +90,14 @@ public class LibraryFunctions {
 	}
 
 
-	public static int getPropertyAsInt(InstanceType instanceType , ConfigurationProperties configurationProperties) {
-		String innerValue = getProperty(instanceType, configurationProperties);
+	public static int getPropertyAsInt(InstanceType instanceType , ConfigurationProperties configurationProperties) throws FileNotFoundException, NullPointerException{
+		String innerValue;
+
+		try {
+			innerValue = getProperty(instanceType, configurationProperties);
+		} catch (FileNotFoundException | NullPointerException e) {
+			throw e;
+		}
 		int returnValue;
 
 
@@ -110,31 +116,47 @@ public class LibraryFunctions {
 	 * @param actor
 	 * @return
 	 */
-	public static Properties getProperties(InstanceType instanceType) {
-		InputStream inputStream = LibraryFunctions.class.getClassLoader().getResourceAsStream(instanceType.getProperties());
+	public static Properties getProperties(InstanceType instanceType) throws FileNotFoundException , NullPointerException{
 
+		InputStream inputStream = null;
+		try {
+			inputStream = LibraryFunctions.class.getClassLoader().getResourceAsStream(instanceType.getProperties());
+
+		}catch(NullPointerException  e) {
+			throw e;
+		}catch(Exception e) {
+			throw new FileNotFoundException("Configuration not found for " + instanceType.getProperties());
+		}
+
+		if (inputStream==null) {
+			throw new FileNotFoundException("Configuration not found for " + instanceType.getProperties());
+		}
+		
+		
 		Properties prop = new Properties();
 
-		try {
-			prop.load(inputStream);
-		} catch (IOException e) {
-			System.err.println(e.getMessage());	
-			System.exit(FailureConditionConstants.KAFKA_ERROR_PROPERTIES_FILE);
-		}catch (IllegalArgumentException e) {
-			System.err.println(e.getMessage());
-			System.exit(FailureConditionConstants.KAFKA_ERROR_PROPERTIES_FILE);
-		}catch (NullPointerException e) {
-			System.err.println(e.getMessage());
-			System.exit(FailureConditionConstants.KAFKA_ERROR_PROPERTIES_FILE);
-		}
+		if (inputStream!=null) {
 
-		try {
-			inputStream.close();
-		} catch (IOException e) {
-			System.err.println(e.getMessage());	
-			System.exit(FailureConditionConstants.KAFKA_ERROR_PROPERTIES_FILE);
-		}
+			try {
+				prop.load(inputStream);
+			} catch (IOException e) {
+				System.err.println(e.getMessage());	
+				System.exit(FailureConditionConstants.KAFKA_ERROR_PROPERTIES_FILE);
+			}catch (IllegalArgumentException e) {
+				System.err.println(e.getMessage());
+				System.exit(FailureConditionConstants.KAFKA_ERROR_PROPERTIES_FILE);
+			}catch (NullPointerException e) {
+				System.err.println(e.getMessage());
+				System.exit(FailureConditionConstants.KAFKA_ERROR_PROPERTIES_FILE);
+			}
 
+			try {
+				inputStream.close();
+			} catch (IOException e) {
+				System.err.println(e.getMessage());	
+				System.exit(FailureConditionConstants.KAFKA_ERROR_PROPERTIES_FILE);
+			}
+		}
 		return prop;
 	}
 
@@ -144,12 +166,19 @@ public class LibraryFunctions {
 	 * @param configurationProperties The specific property requested
 	 * @return The value of the specific property requested
 	 */
-	public static String getProperty(InstanceType instanceType, ConfigurationProperties configurationProperties) {
+	public static String getProperty(InstanceType instanceType, ConfigurationProperties configurationProperties) throws FileNotFoundException , NullPointerException {
 		String targetProperty = null;
 
-		Properties prop = getProperties(instanceType);
+		Properties prop;
+		try {
+			prop = getProperties(instanceType);
+		} catch (FileNotFoundException | NullPointerException e) {
+			throw e;
+		}
 
-		targetProperty = prop.getProperty(configurationProperties.targetProperty).trim();			
+		targetProperty = prop.getProperty(configurationProperties.targetProperty);
+		
+		targetProperty= targetProperty.trim();			
 
 		return targetProperty;
 
@@ -209,10 +238,18 @@ public class LibraryFunctions {
 	 * 
 	 * @return String The value of the property requested
 	 *  This is stored in the configuration file
+	 * @throws NullPointerException 
+	 * @throws FileNotFoundException 
 	 */
-	public static String  getLogFileLocation(InstanceType instanceType) {
+	public static String  getLogFileLocation(InstanceType instanceType) throws FileNotFoundException, NullPointerException {
 		String targetProperty = null;
-		targetProperty = getProperty(instanceType, ConfigurationProperties.LOGFILEDIRECTORY);
+
+		try {
+			targetProperty = getProperty(instanceType, ConfigurationProperties.LOGFILEDIRECTORY);
+		} catch (FileNotFoundException | NullPointerException e) {
+			throw e;
+		}
+
 		return targetProperty;
 	}
 
@@ -220,11 +257,16 @@ public class LibraryFunctions {
 	 * 
 	 * @return String The value of the property requested
 	 */
-	public static String  getFileNameSuffix(InstanceType instanceType) {
+	public static String  getFileNameSuffix(InstanceType instanceType)  throws FileNotFoundException, NullPointerException{
 		String targetProperty = null;
-		targetProperty = getProperty(instanceType, ConfigurationProperties.LOGFILENAMESUFFIX);
-		return targetProperty;
 
+		try {
+			targetProperty = getProperty(instanceType, ConfigurationProperties.LOGFILENAMESUFFIX);
+		} catch (FileNotFoundException | NullPointerException e) {
+			throw e;
+		}
+
+		return targetProperty;
 	}
 
 

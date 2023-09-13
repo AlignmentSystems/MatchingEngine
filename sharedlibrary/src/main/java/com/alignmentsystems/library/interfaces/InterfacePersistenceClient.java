@@ -10,6 +10,7 @@ package com.alignmentsystems.library.interfaces;
  *	Description		:
  *****************************************************************************/
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.exceptions.LogMessageIsNull;
@@ -28,7 +29,7 @@ public interface InterfacePersistenceClient {
 	 * @throws FileNotFoundException The file to which the logger has been directed cannot be found.
 	 * @throws IllegalThreadStateException There is a thread state issue - this has not been seen in testing
 	 */
-	public boolean initialise(InstanceType instanceType , String tag) throws FileNotFoundException, IllegalThreadStateException;
+	public boolean initialise(InstanceType instanceType , String tag) throws FileNotFoundException, IllegalThreadStateException , IOException;
 	
 	
 	/**
@@ -38,7 +39,7 @@ public interface InterfacePersistenceClient {
 	 * @throws FileNotFoundException The file to which the logger has been directed cannot be found.
 	 * @throws IllegalThreadStateException There is a thread state issue - this has not been seen in testing
 	 */
-	public boolean initialise(InstanceType instanceType) throws FileNotFoundException, IllegalThreadStateException;
+	public boolean initialise(InstanceType instanceType) throws FileNotFoundException, IllegalThreadStateException , IOException;
 	
 	/**
 	 * Shutdown the logger

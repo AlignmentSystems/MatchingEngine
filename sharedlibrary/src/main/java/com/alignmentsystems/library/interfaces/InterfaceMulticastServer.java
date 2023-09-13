@@ -19,8 +19,8 @@ import com.alignmentsystems.library.PersistenceToFileClient;
  *
  */
 public interface InterfaceMulticastServer {
-	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceMatch> marketDataToPublishQueue, PersistenceToFileClient debugger, String host, int port);
-	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceMatch> marketDataToPublishQueue, PersistenceToFileClient debugger);
+	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceMatch> marketDataToPublishQueue, PersistenceToFileClient debugger, String host, int port) throws Exception;
+	public boolean initialise(LogEncapsulation log, ConcurrentLinkedQueue<InterfaceMatch> marketDataToPublishQueue, PersistenceToFileClient debugger) throws Exception;
 	public void multicastThis(byte[] multicastBytes) throws IOException;
 	public ConcurrentLinkedQueue<InterfaceMatch> getMarketDataQueue();
 	public Long getCurrentSequenceNumber();

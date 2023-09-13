@@ -1,4 +1,5 @@
 package com.alignmentsystems.matching;
+
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -33,20 +34,23 @@ import com.alignmentsystems.library.interfaces.InterfaceMatch;
 import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
+
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
- * <a href="https://kafka.apache.org/35/javadoc/org/apache/kafka/clients/consumer/package-summary.html">Consumer</a>
+ *         <a href=
+ *         "https://kafka.apache.org/35/javadoc/org/apache/kafka/clients/consumer/package-summary.html">Consumer</a>
  *
  */
-public class OrderBook implements KafkaMessageHandler, InterfaceOrderBook , InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
+public class OrderBook
+		implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
 	private final static String CLASSNAME = OrderBook.class.getSimpleName();
 
 	private final static int buyPriorityQueueSize = 100;
 	private final static int sellPriorityQueueSize = 100;
 	private AlignmentOrderComparatorBuy aboc = new AlignmentOrderComparatorBuy();
 	private AlignmentOrderComparatorSell asoc = new AlignmentOrderComparatorSell();
-	private PriorityQueue<InterfaceOrder>  buy = new PriorityQueue<InterfaceOrder> (buyPriorityQueueSize, aboc);
-	private PriorityQueue<InterfaceOrder>  sell = new PriorityQueue<InterfaceOrder> (sellPriorityQueueSize ,asoc); 
+	private PriorityQueue<InterfaceOrder> buy = new PriorityQueue<InterfaceOrder>(buyPriorityQueueSize, aboc);
+	private PriorityQueue<InterfaceOrder> sell = new PriorityQueue<InterfaceOrder>(sellPriorityQueueSize, asoc);
 
 	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
 	private PersistenceToFileClient debugger = null;
@@ -61,42 +65,27 @@ public class OrderBook implements KafkaMessageHandler, InterfaceOrderBook , Inte
 	private OffsetDateTime orderBookCreationTime = null;
 	private OffsetDateTime orderBookLastUpdateTime = null;
 
-
-
-
 	@Override
-	public Boolean initialise(
-			String symbol
-			, LogEncapsulation log
-			, PersistenceToFileClient debugger
-			, InterfaceMatchEvent toAddMatch
-			, InterfaceAddedOrderToOrderBook toAddOrder
-			) {
+	public Boolean initialise(String symbol, LogEncapsulation log, PersistenceToFileClient debugger,
+			InterfaceMatchEvent toAddMatch, InterfaceAddedOrderToOrderBook toAddOrder) {
 		Boolean returnValue = Boolean.FALSE;
 		this.orderBookCreationTime = OffsetDateTime.now(Constants.HERE);
 		this.symbol = symbol;
 		this.log = log;
 		this.debugger = debugger;
 
-
 		this.addMatchEventListener(toAddMatch);
 		this.addAddedOrderToOrderBookListener(toAddOrder);
 		returnValue = Boolean.TRUE;
 
-		this.initialised.set(returnValue); 
-		return this.initialised.get();	
+		this.initialised.set(returnValue);
+		return this.initialised.get();
 	}
-
-
-
-
 
 	@Override
 	public String getThisOrderBookSymbol() {
 		return this.symbol;
 	}
-
-
 
 	@NotYetImplemented
 	private boolean cancelOrder(InterfaceOrder nos) {
@@ -111,12 +100,10 @@ public class OrderBook implements KafkaMessageHandler, InterfaceOrderBook , Inte
 	}
 
 	private void snapShotOrderBook() {
-		List<String> buy =  snapShotOrderBookBySide(OrderBookSide.BUY); 
+		List<String> buy = snapShotOrderBookBySide(OrderBookSide.BUY);
 		List<String> sell = snapShotOrderBookBySide(OrderBookSide.SELL);
-		log.infoOrderBookStatus(buy , sell);
+		log.infoOrderBookStatus(buy, sell);
 	}
-
-
 
 	/**
 	 * 
@@ -133,60 +120,61 @@ public class OrderBook implements KafkaMessageHandler, InterfaceOrderBook , Inte
 		bookCount = getOrderCountBySide(targetSide);
 		if (bookCount == 0) {
 
-			snapShotOrderBook.add(targetSide.sideValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount)) + Constants.TAB + "No orders..." );
-		}else {
+			snapShotOrderBook.add(
+					targetSide.sideValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount))
+							+ Constants.TAB + "No orders...");
+		} else {
 			for (InterfaceOrder io : orders) {
-				snapShotOrderBook.add(targetSide.sideValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount)) + io.toString());	
+				snapShotOrderBook.add(targetSide.sideValue
+						+ LibraryFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount))
+						+ io.toString());
 			}
 		}
 		return snapShotOrderBook;
 	}
-
-
 
 	private void runMatch() {
 
 		InterfaceOrder topOfBuyBook = buy.peek();
 		InterfaceOrder topOfSellBook = sell.peek();
 
-
-		if(topOfBuyBook==null) {
-			//null for buy-side, so just exit this function
+		if (topOfBuyBook == null) {
+			// null for buy-side, so just exit this function
 			return;
 		}
-		if(topOfSellBook==null) {
-			//null for sell-side, so just exit this function
+		if (topOfSellBook == null) {
+			// null for sell-side, so just exit this function
 			return;
 		}
-
 
 		final Double topOfBuyBookPrice = topOfBuyBook.getLimitPrice().getValue();
 		final Double topOfSellBookPrice = topOfSellBook.getLimitPrice().getValue();
 		Double tradedQuantity = 0d;
 		Double tradedPrice = 0d;
-		//If buy top of book price is greater than or equal to the sell top of book then we have got a buyer
-		//who has crossed the spread.  So we have a trade, yay!
-		if (topOfBuyBookPrice>=topOfSellBookPrice) {
+		// If buy top of book price is greater than or equal to the sell top of book
+		// then we have got a buyer
+		// who has crossed the spread. So we have a trade, yay!
+		if (topOfBuyBookPrice >= topOfSellBookPrice) {
 
+			// The minimum of sell order quantity and buy order quantity can trade.
+			// Note - this is not correct, since you have to walk down the levels of depth
+			// and execute each price until the order that crossed the spread is full or no
+			// longer able to trade as the next]
+			// price level would not match
 
-			//The minimum of sell order quantity and buy order quantity can trade.
-			//Note - this is not correct, since you have to walk down the levels of depth
-			//and execute each price until the order that crossed the spread is full or no longer able to trade as the next]
-			//price level would not match
-
-			//Here is a question, who is the aggressor?
-			//Why do we need to know this? So you can work out who gets to trade at their preferred price...
+			// Here is a question, who is the aggressor?
+			// Why do we need to know this? So you can work out who gets to trade at their
+			// preferred price...
 			final OffsetDateTime topOfBuyBookTimestamp = topOfBuyBook.getTimestamp();
 			final OffsetDateTime topOfSellBookTimestamp = topOfSellBook.getTimestamp();
 			Side aggressor = null;
 
-
-			if (topOfBuyBookTimestamp.compareTo(topOfSellBookTimestamp)<0) {
-				//Returns: the comparator value, negative if less, positive if greater
-				//Therefore topOfBuyBookTimestamp is less than topOfSellBookTimestamp
-				//So topOfBuyBookTimestamp came first and is therefore NOT the aggressor
+			if (topOfBuyBookTimestamp.compareTo(topOfSellBookTimestamp) < 0) {
+				// Returns: the comparator value, negative if less, positive if greater
+				// Therefore topOfBuyBookTimestamp is less than topOfSellBookTimestamp
+				// So topOfBuyBookTimestamp came first and is therefore NOT the aggressor
 				aggressor = new Side(Side.SELL);
-			}else {
+			} else {
 				aggressor = new Side(Side.BUY);
 			}
 
@@ -195,14 +183,12 @@ public class OrderBook implements KafkaMessageHandler, InterfaceOrderBook , Inte
 
 			tradedQuantity = Math.min(topOfBuyBookQty, topOfSellBookQty);
 
-
-
-			switch(aggressor.getValue()) {
+			switch (aggressor.getValue()) {
 			case Side.SELL:
-				tradedPrice  = Math.max(topOfBuyBookPrice, topOfSellBookPrice);
+				tradedPrice = Math.max(topOfBuyBookPrice, topOfSellBookPrice);
 				break;
 			case Side.BUY:
-				tradedPrice  = Math.min(topOfBuyBookPrice, topOfSellBookPrice);
+				tradedPrice = Math.min(topOfBuyBookPrice, topOfSellBookPrice);
 				break;
 			}
 			OffsetDateTime executionTimestamp = OffsetDateTime.now(Constants.HERE);
@@ -213,29 +199,17 @@ public class OrderBook implements KafkaMessageHandler, InterfaceOrderBook , Inte
 			String sellOrderID = topOfSellBook.getOrderId();
 			final boolean isEligibleForMarketData = true;
 
-
-			Match match = new Match(
-					tradedQuantity
-					, tradedPrice
-					, topOfBuyBook
-					, topOfSellBook
-					, aggressor
-					, executionTimestamp
-					, buyClOrdID
-					, sellClOrdID
-					, buyOrderID
-					, sellOrderID
-					, isEligibleForMarketData
-					);
+			Match match = new Match(tradedQuantity, tradedPrice, topOfBuyBook, topOfSellBook, aggressor,
+					executionTimestamp, buyClOrdID, sellClOrdID, buyOrderID, sellOrderID, isEligibleForMarketData);
 
 			buy.remove(topOfBuyBook);
 			sell.remove(topOfSellBook);
 
 			this.matchHappened(match);
 
-		}else {
-			//topOfBuyBookPrice < topOfSellBookPrice
-			//therefore no trade possible...
+		} else {
+			// topOfBuyBookPrice < topOfSellBookPrice
+			// therefore no trade possible...
 		}
 	}
 
@@ -253,7 +227,6 @@ public class OrderBook implements KafkaMessageHandler, InterfaceOrderBook , Inte
 
 	}
 
-
 	@Override
 	public void addMatchEventListener(InterfaceMatchEvent toAdd) {
 		this.listenersMatchEvent.add(toAdd);
@@ -262,7 +235,7 @@ public class OrderBook implements KafkaMessageHandler, InterfaceOrderBook , Inte
 	@Override
 	public void addedOrderToOrderBook(InterfaceOrder nos) {
 		for (InterfaceAddedOrderToOrderBook hl : listenersAddedOrderToOrderBook)
-			hl.addedOrderToOrderBook(nos);	
+			hl.addedOrderToOrderBook(nos);
 	}
 
 	@Override
@@ -272,24 +245,23 @@ public class OrderBook implements KafkaMessageHandler, InterfaceOrderBook , Inte
 
 	@Override
 	public List<InterfaceOrder> getOrdersBySide(OrderBookSide orderBookSide) {
-		List<InterfaceOrder> list = null; 
+		List<InterfaceOrder> list = null;
 
-		if (orderBookSide==OrderBookSide.BUY) {
-			if (buy.size()==1) {
-				list = new ArrayList<>( buy );
-			}else {
-				list = new ArrayList<>( buy );
+		if (orderBookSide == OrderBookSide.BUY) {
+			if (buy.size() == 1) {
+				list = new ArrayList<>(buy);
+			} else {
+				list = new ArrayList<>(buy);
 				list.sort(aboc);
 			}
-		}else {
-			if (sell.size()==1) {
-				list = new ArrayList<>( sell );
-			}else {
-				list = new ArrayList<>( sell );
+		} else {
+			if (sell.size() == 1) {
+				list = new ArrayList<>(sell);
+			} else {
+				list = new ArrayList<>(sell);
 				list.sort(asoc);
 			}
 		}
-
 
 		return list;
 	}
@@ -297,13 +269,11 @@ public class OrderBook implements KafkaMessageHandler, InterfaceOrderBook , Inte
 	@Override
 	public int getOrderCountBySide(OrderBookSide orderBookSide) {
 		if (orderBookSide == OrderBookSide.BUY) {
-			return buy.size();	
-		}else {
+			return buy.size();
+		} else {
 			return sell.size();
 		}
 	}
-
-	
 
 	/*
 	 * void run() {
@@ -344,7 +314,6 @@ public class OrderBook implements KafkaMessageHandler, InterfaceOrderBook , Inte
 	 * .append(Constants.SPACE) .append(e.getMessage()) .toString()); } } } }
 	 */
 
-
 	@Override
 	@NotYetImplemented
 	public List<String> getOrderBookVisualisation() {
@@ -365,16 +334,13 @@ public class OrderBook implements KafkaMessageHandler, InterfaceOrderBook , Inte
 	@Override
 	public void matchHappened(InterfaceMatch match) {
 		for (InterfaceMatchEvent hl : listenersMatchEvent)
-			hl.matchHappened(match);	
+			hl.matchHappened(match);
 	}
-
 
 	@Override
 	public void processMessage(String topicName, ConsumerRecord<String, byte[]> message) throws Exception {
 		// TODO Auto-generated method stub
-		
-		
-		
+
 //	 if (inSeq.getOrderBookSide()==OrderBookSide.SELL) {
 //		 * this.sell.add(inSeq);
 //		 * 
@@ -382,14 +348,7 @@ public class OrderBook implements KafkaMessageHandler, InterfaceOrderBook , Inte
 //		 * this.orderBookLastUpdateTime = OffsetDateTime.now(Constants.HERE);
 //		 * //this.snapShotOrderBook(); this.runMatch();
 //		 * 
-		
-		
+
 	}
 
-	
-	
-	
-
-	
-
-}	
+}

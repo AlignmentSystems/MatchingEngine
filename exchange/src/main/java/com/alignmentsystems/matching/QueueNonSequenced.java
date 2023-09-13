@@ -1,4 +1,5 @@
 package com.alignmentsystems.matching;
+
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -17,12 +18,13 @@ import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 import com.alignmentsystems.library.interfaces.InterfaceQueueNonSequenced;
+
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class QueueNonSequenced implements Runnable, InterfaceQueueNonSequenced{
-	private final static String CLASSNAME = QueueNonSequenced.class.getSimpleName().toString();
+public class QueueNonSequenced implements Runnable, InterfaceQueueNonSequenced {
+	protected final static String CLASSNAME = QueueNonSequenced.class.getSimpleName().toString();
 	private ConcurrentLinkedQueue<InterfaceOrder> nonSequencedIn;
 	private LogEncapsulation log = null;
 	private final static int MILLISLEEP = 200;
@@ -32,13 +34,13 @@ public class QueueNonSequenced implements Runnable, InterfaceQueueNonSequenced{
 	public void run() {
 		running.set(true);
 
-		while (running.get()){
+		while (running.get()) {
 
 			try {
 				Thread.currentThread();
 				Thread.sleep(MILLISLEEP);
 
-			}catch(InterruptedException e){
+			} catch (InterruptedException e) {
 
 				running.set(false);
 
@@ -46,11 +48,8 @@ public class QueueNonSequenced implements Runnable, InterfaceQueueNonSequenced{
 
 				System.err.println(e.getMessage());
 
-				System.err.println(new StringBuilder()
-						.append(CLASSNAME)
-						.append(Constants.SPACE)
-						.append(e.getMessage())
-						.toString());			
+				System.err.println(new StringBuilder().append(CLASSNAME).append(Constants.SPACE).append(e.getMessage())
+						.toString());
 			}
 		}
 	}
@@ -61,7 +60,6 @@ public class QueueNonSequenced implements Runnable, InterfaceQueueNonSequenced{
 
 	}
 
-	
 	@Override
 	public boolean initialise(LogEncapsulation log) {
 		this.log = log;

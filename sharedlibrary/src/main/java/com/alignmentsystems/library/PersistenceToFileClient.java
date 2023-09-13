@@ -41,19 +41,17 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 
 
 	@Override
-	public boolean initialise(InstanceType instanceType) throws FileNotFoundException, IllegalThreadStateException {
+	public boolean initialise(InstanceType instanceType) throws FileNotFoundException, IllegalThreadStateException, IOException {
 		if(hasExecutedInit.get()) {
 		}else {
 	
 			PersistenceToFileServer persistenceToFileServer = new PersistenceToFileServer();
 			try {
 				persistenceToFileServer.initialise(this.logQueue, instanceType, PersistenceToFileClient.MILLISLEEP);
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (FileNotFoundException e) {				
+				throw e;
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw e;
 			}
 			this.fullPathAndFileNameToUse = persistenceToFileServer.getFileNameAndPathUsed();
 
@@ -75,7 +73,7 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 
 
 	@Override
-	public boolean initialise(InstanceType instanceType, String tag) throws FileNotFoundException, IllegalThreadStateException {
+	public boolean initialise(InstanceType instanceType, String tag) throws FileNotFoundException, IllegalThreadStateException , IOException {
 
 		if(hasExecutedInit.get()) {
 		}else {
@@ -86,8 +84,7 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 			try {
 				persistenceToFileServer.initialise(this.logQueue, instanceType, this.tag, PersistenceToFileClient.MILLISLEEP);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw e;
 			}
 			this.fullPathAndFileNameToUse = persistenceToFileServer.getFileNameAndPathUsed();
 

@@ -1,4 +1,5 @@
 package com.alignmentsystems.matching;
+
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -27,46 +28,39 @@ import com.alignmentsystems.library.LibraryFunctions;
 import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.enumerations.InstanceType;
 
-public class OrderBookKafka extends AbstractSimpleKafka {
+public class OrderBookKafka extends KafkaAbstractSimple {
 	private final int TIME_OUT_MS = 5000;
 	private KafkaConsumer<String, byte[]> kafkaConsumer = null;
 	private final AtomicBoolean closed = new AtomicBoolean(false);
 	private LogEncapsulation log = null;
-	
-	
-	
+
 	public OrderBookKafka() throws Exception {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public Boolean initialise(
-			LogEncapsulation log
-			) {
+	public Boolean initialise(LogEncapsulation log) {
 		this.log = log;
 		return Boolean.TRUE;
 	}
-	
-	
+
 	public void setKafkaConsumer(KafkaConsumer<String, byte[]> kafkaConsumer) {
 		this.kafkaConsumer = kafkaConsumer;
 	}
 
-
-
 	void run(String topicName, KafkaMessageHandler callback, Integer numberOfRecords) throws Exception {
 		Properties props = LibraryFunctions.getProperties(InstanceType.KAFKA);
-		//See if the number of records is provided
+		// See if the number of records is provided
 		Optional<Integer> recs = Optional.ofNullable(numberOfRecords);
 
-		//adjust the number of records to get accordingly
+		// adjust the number of records to get accordingly
 		Integer numOfRecs = recs.orElseGet(() -> Integer.parseInt(props.getProperty("max.poll.records")));
 		props.setProperty("max.poll.records", String.valueOf(numOfRecs));
 
 		// create the consumer
 		KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<>(props);
 
-		//make the consumer available for graceful shutdown
+		// make the consumer available for graceful shutdown
 		setKafkaConsumer(consumer);
 		consumer.assign(Collections.singleton(new TopicPartition(topicName, 0)));
 
@@ -87,25 +81,20 @@ public class OrderBookKafka extends AbstractSimpleKafka {
 
 		consumer.close();
 	}
-	
-	
+
 	public KafkaConsumer<String, byte[]> getKafkaConsumer() {
 		return kafkaConsumer;
 	}
 
-
-
-
 	private void close() throws Exception {
-		if (this.getKafkaConsumer() == null){
+		if (this.getKafkaConsumer() == null) {
 			log.info("The internal consumer is NULL");
 			return;
 		}
 		log.info("Closing consumer");
-		if( this.getKafkaConsumer() != null) this.getKafkaConsumer().close();
+		if (this.getKafkaConsumer() != null)
+			this.getKafkaConsumer().close();
 	}
-
-
 
 	@Override
 	public void shutdown() throws Exception {
@@ -113,21 +102,18 @@ public class OrderBookKafka extends AbstractSimpleKafka {
 		log.info("Shutting down consumer");
 		getKafkaConsumer().wakeup();
 	}
-	
-	
-	
+
 	@Override
 	public void runAlways(String topicName, KafkaMessageHandler callback) throws Exception {
 		Properties props = LibraryFunctions.getProperties(InstanceType.KAFKA);
-		//make the consumer available for graceful shutdown
+		// make the consumer available for graceful shutdown
 		setKafkaConsumer(new KafkaConsumer<>(props));
 
-		//keep running forever or until shutdown() is called from another thread.
+		// keep running forever or until shutdown() is called from another thread.
 		try {
 			getKafkaConsumer().subscribe(List.of(topicName));
 			while (!closed.get()) {
-				ConsumerRecords<String, byte[]> records =
-						getKafkaConsumer().poll(Duration.ofMillis(TIME_OUT_MS));
+				ConsumerRecords<String, byte[]> records = getKafkaConsumer().poll(Duration.ofMillis(TIME_OUT_MS));
 				if (records.count() == 0) {
 					log.info("No records retrieved");
 				}
@@ -138,7 +124,8 @@ public class OrderBookKafka extends AbstractSimpleKafka {
 			}
 		} catch (WakeupException e) {
 			// Ignore exception if closing
-			if (!closed.get()) throw e;
+			if (!closed.get())
+				throw e;
 		}
 	}
 
