@@ -40,25 +40,11 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 	private InstanceType instanceType;
 	private final LogEncapsulation log = new LogEncapsulation(InstanceWrapper.class);
 
-//	protected class LogBackWrapper {
-//		private final Logger logger = LoggerFactory.getLogger(LogBackWrapper.class);
-//
-//			private void start() {
-//		        logger.debug("------ Starting Ant------");
-//			}
-//		}
-//	
-	
+
 	@Override
 	public boolean initialise(InstanceType instanceType) {
 
 		this.instanceType = instanceType;
-
-		
-		
-		//LogBackWrapper lbw = new LogBackWrapper();
-		
-		//lbw.start();
 		
 		StringBuilder sb = new StringBuilder();
 
@@ -84,10 +70,13 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 
 		case FIXMESSAGINGINFRA:
 			returnValue = initialiseFIXMessagingInfrastructure(instanceType);
+			break;
 		case ORDERBOOK:
 			returnValue = initialiseOrderBook(instanceType) ;
+			break;
 		default:
 			returnValue = false;
+			break;
 		}
 		 while (returnValue) {
 	            try {
