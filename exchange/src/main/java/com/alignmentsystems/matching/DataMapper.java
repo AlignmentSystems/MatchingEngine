@@ -26,6 +26,14 @@ public class DataMapper {
 	private static HashMap<Long , String> exchangeInstrumentIdToMemberInstrumentIdMap = new HashMap<Long , String>();
 	private static HashMap<Long , String> exchangeSideCodeToMemberSideCodeMap = new HashMap<Long , String>();
 
+	public DataMapper() {
+		loadFIXSenderCompIdToExchangeId();
+		loadFIXTargetCompIdToExchangeId();
+		loadInstrumentIdToExchangeInstrumentId();
+		loadMemberSideCodeToExchangeSideCode();
+	}
+
+	
 	
 	
 	
@@ -52,12 +60,9 @@ public class DataMapper {
 	}
 
 
-
-	public DataMapper() {
+	private void loadFIXSenderCompIdToExchangeId() {
 		final String memberA = "MEMBER_A";
 		final String memberB = "MEMBER_B";
-		final String exchange = "EXCHANGE";
-		final String badgerW = "Badger.W";
 
 		Long added = Long.MIN_VALUE;
 		addFIXSenderCompIdToExchangeId(added, memberA);
@@ -70,21 +75,29 @@ public class DataMapper {
 		//call addFIXSenderCompIdToExchangeId(added, memberB); 
 		//here as required...
 
-
-		added = 0L;
+	}
+	
+	private void loadFIXTargetCompIdToExchangeId() {
+		final String exchange = "EXCHANGE";
+		Long added = added = 0L;
 		addFIXTargetCompIdToExchangeId(added, exchange);
 		added++;
 		//call addFIXTargetCompIdToExchangeId(added, exchange); 
 		//here as required...
-
-
-
-		added = Long.MAX_VALUE;
+		
+	}
+	
+	private void loadInstrumentIdToExchangeInstrumentId() {
+		final String badgerW = "Badger.W";
+		Long added = Long.MAX_VALUE;
 		addInstrumentIdToExchangeInstrumentId(added, badgerW);
 		added--;
 		
 		
-		added = 0L;
+	}
+	
+	private void loadMemberSideCodeToExchangeSideCode() {
+		Long added = 0L;
 		
 		addMemberSideCodeToExchangeSideCode(added, Integer.toString(1));//Buy
 		added++;
@@ -112,7 +125,6 @@ public class DataMapper {
 		//		F	=	Lend (FINANCING - identifies direction of collateral)
 		//		G	=	Borrow (FINANCING - identifies direction of collateral)
 		//		H	=	Sell undisclosed
-
 
 	}
 

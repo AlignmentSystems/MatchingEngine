@@ -36,6 +36,8 @@ import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
 
+import quickfix.Session;
+
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *         <a href=
@@ -345,7 +347,6 @@ implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, Interfa
 	public void processMessage(String topicName, ConsumerRecord<String, byte[]> message) throws Exception {
 		// TODO Auto-generated method stub
 		InterfaceOrder io = BinaryToCanonicalRepresentationProcessor.getAlignmentOrder(message.value());
-
 
 		if (io.getOrderBookSide()==OrderBookSide.SELL) {
 			this.sell.add(io);
