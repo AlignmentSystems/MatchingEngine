@@ -466,6 +466,8 @@ public class LibraryFunctions {
 		return retVal;
 	}
 
+	
+	private final static String LICENSE = "/license";
 
 
 	/**
@@ -478,7 +480,7 @@ public class LibraryFunctions {
 
 		for (String item : args) {
 
-			if(item.compareToIgnoreCase("/license")==0) {
+			if(item.compareToIgnoreCase(LICENSE)==0) {
 				showLicense();
 				System.exit(0);
 			}
@@ -520,6 +522,7 @@ public class LibraryFunctions {
 
 	private static void showHelp() {
 		System.out.println("Help will go here..");
+		System.out.println("Call with /license on command line to see license information" );
 		System.out.println(getVersionWithTitle(LibraryFunctions.class));
 		for (InstanceType it : InstanceType.values()) {
 			System.out.println(it.type + " is creatable=" + it.creatable);
