@@ -41,9 +41,7 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 	private HashMap<String, Long> memberFIXSenderCompIdToExchangeIdMap;
 	private HashMap<String, Long> memberInstrumentIdToExchangeInstrumentIdMap;
 
-	
-	
-	
+
 	public FIXToBinaryProcessor() {
 		// TODO Auto-generated constructor stub
 	}
@@ -54,12 +52,7 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 		this.log = log;
 
 		dataMapper = new DataMapper();
-		
-		memberFIXSenderCompIdToExchangeIdMap = dataMapper.getMemberFIXSenderCompIdToExchangeIdMap();
-		memberInstrumentIdToExchangeInstrumentIdMap = dataMapper.getMemberInstrumentIdToExchangeInstrumentIdMap();
 
-		
-		
 		if (this.kafkaProducerB == null) {
 			Properties props;
 			try {
@@ -70,41 +63,42 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 			}
 			this.kafkaProducerB = new KafkaProducer<>(props);
 		}
-
 		return true;
-
 	}
 
 	private Sender getBufferFromOrder(InterfaceOrder inSeq) {
-				
-		String symbol = inSeq.getSymbol();
-		String orderId = inSeq.getOrderId().toString();
 
-		Long exchangeIdMappedFromSenderCompID = memberFIXSenderCompIdToExchangeIdMap.get(inSeq.getSender());
-		Long exchangeIdMappedFromTargetCompID = memberFIXSenderCompIdToExchangeIdMap.get(inSeq.getTarget());
-		Long exchangeInstrumentIdMappedFromSymbol = memberInstrumentIdToExchangeInstrumentIdMap.get(inSeq.getSymbol());
-		
+		final String symbol = inSeq.getSymbol();
+		final String orderId = inSeq.getOrderId().toString();
+
+		final Long exchangeIdMappedFromSenderCompID = dataMapper.getExchangeIdMappedFromSenderCompID(inSeq.getSender());
+		final Long exchangeIdMappedFromTargetCompID = dataMapper.getExchangeIdMappedFromTargetCompID(inSeq.getTarget());
+		final Long exchangeInstrumentIdMappedFromSymbol = dataMapper.getExchangeIdMappedFromInstrumentId(inSeq.getSymbol());
+		final Long exchangeSideCodeMappedFromSideCode = dataMapper.getExchangeSideCodeMappedFromMemberSideCode(inSeq.getOrderBookSide().sideValue);
 		
 		final Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
-		// TODO Auto-generated method stub
-		int bufferLength = 
-		Long.BYTES * 2 //ClOrdId 
-		+
-		Long.BYTES * 2 //OrderId
-		+
-		Long.BYTES //exchangeIdMappedFromSenderCompID.BYTES
-		+
-		Long.BYTES //exchangeIdMappedFromTargetCompID.BYTES
-		+
-		Long.BYTES //this.orderQty
-		+
-		Long.BYTES //this.limitPrice
-		+
-		Long.BYTES //exchangeInstrumentIdMappedFromSymbol.BYTES
-		+
-		Double.BYTES //this.ts 
-		;
-				
+		
+		
+		final int bufferLength = 
+				Long.BYTES * 2 //ClOrdId 
+				+
+				Long.BYTES * 2 //OrderId
+				+
+				Long.BYTES //exchangeIdMappedFromSenderCompID.BYTES
+				+
+				Long.BYTES //exchangeIdMappedFromTargetCompID.BYTES
+				+
+				Long.BYTES //this.orderQty
+				+
+				Long.BYTES //this.limitPrice
+				+
+				Long.BYTES //exchangeInstrumentIdMappedFromSymbol.BYTES
+				+
+				Long.BYTES //this.ts 
+				+
+				Long.BYTES //this.SideCode
+				;
+
 		ByteBuffer buf = ByteBuffer.allocate(bufferLength).order(encoding.getByteOrder());
 		buf.putLong(inSeq.getClOrdID().getLeastSignificantBits());
 		buf.putLong(inSeq.getClOrdID().getMostSignificantBits());
@@ -116,27 +110,28 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 		buf.putLong(inSeq.getLimitPrice());
 		buf.putLong(exchangeInstrumentIdMappedFromSymbol);
 		buf.putLong(Double.doubleToLongBits(inSeq.getTimestamp().toInstant().toEpochMilli()));
-		
-		Sender sender = new Sender(buf, symbol, orderId);
-		
-		
+		buf.putLong(exchangeSideCodeMappedFromSideCode);
+		buf.flip();
+
+		Sender sender = new Sender(buf.array(), symbol, orderId);
+
 		return sender;
 	}
-	
-	
-	
-	
+
+
+
+
 	@Override
 	public void run() {
 		running.set(true);
-		
+
 		while (running.get()) {
 
 			InterfaceOrder inSeq = inQueue.poll();
 
 			if (inSeq != null) {
 				Sender sender = getBufferFromOrder(inSeq);
-				this.send(sender.getSymbol(), sender.getOrderId(), sender.getBb());
+				this.send(sender.getSymbol(), sender.getOrderId(), sender.getBinaryMessage());
 			}
 			try {
 				Thread.currentThread();
@@ -158,11 +153,11 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 
 	}
 
-	protected void send(String topicName, String key, ByteBuffer message) {
-		byte[] payload = message.array();
+	protected void send(String topicName, String key, byte[] binaryMessage) {
+
 		// create the ProducerRecord object which will represent the message to the
 		// Kafka broker.
-		ProducerRecord<String, byte[]> producerRecord = new ProducerRecord<>(topicName, key, payload);
+		ProducerRecord<String, byte[]> producerRecord = new ProducerRecord<>(topicName, key, binaryMessage);
 
 		// Use the helper to create an informative log entry in JSON format
 		// JsonObject obj = LibraryKafka.getMessageLogEntryJSON(CLASSNAME, topicName,

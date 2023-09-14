@@ -28,4 +28,6 @@ public interface InterfaceCustomLoggerMessage {
 	public void errorFIXSession(String msg, SessionID sessionId, MessageDirection direction, String methodName, String className, InstanceType instanceType);
 	public void infoMatchingEvent(OperationEventType operationEventType, InterfaceMatch match);
 	public void infoOrderBookStatus(List<String> buyList, List<String> sellList);
+	public void infoSpecificProperties(String listName, List<String> propertiesList); 
+	public void showSystemProperties();
 }

@@ -43,7 +43,7 @@ import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
  *
  */
 public class OrderBook
-		implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
+implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
 	private final static String CLASSNAME = OrderBook.class.getSimpleName();
 
 	private final static int buyPriorityQueueSize = 100;
@@ -66,6 +66,7 @@ public class OrderBook
 	private OffsetDateTime orderBookCreationTime = null;
 	private OffsetDateTime orderBookLastUpdateTime = null;
 
+
 	@Override
 	public Boolean initialise(String symbol, LogEncapsulation log, PersistenceToFileClient debugger,
 			InterfaceMatchEvent toAddMatch, InterfaceAddedOrderToOrderBook toAddOrder) {
@@ -77,6 +78,8 @@ public class OrderBook
 
 		this.addMatchEventListener(toAddMatch);
 		this.addAddedOrderToOrderBookListener(toAddOrder);
+
+
 		returnValue = Boolean.TRUE;
 
 		this.initialised.set(returnValue);
@@ -123,7 +126,7 @@ public class OrderBook
 
 			snapShotOrderBook.add(
 					targetSide.sideValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount))
-							+ Constants.TAB + "No orders...");
+					+ Constants.TAB + "No orders...");
 		} else {
 			for (InterfaceOrder io : orders) {
 				snapShotOrderBook.add(targetSide.sideValue
@@ -341,14 +344,20 @@ public class OrderBook
 	@Override
 	public void processMessage(String topicName, ConsumerRecord<String, byte[]> message) throws Exception {
 		// TODO Auto-generated method stub
+		InterfaceOrder io = BinaryToCanonicalRepresentationProcessor.getAlignmentOrder(message.value());
 
-//	 if (inSeq.getOrderBookSide()==OrderBookSide.SELL) {
-//		 * this.sell.add(inSeq);
-//		 * 
-//		 * }else { //TODO Error - how do we handle this? } addedOrderToOrderBook(inSeq);
-//		 * this.orderBookLastUpdateTime = OffsetDateTime.now(Constants.HERE);
-//		 * //this.snapShotOrderBook(); this.runMatch();
-//		 * 
+
+		if (io.getOrderBookSide()==OrderBookSide.SELL) {
+			this.sell.add(io);
+		}else {
+			this.buy.add(io);
+		}
+		addedOrderToOrderBook(io);
+
+		this.orderBookLastUpdateTime = OffsetDateTime.now(Constants.HERE);
+		//		 this.snapShotOrderBook(); 
+		this.runMatch();
+		//		 * 
 
 	}
 

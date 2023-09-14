@@ -16,28 +16,135 @@ import java.util.HashMap;
  *
  */
 public class DataMapper {
-	private HashMap<String, Long> memberFIXSenderCompIdToExchangeIdMap = new HashMap<String, Long>();
-	private HashMap<String, Long> memberInstrumentIdToExchangeInstrumentIdMap = new HashMap<String, Long>();
+	private static HashMap<String , Long> memberFIXSenderCompIdToExchangeIdMap = new HashMap<String, Long>();
+	private static HashMap<String , Long> memberFIXTargetCompIdToExchangeIdMap = new HashMap<String, Long>();
+	private static HashMap<String , Long> memberInstrumentIdToExchangeInstrumentIdMap = new HashMap<String, Long>();
+	private static HashMap<String , Long> memberSideCodeToExchangeSideCodeMap = new HashMap<String, Long>();
 
-	protected HashMap<String, Long> getMemberFIXSenderCompIdToExchangeIdMap() {
-		return memberFIXSenderCompIdToExchangeIdMap;
+	private static HashMap<Long , String> exchangeIdToMemberFIXSenderCompIdMap = new HashMap<Long , String>();
+	private static HashMap<Long , String> exchangeIdToMemberFIXTargetCompIdMap = new HashMap<Long , String>();
+	private static HashMap<Long , String> exchangeInstrumentIdToMemberInstrumentIdMap = new HashMap<Long , String>();
+	private static HashMap<Long , String> exchangeSideCodeToMemberSideCodeMap = new HashMap<Long , String>();
+
+	
+	
+	
+	private static void addMemberSideCodeToExchangeSideCode(Long exchangeId , String memberId) {
+		memberSideCodeToExchangeSideCodeMap.put(memberId, exchangeId);
+		exchangeSideCodeToMemberSideCodeMap.put(exchangeId, memberId);
 	}
 
-	protected HashMap<String, Long> getMemberInstrumentIdToExchangeInstrumentIdMap() {
-		return memberInstrumentIdToExchangeInstrumentIdMap;
+
+
+	private static void addFIXSenderCompIdToExchangeId(Long exchangeId, String memberId) {
+		memberFIXSenderCompIdToExchangeIdMap.put(memberId, exchangeId);
+		exchangeIdToMemberFIXSenderCompIdMap.put(exchangeId, memberId);
+	}
+
+	private static void addFIXTargetCompIdToExchangeId(Long exchangeId, String memberId) {
+		memberFIXTargetCompIdToExchangeIdMap.put(memberId, exchangeId);
+		exchangeIdToMemberFIXTargetCompIdMap.put(exchangeId, memberId);
+	}
+
+	private static void addInstrumentIdToExchangeInstrumentId(Long exchangeId, String memberId) {
+		memberInstrumentIdToExchangeInstrumentIdMap.put(memberId, exchangeId);
+		exchangeInstrumentIdToMemberInstrumentIdMap.put(exchangeId, memberId);
+	}
+
+
+
+	public DataMapper() {
+		final String memberA = "MEMBER_A";
+		final String memberB = "MEMBER_B";
+		final String exchange = "EXCHANGE";
+		final String badgerW = "Badger.W";
+
+		Long added = Long.MIN_VALUE;
+		addFIXSenderCompIdToExchangeId(added, memberA);
+
+		added++;
+
+		addFIXSenderCompIdToExchangeId(added, memberB);
+		added++;
+
+		//call addFIXSenderCompIdToExchangeId(added, memberB); 
+		//here as required...
+
+
+		added = 0L;
+		addFIXTargetCompIdToExchangeId(added, exchange);
+		added++;
+		//call addFIXTargetCompIdToExchangeId(added, exchange); 
+		//here as required...
+
+
+
+		added = Long.MAX_VALUE;
+		addInstrumentIdToExchangeInstrumentId(added, badgerW);
+		added--;
+		
+		
+		added = 0L;
+		
+		addMemberSideCodeToExchangeSideCode(added, Integer.toString(1));//Buy
+		added++;
+		
+		addMemberSideCodeToExchangeSideCode(added, Integer.toString(2));//Sell
+		added++;
+		
+		//call addMemberSideCodeToExchangeSideCode(added, Integer.toString(1));
+		//here as required...	
+
+		//		1	=	Buy
+		//		2	=	Sell
+		//		3	=	Buy minus
+		//		4	=	Sell plus
+		//		5	=	Sell short
+		//		6	=	Sell short exempt
+		//		7	=	Undisclosed
+		//		8	=	Cross (orders where counterparty is an exchange, valid for all messages except IOIs)
+		//		9	=	Cross short
+		//		A	=	Cross short exempt
+		//		B	=	As Defined (for use with multileg instruments)
+		//		C	=	Opposite (for use with multileg instruments)
+		//		D	=	Subscribe (e.g. CIV)
+		//		E	=	Redeem (e.g. CIV)
+		//		F	=	Lend (FINANCING - identifies direction of collateral)
+		//		G	=	Borrow (FINANCING - identifies direction of collateral)
+		//		H	=	Sell undisclosed
+
+
+	}
+
+	public static Long getExchangeIdMappedFromSenderCompID( String sender) {		
+		return memberFIXSenderCompIdToExchangeIdMap.get(sender);
+	};
+
+	public static Long getExchangeIdMappedFromTargetCompID( String target) {		
+		return memberFIXTargetCompIdToExchangeIdMap.get(target);
+	};
+
+	public static Long getExchangeIdMappedFromInstrumentId( String symbol) {		
+		return memberInstrumentIdToExchangeInstrumentIdMap.get(symbol);
+	};
+
+	public static String getMemberFIXSenderCompIdMappedFromExchangeId(Long exchangeId) {
+		return exchangeIdToMemberFIXSenderCompIdMap.get(exchangeId);
+	}
+
+	public static String getMemberSideCodeMappedFromExchangeSideCode(Long exchangeId) {
+		return exchangeSideCodeToMemberSideCodeMap.get(exchangeId);
 	}
 	
-	public DataMapper() {
-		Long added = Long.MIN_VALUE;
-		memberFIXSenderCompIdToExchangeIdMap.put("MEMBER_A", added);
-		added++;
-		memberFIXSenderCompIdToExchangeIdMap.put("MEMBER_B", added);
-		added++;
-		memberFIXSenderCompIdToExchangeIdMap.put("EXCHANGE", added);
-			
-		
-		memberInstrumentIdToExchangeInstrumentIdMap.put("Badger.W", Long.MAX_VALUE);
-		
+	public static Long getExchangeSideCodeMappedFromMemberSideCode(String  sideCode) {
+		return memberSideCodeToExchangeSideCodeMap.get(sideCode);
+	}
+	
+	public static String getMemberFIXTargetCompIdMappedFromExchangeId(Long exchangeId) {
+		return exchangeIdToMemberFIXTargetCompIdMap.get(exchangeId);
 	}
 
+	public static String getMemberInstrumentIdMappedFromExchangeInstrumentId(Long exchangeId) {
+		return exchangeInstrumentIdToMemberInstrumentIdMap.get(exchangeId);
+	}
 }

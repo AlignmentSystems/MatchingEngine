@@ -12,6 +12,7 @@ package com.alignmentsystems.matching;
 
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ * @see <a href="https://kafka.apache.org/documentation/#quickstart">Kafka</a>
  *
  */
 public abstract class KafkaAbstractSimple {

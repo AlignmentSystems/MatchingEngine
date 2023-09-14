@@ -15,13 +15,28 @@ package com.alignmentsystems.library.enumerations;
  *
  */
 public enum OrderBookSide {
-	ERROR("Error"),
-	SELL("Sell"),
-	BUY("Buy");
+	ERROR("Error", Integer.toString(0)),
+	BUY("Buy", Integer.toString(1)),
+	SELL("Sell", Integer.toString(2))
+	;
 
 	public final String sideValue;
+	public final String sideStringValue;
 	
-	OrderBookSide(String sideValue){
+	OrderBookSide(String sideValue, String sideStringValue){
 		this.sideValue = sideValue;
+		this.sideStringValue = sideStringValue;
 	}
+	
+	public OrderBookSide getEnumForID(String sideID) {
+		OrderBookSide retVal = OrderBookSide.ERROR; 
+		for  (OrderBookSide obs : OrderBookSide.values()) {
+			if (sideID == obs.sideStringValue) {
+				retVal = obs;
+				break;
+			}
+		}
+		return retVal;
+	}
+
 }

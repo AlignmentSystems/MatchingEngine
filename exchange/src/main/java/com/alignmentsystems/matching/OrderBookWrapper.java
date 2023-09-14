@@ -76,7 +76,9 @@ implements InterfaceOrderBookWrapper, InterfaceMatchEvent, InterfaceAddedOrderTo
 		OrderBookKafka obk = null;
 		try {
 			obk = new OrderBookKafka();
+			Thread obkThread = new Thread(null, obk, OrderBookKafka.CLASSNAME);
 			obk.initialise(this.log);			
+			obkThread.start();
 		} catch (Exception e) {
 			//log.error(e.getMessage() ,  e);
 			throw e;

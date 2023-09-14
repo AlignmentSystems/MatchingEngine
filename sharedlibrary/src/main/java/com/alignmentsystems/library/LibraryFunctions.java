@@ -427,56 +427,8 @@ public class LibraryFunctions {
 
 
 
-	/**
-	 * Writes up the System.getProperties() data into a human readable format in the log file
-	 * smart enough to avoid using the li
-	 * @param log The log file to which to write
-	 */
-	protected static void showSystemProperties(Logger log) {
-		final String libraryPath = "java.library.path";
-		final String classPath = "java.class.path";
-
-		String stringToLog=null;
-
-		Properties sysProps = System.getProperties();
-		Set<Object> keySet = sysProps.keySet();
-		log.info(Constants.BLOCKER);
-		log.info(Constants.LEADER +  "System Properties" + Constants.TRAILER);
-
-		for (Object obj:keySet) {
-			if (obj.toString().equalsIgnoreCase(Constants.LINESEPARATORSTRING)) {
-				byte[] asciiOfLineSeparator = System.getProperty(obj.toString()).getBytes();
-				String asciiString = Arrays.toString(asciiOfLineSeparator);
-				stringToLog = obj.toString() + "=[ASCII character code(s)]=" + asciiString;
-				log.info(stringToLog);
-			}else if(obj.toString().equalsIgnoreCase(classPath))  {
-
-				String[] array = (System.getProperty(obj.toString())).split(Constants.SEMICOLON);
-				int i;
-				for (i = 0; i < array.length; i++) {
-					log.info(obj.toString() +  "[" + Integer.toString(i+1) + "]" + Constants.EQUALS + array[i].toString());
-				}
-
-
-
-
-			}else if(obj.toString().equalsIgnoreCase(libraryPath))  {
-
-				String[] array = (System.getProperty(obj.toString())).split(Constants.SEMICOLON);
-				int i;
-				for (i = 0; i < array.length; i++) {
-					log.info(obj.toString() +  "[" + Integer.toString(i+1) + "]" + Constants.EQUALS + array[i].toString());
-				}
-
-			}else {
-				stringToLog=obj.toString() + "=" + System.getProperty(obj.toString());
-				log.info(stringToLog);
-			}
-		}
-		log.info(Constants.BLOCKER);
-
-	}
-
+	
+	
 	public final static String getVersionWithTitle(Class<?> classVersionToTest) {
 		final String version = "Version=";
 		final String codeValue = getVersion(classVersionToTest);
@@ -521,7 +473,7 @@ public class LibraryFunctions {
 	 * @param args
 	 * @return
 	 */
-	public final static InstanceType getInstanceActor(String... args){
+	public final static InstanceType getInstanceType(String... args){
 		InstanceType returnValue = InstanceType.UNKNOWN;
 
 		for (String item : args) {

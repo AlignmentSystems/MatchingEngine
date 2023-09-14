@@ -10,8 +10,11 @@ package com.alignmentsystems.library;
  *	Description		:
  *****************************************************************************/
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Properties;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +34,9 @@ import quickfix.SessionID;
  */
 public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 	private Logger innerLog = null;
+	final static String LIBRARYPATH = "java.library.path";
+	final static String CLASSPATH = "java.class.path";
+	final static String PATHSEPERATOR = "path.separator";
 
 
 	/**
@@ -40,6 +46,62 @@ public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 	public LogEncapsulation(Class<?> clazz) {
 		super();
 		innerLog = LoggerFactory.getLogger(clazz);
+
+	}
+	public LogEncapsulation(String name) {
+		super();
+		innerLog = LoggerFactory.getLogger(name);		
+	}
+
+
+
+
+	/**
+	 * Writes up the System.getProperties() data into a human readable format in the log file
+	 * uses the System.Properties for path.separator to correctly delimit CLASSPATH and LIBRARYPATH
+	 * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+	 */
+	@Override
+	public void showSystemProperties() {
+
+		String stringToLog=null;
+
+		final Properties sysProps = System.getProperties();
+		final Set<Object> keySet = sysProps.keySet();
+		innerLog.info(Constants.BLOCKER);
+		innerLog.info(Constants.LEADER +  "System Properties" + Constants.TRAILER);
+
+		final String PATHSEPARATORVALUE = System.getProperty(PATHSEPERATOR);	
+
+
+		for (Object obj:keySet) {
+			if (obj.toString().equalsIgnoreCase(Constants.LINESEPARATORSTRING)) {
+
+				final byte[] asciiOfLineSeparator = System.getProperty(obj.toString()).getBytes();
+				final String asciiString = Arrays.toString(asciiOfLineSeparator);
+				stringToLog = obj.toString() + "=[ASCII character code(s)]=" + asciiString;
+				innerLog.info(stringToLog);
+			}else if(obj.toString().equalsIgnoreCase(CLASSPATH))  {
+
+				String[] array = (System.getProperty(obj.toString())).split(PATHSEPARATORVALUE);
+
+				for (int i = 0; i < array.length; i++) {
+					innerLog.info(new StringBuilder().append(obj.toString()).append("[").append(Integer.toString(i+1)).append("]")
+							.append(Constants.EQUALS).append(array[i].toString()).toString());
+				}
+			}else if(obj.toString().equalsIgnoreCase(LIBRARYPATH))  {
+
+				String[] array = (System.getProperty(obj.toString())).split(PATHSEPARATORVALUE);				
+				for (int i = 0; i < array.length; i++) {
+					innerLog.info(new StringBuilder().append(obj.toString()).append("[").append(Integer.toString(i+1)).append("]")
+							.append(Constants.EQUALS).append(array[i].toString()).toString());
+				}
+			}else {
+				stringToLog=new StringBuilder().append(obj.toString()).append("=").append(System.getProperty(obj.toString())).toString();
+				innerLog.info(stringToLog);
+			}
+		}
+		innerLog.info(Constants.BLOCKER);
 	}
 
 
@@ -61,8 +123,31 @@ public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 			this.info(sideIterator.next().toString());
 		}
 		this.info(Constants.BLOCKER);
+	}
 
 
+	@Override
+	public void infoSpecificProperties(String listName , List<String> propertiesList) {
+		ListIterator<String> propertiesListIterator = null;
+
+		this.info(Constants.BLOCKER);
+		innerLog.info(Constants.LEADER +  "System Properties" + Constants.TRAILER);
+
+		this.info(
+				new StringBuilder()
+				.append(Constants.LEADER)
+				.append(listName)
+				.append("has element count=")
+				.append(Integer.toString(propertiesList.size()))
+				.append(Constants.TRAILER).toString()
+				); 
+
+		propertiesListIterator = propertiesList.listIterator();
+
+		while (propertiesListIterator.hasNext()) {
+			this.info(propertiesListIterator.next().toString());			
+		}
+		this.info(Constants.BLOCKER);
 	}
 
 
@@ -459,5 +544,6 @@ public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 	public void error(Marker marker, String msg, Throwable t) {
 		innerLog.error(marker, msg, t);	
 	}
+
 
 }

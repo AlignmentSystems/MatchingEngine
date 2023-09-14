@@ -30,7 +30,8 @@ import com.alignmentsystems.library.LibraryFunctions;
 import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.enumerations.InstanceType;
 
-public class OrderBookKafka extends KafkaAbstractSimple {
+public class OrderBookKafka  extends KafkaAbstractSimple implements Runnable{
+	public final static String CLASSNAME = OrderBookKafka .class.getSimpleName();
 	private final int TIME_OUT_MS = 5000;
 	private KafkaConsumer<String, byte[]> kafkaConsumer = null;
 	private final AtomicBoolean closed = new AtomicBoolean(false);
@@ -146,6 +147,19 @@ public class OrderBookKafka extends KafkaAbstractSimple {
 			if (!closed.get())
 				throw e;
 		}
+	}
+
+	@Override
+	public void run() {
+		AtomicBoolean run = new AtomicBoolean(true);
+		 while (run.get()) {
+	            try {
+	                this.wait(2000);
+	            } catch (InterruptedException e) {
+	                log.error(e.getMessage() , e );
+	            }
+	        }
+		
 	}
 
 }

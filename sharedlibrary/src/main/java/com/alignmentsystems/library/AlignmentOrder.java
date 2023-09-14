@@ -192,22 +192,18 @@ public class AlignmentOrder implements InterfaceOrder{
 		return this.target;
 	}
 
-
-
 	@Override
-	public void setBinaryOrderData(ByteBuffer bb) {
-		// TODO Auto-generated method stub
+	public void reCreateOrder(String symbol, OrderBookSide orderBookSide, Long orderQty, Long limitPrice,
+			OffsetDateTime ts,  String sender, String target, UUID orderId, UUID clOrdId) {
+		this.symbol = symbol;
+		this.orderBookSide = orderBookSide;
+		this.orderQty = orderQty;
+		this.limitPrice = limitPrice;
+		this.ts = ts;
+		this.sender = sender;
+		this.target = target;
+		this.orderId = orderId;
+		this.clOrdId = clOrdId;
 		
-		
-
-	}
-
-
-
-	@Override
-	public ByteBuffer getBinaryOrderData() {
-		
-			
-		return null;
 	}	
 }

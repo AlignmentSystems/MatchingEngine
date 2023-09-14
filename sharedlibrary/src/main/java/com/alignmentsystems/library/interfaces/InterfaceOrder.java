@@ -12,11 +12,14 @@ package com.alignmentsystems.library.interfaces;
 
 import java.nio.ByteBuffer;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import com.alignmentsystems.fix44.ExecutionReport;
 import com.alignmentsystems.fix44.NewOrderSingle;
+import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.enumerations.MessageDirection;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
 
@@ -39,8 +42,6 @@ public interface InterfaceOrder{
 	public Long getOrderQty();
 	public Long getLimitPrice();
 	public SessionID getSessionId();
-	public void setBinaryOrderData(ByteBuffer bb); 
-	public ByteBuffer getBinaryOrderData();
 	public String getSymbol();
 	public String getSender();
 	public String getTarget();
@@ -50,4 +51,15 @@ public interface InterfaceOrder{
 	public void setOrderId(UUID OrderId);
 	public UUID getOrderId();
 	public String getOrderUniquenessTuple();
+
+	public void reCreateOrder(
+			String symbol
+			, OrderBookSide orderBookSide
+			, Long orderQty 
+			, Long limitPrice 
+			, OffsetDateTime ts
+			, String sender 
+			, String target
+			, UUID orderId 
+			, UUID clOrdId);
 }

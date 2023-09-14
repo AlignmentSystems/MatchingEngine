@@ -16,18 +16,20 @@ import java.nio.ByteBuffer;
  *
  */
 public class Sender {
-	public Sender(ByteBuffer bb, String symbol, String orderId) {
+	
+	public Sender(byte[] binaryMessage, String symbol, String orderId) {
 		super();
-		this.bb = bb;
+		this.binaryMessage = binaryMessage;
 		this.symbol = symbol;
 		this.orderId = orderId;
 	}
-	ByteBuffer bb = null;
+
+	byte[] binaryMessage = null;
 	String symbol = null;
 	String orderId = null;
 
-	public ByteBuffer getBb() {
-		return bb;
+	public byte[] getBinaryMessage() {
+		return this.binaryMessage;
 	}
 	public String getSymbol() {
 		return symbol;
