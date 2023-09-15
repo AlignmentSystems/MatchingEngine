@@ -15,28 +15,64 @@ package com.alignmentsystems.library.enumerations;
  *
  */
 public enum OrderBookSide {
-	ERROR("Error", Integer.toString(0)),
-	BUY("Buy", Integer.toString(1)),
-	SELL("Sell", Integer.toString(2))
+	ERROR("Error", Integer.toString(0).charAt(0)),
+	BUY("Buy", Integer.toString(1).charAt(0)),
+	SELL("Sell", Integer.toString(2).charAt(0))
 	;
 
-	public final String sideValue;
-	public final String sideStringValue;
+	public String sideReadableValue;
+	public String sideStringValue;
+	public char sideCharValue;
 	
-	OrderBookSide(String sideValue, String sideStringValue){
-		this.sideValue = sideValue;
-		this.sideStringValue = sideStringValue;
+	
+	
+	OrderBookSide(String sideReadableValue, char sideCharValue){
+		this.sideReadableValue = sideReadableValue;
+		this.sideCharValue = sideCharValue;
+		
 	}
+
+	public String getSideFIXStringValue() {
+		return String.valueOf(sideCharValue);
+	} 
 	
-	public OrderBookSide getEnumForID(String sideID) {
-		OrderBookSide retVal = OrderBookSide.ERROR; 
+	
+	
+	public static char  getCharForString(String sideCode) {
+		char retVal = OrderBookSide.ERROR.sideCharValue; 
 		for  (OrderBookSide obs : OrderBookSide.values()) {
-			if (sideID == obs.sideStringValue) {
-				retVal = obs;
+
+			if (sideCode.equals(obs.sideCharValue)) {
+				retVal = obs.sideCharValue;
 				break;
 			}
 		}
 		return retVal;
 	}
 
+	
+	
+	public static OrderBookSide getEnumForString(String sideCode) {
+		OrderBookSide retVal = OrderBookSide.ERROR; 
+		for  (OrderBookSide obs : OrderBookSide.values()) {
+
+			if (sideCode.equals(obs.getSideFIXStringValue())) {
+				retVal = obs;
+				break;
+			}
+		}
+		return retVal;
+	}
+	
+	public static OrderBookSide getEnumForID(char sideID) {
+		OrderBookSide retVal = OrderBookSide.ERROR; 
+		for  (OrderBookSide obs : OrderBookSide.values()) {
+
+			if (sideID==obs.sideCharValue) {
+				retVal = obs;
+				break;
+			}
+		}
+		return retVal;
+	}
 }

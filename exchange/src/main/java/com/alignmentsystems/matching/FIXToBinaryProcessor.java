@@ -14,7 +14,6 @@ import java.io.FileNotFoundException;
  *****************************************************************************/
 
 import java.nio.ByteBuffer;
-import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -37,11 +36,7 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 	private KafkaProducer<String, byte[]> kafkaProducerB = null;
 	private AtomicBoolean running = new AtomicBoolean(false);
 	private final static int MILLISLEEP = 200;
-	private DataMapper dataMapper = null;
-	private HashMap<String, Long> memberFIXSenderCompIdToExchangeIdMap;
-	private HashMap<String, Long> memberInstrumentIdToExchangeInstrumentIdMap;
-
-
+	
 	public FIXToBinaryProcessor() {
 		// TODO Auto-generated constructor stub
 	}
@@ -50,8 +45,6 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 	public boolean initialise(ConcurrentLinkedQueue<InterfaceOrder> inQueue, LogEncapsulation log) throws Exception{
 		this.inQueue = inQueue;
 		this.log = log;
-
-		dataMapper = new DataMapper();
 
 		if (this.kafkaProducerB == null) {
 			Properties props;
@@ -68,13 +61,21 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 
 	private Sender getBufferFromOrder(InterfaceOrder inSeq) {
 
-		final String symbol = inSeq.getSymbol();
-		final String orderId = inSeq.getOrderId().toString();
-
-		final Long exchangeIdMappedFromSenderCompID = dataMapper.getExchangeIdMappedFromSenderCompID(inSeq.getSender());
-		final Long exchangeIdMappedFromTargetCompID = dataMapper.getExchangeIdMappedFromTargetCompID(inSeq.getTarget());
-		final Long exchangeInstrumentIdMappedFromSymbol = dataMapper.getExchangeIdMappedFromInstrumentId(inSeq.getSymbol());
-		final Long exchangeSideCodeMappedFromSideCode = dataMapper.getExchangeSideCodeMappedFromMemberSideCode(inSeq.getOrderBookSide().sideValue);
+		ByteBuffer buf = null;
+		String receivedSymbol = null;
+		String orderId = null;
+		
+		try {
+		receivedSymbol = inSeq.getSymbol();
+		orderId = inSeq.getOrderId().toString();
+		final String receivedSender = inSeq.getSender();
+		final String receivedTarget = inSeq.getTarget();
+		final String receivedSide = inSeq.getOrderBookSide().getSideFIXStringValue();
+		//get mappings...
+		final Long exchangeIdMappedFromSenderCompID = DataMapper.getExchangeIdMappedFromSenderCompID(receivedSender);
+		final Long exchangeIdMappedFromTargetCompID = DataMapper.getExchangeIdMappedFromTargetCompID(receivedTarget);
+		final Long exchangeInstrumentIdMappedFromSymbol = DataMapper.getExchangeIdMappedFromInstrumentId(receivedSymbol);
+		final Long exchangeSideCodeMappedFromSideCode = DataMapper.getExchangeSideCodeMappedFromMemberSideCode(receivedSide);
 		
 		final Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
 		
@@ -94,12 +95,14 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 				+
 				Long.BYTES //exchangeInstrumentIdMappedFromSymbol.BYTES
 				+
-				Long.BYTES //this.ts 
+				Long.BYTES //this.ts  getEpochSecond
+				+
+				Integer.BYTES // this.ts getNano()
 				+
 				Long.BYTES //this.SideCode
 				;
 
-		ByteBuffer buf = ByteBuffer.allocate(bufferLength).order(encoding.getByteOrder());
+		buf = ByteBuffer.allocate(bufferLength).order(encoding.getByteOrder());
 		buf.putLong(inSeq.getClOrdID().getLeastSignificantBits());
 		buf.putLong(inSeq.getClOrdID().getMostSignificantBits());
 		buf.putLong(inSeq.getOrderId().getLeastSignificantBits());
@@ -109,11 +112,18 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 		buf.putLong(inSeq.getOrderQty());
 		buf.putLong(inSeq.getLimitPrice());
 		buf.putLong(exchangeInstrumentIdMappedFromSymbol);
-		buf.putLong(Double.doubleToLongBits(inSeq.getTimestamp().toInstant().toEpochMilli()));
+		buf.putLong(inSeq.getTimestamp().toInstant().getEpochSecond());
+		buf.putInt(inSeq.getTimestamp().toInstant().getNano());		
 		buf.putLong(exchangeSideCodeMappedFromSideCode);
+		
 		buf.flip();
-
-		Sender sender = new Sender(buf.array(), symbol, orderId);
+		} catch (Exception e) {
+			this.log.error(e.getMessage() , e);
+			throw e;
+		}
+		
+		
+		Sender sender = new Sender(buf.array(), receivedSymbol, orderId);
 
 		return sender;
 	}

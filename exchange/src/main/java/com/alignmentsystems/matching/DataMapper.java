@@ -10,6 +10,7 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
@@ -25,15 +26,20 @@ public class DataMapper {
 	private static HashMap<Long , String> exchangeIdToMemberFIXTargetCompIdMap = new HashMap<Long , String>();
 	private static HashMap<Long , String> exchangeInstrumentIdToMemberInstrumentIdMap = new HashMap<Long , String>();
 	private static HashMap<Long , String> exchangeSideCodeToMemberSideCodeMap = new HashMap<Long , String>();
+private  static AtomicBoolean initialised = new AtomicBoolean(false);
 
-	public DataMapper() {
-		loadFIXSenderCompIdToExchangeId();
-		loadFIXTargetCompIdToExchangeId();
-		loadInstrumentIdToExchangeInstrumentId();
-		loadMemberSideCodeToExchangeSideCode();
-	}
+public DataMapper(){
+	initialise();
+}
 
+private static void initialise() {
+	loadFIXSenderCompIdToExchangeId();
+	loadFIXTargetCompIdToExchangeId();
+	loadInstrumentIdToExchangeInstrumentId();
+	loadMemberSideCodeToExchangeSideCode();
+	initialised.set(true);
 	
+}	
 	
 	
 	
@@ -60,7 +66,7 @@ public class DataMapper {
 	}
 
 
-	private void loadFIXSenderCompIdToExchangeId() {
+	private static void loadFIXSenderCompIdToExchangeId() {
 		final String memberA = "MEMBER_A";
 		final String memberB = "MEMBER_B";
 
@@ -77,26 +83,23 @@ public class DataMapper {
 
 	}
 	
-	private void loadFIXTargetCompIdToExchangeId() {
+	private static void loadFIXTargetCompIdToExchangeId() {
 		final String exchange = "EXCHANGE";
-		Long added = added = 0L;
+		Long added = 0L;
 		addFIXTargetCompIdToExchangeId(added, exchange);
 		added++;
 		//call addFIXTargetCompIdToExchangeId(added, exchange); 
 		//here as required...
-		
 	}
 	
-	private void loadInstrumentIdToExchangeInstrumentId() {
-		final String badgerW = "Badger.W";
+	private static void loadInstrumentIdToExchangeInstrumentId() {
+		final String badgerW = "BADGER.W";
 		Long added = Long.MAX_VALUE;
 		addInstrumentIdToExchangeInstrumentId(added, badgerW);
-		added--;
-		
-		
+		added--;			
 	}
 	
-	private void loadMemberSideCodeToExchangeSideCode() {
+	private static void loadMemberSideCodeToExchangeSideCode() {
 		Long added = 0L;
 		
 		addMemberSideCodeToExchangeSideCode(added, Integer.toString(1));//Buy
@@ -128,35 +131,59 @@ public class DataMapper {
 
 	}
 
-	public static Long getExchangeIdMappedFromSenderCompID( String sender) {		
+	public static Long getExchangeIdMappedFromSenderCompID( String sender) {
+		if (!initialised.get()) {
+			initialise();
+		}
 		return memberFIXSenderCompIdToExchangeIdMap.get(sender);
 	};
 
-	public static Long getExchangeIdMappedFromTargetCompID( String target) {		
+	public static Long getExchangeIdMappedFromTargetCompID( String target) {
+		if (!initialised.get()) {
+			initialise();
+		}
 		return memberFIXTargetCompIdToExchangeIdMap.get(target);
 	};
 
 	public static Long getExchangeIdMappedFromInstrumentId( String symbol) {		
+		if (!initialised.get()) {
+			initialise();
+		}
 		return memberInstrumentIdToExchangeInstrumentIdMap.get(symbol);
 	};
 
 	public static String getMemberFIXSenderCompIdMappedFromExchangeId(Long exchangeId) {
+		if (!initialised.get()) {
+			initialise();
+		}
 		return exchangeIdToMemberFIXSenderCompIdMap.get(exchangeId);
 	}
 
 	public static String getMemberSideCodeMappedFromExchangeSideCode(Long exchangeId) {
+		if (!initialised.get()) {
+			initialise();
+		}
 		return exchangeSideCodeToMemberSideCodeMap.get(exchangeId);
 	}
 	
 	public static Long getExchangeSideCodeMappedFromMemberSideCode(String  sideCode) {
+		if (!initialised.get()) {
+			initialise();
+		}
 		return memberSideCodeToExchangeSideCodeMap.get(sideCode);
 	}
 	
 	public static String getMemberFIXTargetCompIdMappedFromExchangeId(Long exchangeId) {
+		if (!initialised.get()) {
+			initialise();
+		}
 		return exchangeIdToMemberFIXTargetCompIdMap.get(exchangeId);
 	}
 
 	public static String getMemberInstrumentIdMappedFromExchangeInstrumentId(Long exchangeId) {
+		if (!initialised.get()) {
+			initialise();
+		}
 		return exchangeInstrumentIdToMemberInstrumentIdMap.get(exchangeId);
 	}
 }

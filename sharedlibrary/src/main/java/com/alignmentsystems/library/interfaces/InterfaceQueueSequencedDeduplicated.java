@@ -16,5 +16,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  *
  */
 public interface InterfaceQueueSequencedDeduplicated {
-	public boolean initialise(ConcurrentLinkedQueue<InterfaceOrder> inQueue, ConcurrentLinkedQueue<InterfaceOrder> outQueue);
+	public boolean initialise(ConcurrentLinkedQueue<InterfaceOrder> inQueue);
+	public ConcurrentLinkedQueue<InterfaceOrder> getOutputQueue();
 }
