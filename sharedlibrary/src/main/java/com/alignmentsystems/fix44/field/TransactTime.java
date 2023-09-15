@@ -20,9 +20,9 @@
 
 package com.alignmentsystems.fix44.field;
 
-import quickfix.UtcTimeStampField;
-
 import java.time.LocalDateTime;
+
+import quickfix.UtcTimeStampField;
 
 public class TransactTime extends UtcTimeStampField {
 

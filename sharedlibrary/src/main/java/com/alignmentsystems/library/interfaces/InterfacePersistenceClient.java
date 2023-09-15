@@ -12,7 +12,6 @@ package com.alignmentsystems.library.interfaces;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.exceptions.LogMessageIsNull;
 
 /**

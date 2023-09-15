@@ -20,8 +20,8 @@
 
 package com.alignmentsystems.fix44;
 
-import quickfix.Message;
 import quickfix.Group;
+import quickfix.Message;
 
 public class MessageFactory implements quickfix.MessageFactory {
 

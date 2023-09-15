@@ -1,7 +1,6 @@
 package com.alignmentsystems.fix44;
 
 import quickfix.FieldNotFound;
-
 import quickfix.Group;
 
 public class AllocationReport extends Message {

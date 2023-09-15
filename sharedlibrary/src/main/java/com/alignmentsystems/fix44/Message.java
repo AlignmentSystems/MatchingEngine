@@ -19,10 +19,9 @@
  ******************************************************************************/
 package com.alignmentsystems.fix44;
 
-import quickfix.FieldNotFound;
-  
-import com.alignmentsystems.fix44.field.*;
+import com.alignmentsystems.fix44.field.BeginString;
 
+import quickfix.FieldNotFound;
 import quickfix.Group;
 
 public class Message extends quickfix.Message {

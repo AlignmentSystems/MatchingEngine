@@ -20,9 +20,9 @@
 
 package com.alignmentsystems.fix44.field;
 
-import quickfix.UtcTimeOnlyField;
-
 import java.time.LocalTime;
+
+import quickfix.UtcTimeOnlyField;
 
 public class ComplexEventEndTime extends UtcTimeOnlyField {
 

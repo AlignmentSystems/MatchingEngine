@@ -10,7 +10,6 @@ package com.alignmentsystems.library;
  *	Description		:
  *****************************************************************************/
 
-import java.nio.ByteBuffer;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -19,12 +18,8 @@ import java.util.UUID;
 
 import com.alignmentsystems.fix44.ExecutionReport;
 import com.alignmentsystems.fix44.NewOrderSingle;
-import com.alignmentsystems.fix44.field.OrderQty;
-import com.alignmentsystems.fix44.field.Price;
 import com.alignmentsystems.library.annotations.Experimental;
 import com.alignmentsystems.library.constants.Constants;
-import com.alignmentsystems.library.enumerations.Encodings;
-import com.alignmentsystems.library.enumerations.MessageDirection;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 

@@ -82,15 +82,17 @@ public class FIXEngineMember extends MessageCracker implements quickfix.Applicat
 
 		NewOrderSingle nosB = null;
 		NewOrderSingle nosS = null;
+		final String symbol = "BADGER.W";
+		
 
 		if(instanceType==InstanceType.MEMBERA || instanceType==InstanceType.MEMBERB) {
 			for(int i = 0; i < 2; i++) {
 
 				try {
-					nosB = LibraryMemberOrders.getOrder(OrderBookSide.BUY, 42d + (double) i);					
+					nosB = LibraryMemberOrders.getOrder(OrderBookSide.BUY, 42d + (double) i, symbol);					
 					Session.sendToTarget(nosB, sessionId);
 					log.info(nosB.toString());
-					nosS = LibraryMemberOrders.getOrder(OrderBookSide.SELL, 42d - (double) i);
+					nosS = LibraryMemberOrders.getOrder(OrderBookSide.SELL, 42d - (double) i , symbol );
 					log.info(nosS.toString());
 					Session.sendToTarget(nosS, sessionId);
 

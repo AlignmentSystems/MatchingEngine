@@ -33,10 +33,10 @@ public class LibraryMemberOrders {
 	 * 
 	 * @return NewOrderSingle
 	 */
-	public static NewOrderSingle getOrder(OrderBookSide orderBookSide, Double priceForOrder) {
+	public static NewOrderSingle getOrder(OrderBookSide orderBookSide, Double priceForOrder, String symbolString) {
 		final ClOrdID clOrdID = new ClOrdID(UUID.randomUUID().toString());
 		Side side;
-		final Symbol symbol = new Symbol("BADGER.W");
+		final Symbol symbol = new Symbol(symbolString);
 		final OrderQty ordQty = new OrderQty(100d); 
 		final Price price = new Price(priceForOrder);
 		final TransactTime transactTime = new TransactTime(LocalDateTime.now());  

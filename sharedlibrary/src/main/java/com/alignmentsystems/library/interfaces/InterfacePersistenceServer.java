@@ -14,8 +14,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import com.alignmentsystems.library.enumerations.InstanceType;
-
 
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>

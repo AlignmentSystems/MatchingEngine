@@ -2,7 +2,6 @@
 package com.alignmentsystems.fix44.component;
 
 import quickfix.FieldNotFound;
-
 import quickfix.Group;
 
 public class Parties extends quickfix.MessageComponent {

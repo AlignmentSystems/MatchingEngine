@@ -20,8 +20,12 @@
 
 package com.alignmentsystems.fix44;
 
-import quickfix.*;
-import com.alignmentsystems.fix44.field.*;
+import com.alignmentsystems.fix44.field.MsgType;
+
+import quickfix.FieldNotFound;
+import quickfix.IncorrectTagValue;
+import quickfix.SessionID;
+import quickfix.UnsupportedMessageType;
 
 public class MessageCracker {
 

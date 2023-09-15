@@ -20,9 +20,9 @@
 
 package com.alignmentsystems.fix44.field;
 
-import quickfix.UtcDateOnlyField;
-
 import java.time.LocalDate;
+
+import quickfix.UtcDateOnlyField;
 
 public class TotalVolumeTradedDate extends UtcDateOnlyField {
 
