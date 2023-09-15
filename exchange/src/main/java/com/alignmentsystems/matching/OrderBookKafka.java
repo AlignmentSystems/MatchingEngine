@@ -1,7 +1,4 @@
 package com.alignmentsystems.matching;
-
-import java.io.FileNotFoundException;
-
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -13,6 +10,7 @@ import java.io.FileNotFoundException;
  *	Description		:
  *****************************************************************************/
 
+import java.io.FileNotFoundException;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -31,17 +29,15 @@ import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.enumerations.InstanceType;
 
 public class OrderBookKafka  extends KafkaAbstractSimple implements Runnable{
-	public final static String CLASSNAME = OrderBookKafka .class.getSimpleName();
+	public final static String CLASSNAME = OrderBookKafka.class.getSimpleName();
 	private final int TIME_OUT_MS = 5000;
 	private KafkaConsumer<String, byte[]> kafkaConsumer = null;
 	private final AtomicBoolean closed = new AtomicBoolean(false);
 	private LogEncapsulation log = null;
 	private Properties props = null;
-	
-	
-	
-	
-	
+
+
+
 	public OrderBookKafka() throws Exception {
 		super();
 		// TODO Auto-generated constructor stub
@@ -49,7 +45,7 @@ public class OrderBookKafka  extends KafkaAbstractSimple implements Runnable{
 
 	public Boolean initialise(LogEncapsulation log) throws FileNotFoundException , NullPointerException{
 		this.log = log;
-		
+
 		try {
 			props = LibraryFunctions.getProperties(OrderBookKafka.class.getClassLoader(), InstanceType.KAFKA.getProperties());
 		} catch (FileNotFoundException  |NullPointerException e) {
@@ -136,10 +132,11 @@ public class OrderBookKafka  extends KafkaAbstractSimple implements Runnable{
 				ConsumerRecords<String, byte[]> records = getKafkaConsumer().poll(Duration.ofMillis(TIME_OUT_MS));
 				if (records.count() == 0) {
 					log.info("No records retrieved");
-				}
+				}else {
 
-				for (ConsumerRecord<String, byte[]> record : records) {
-					callback.processMessage(topicName, record);
+					for (ConsumerRecord<String, byte[]> record : records) {
+						callback.processMessage(topicName, record);
+					}
 				}
 			}
 		} catch (WakeupException e) {
@@ -152,14 +149,14 @@ public class OrderBookKafka  extends KafkaAbstractSimple implements Runnable{
 	@Override
 	public void run() {
 		AtomicBoolean run = new AtomicBoolean(true);
-		 while (run.get()) {
-	            try {
-	                this.wait(2000);
-	            } catch (InterruptedException e) {
-	                log.error(e.getMessage() , e );
-	            }
-	        }
-		
+		while (run.get()) {
+			try {
+				wait(2000);
+			} catch (InterruptedException e) {
+				log.error(e.getMessage() , e );
+			}
+		}
+
 	}
 
 }

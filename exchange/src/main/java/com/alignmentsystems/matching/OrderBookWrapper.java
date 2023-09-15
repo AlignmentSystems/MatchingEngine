@@ -35,9 +35,7 @@ import com.alignmentsystems.library.interfaces.InterfaceOrder;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBookWrapper;
 
-import quickfix.FieldNotFound;
 import quickfix.Session;
-import quickfix.SessionID;
 import quickfix.SessionNotFound;
 
 /**
@@ -71,9 +69,21 @@ implements InterfaceOrderBookWrapper, InterfaceMatchEvent, InterfaceAddedOrderTo
 		this.log = log;
 		this.debugger = debugger;
 
-		final String symbol = "Badger.W";
+		final String symbol = "BADGER.W";
+
+		OrderBook orderBook = new OrderBook();
+		if(orderBook.initialise(symbol, this.log, this.debugger, this, this)) {
+
+		}else{
+			return false;
+		};
+
+		Thread obThread = new Thread(orderBook);
+
+		obThread.start();
 
 		OrderBookKafka obk = null;
+
 		try {
 			obk = new OrderBookKafka();
 			Thread obkThread = new Thread(null, obk, OrderBookKafka.CLASSNAME);
@@ -84,12 +94,6 @@ implements InterfaceOrderBookWrapper, InterfaceMatchEvent, InterfaceAddedOrderTo
 			throw e;
 		}
 
-		OrderBook orderBook = new OrderBook();
-		if(orderBook.initialise(symbol, this.log, this.debugger, this, this)) {
-
-		}else{
-			return false;
-		};
 
 		try {
 			obk.runAlways(symbol, orderBook);
@@ -116,41 +120,31 @@ implements InterfaceOrderBookWrapper, InterfaceMatchEvent, InterfaceAddedOrderTo
 
 	private void sendExecutionReportAcknowledgementForReceivedOrder(InterfaceOrder nos) {
 		final String methodName = "sendExecutionReportAcknowledgementForReceivedOrder";
-		ExecutionReport er;
 
-		try {
-			er = getExecutionReportAcknowledgementForOrder(nos);
-		} catch (FieldNotFound e) {
-			return;
+		ExecutionReport er = getExecutionReportAcknowledgementForOrder(nos);
+
+		final Boolean connectionToFIXEngineWorking = Boolean.FALSE;
+
+		if(connectionToFIXEngineWorking) {
+			try {
+				Session.sendToTarget(er, nos.getSender(), nos.getTarget());
+				//Session.sendToTarget(er, sessionID);
+			} catch (SessionNotFound e) {
+				log.error(e.getMessage(), e);
+			}
 		}
 
-		SessionID sessionID = nos.getSessionId();
-
-		try {
-			Session.sendToTarget(er, sessionID);
-		} catch (SessionNotFound e) {
-			log.error(e.getMessage(), e);
-		}
-		;
 	}
 
-	private static ExecutionReport getExecutionReportAcknowledgementForOrder(InterfaceOrder nos) throws FieldNotFound {
+	private static ExecutionReport getExecutionReportAcknowledgementForOrder(InterfaceOrder nos) {
 		OrderID orderId = new OrderID(nos.getOrderId().toString());
 		ExecID execID = new ExecID(UUID.randomUUID().toString());
 		ExecType execType = new ExecType(ExecType.NEW);
 		OrdStatus ordStatus = new OrdStatus(OrdStatus.NEW);
-		Side side = null;
-		LeavesQty leavesQty = null;
+		Side side = new Side(nos.getOrderBookSide().sideCharValue);
+		LeavesQty leavesQty = new LeavesQty(0d);
 		CumQty cumQty = new CumQty(0d);
 		AvgPx avgPx = new AvgPx(0d);
-
-		try {
-			side = new Side(nos.getNewOrderSingle().getSide().getValue());
-			leavesQty = new LeavesQty(nos.getNewOrderSingle().getOrderQty().getValue());
-
-		} catch (FieldNotFound e) {
-			throw e;
-		}
 
 		ExecutionReport er = new ExecutionReport(orderId, execID, execType, ordStatus, side, leavesQty, cumQty, avgPx);
 

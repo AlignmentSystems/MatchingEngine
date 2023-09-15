@@ -17,6 +17,6 @@ import com.alignmentsystems.library.LogEncapsulation;
 
 public interface InterfaceQueueNonSequenced {
 	public boolean initialise(LogEncapsulation log);
-	public void addReceivedOrder(InterfaceOrder io);
-	public ConcurrentLinkedQueue<InterfaceOrder> getQueue();
+	public boolean addReceivedOrder(InterfaceOrder io);
+	public ConcurrentLinkedQueue<InterfaceOrder> getOutputQueue();
 }

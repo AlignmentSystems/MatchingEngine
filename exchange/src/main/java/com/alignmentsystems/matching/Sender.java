@@ -1,15 +1,4 @@
 package com.alignmentsystems.matching;
-/******************************************************************************
- * 
- *	Author			:	John Greenan 
- *	Contact			:	sales@alignment-systems.com
- *	Date            :	13th September 2023
- *	Copyright       :	Alignment Systems Ltd 2023
- *	Project			:	Alignment Matching Toy
- *	Artefact		:	Sender
- *	Description		:
- *****************************************************************************/
-import java.nio.ByteBuffer;
 
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>

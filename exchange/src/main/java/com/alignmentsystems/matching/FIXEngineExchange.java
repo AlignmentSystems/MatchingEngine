@@ -241,7 +241,7 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 		ao.setNewOrderSingle(message, sessionID, UUID.randomUUID(), orderBookSide);
 
 		StringBuilder sb = new StringBuilder().append(" OrderID=(").append(ao.getOrderId()).append(" ClOrdID=(")
-				.append(ao.getClOrdID()).append(" Side=(").append(ao.getOrderBookSide().sideValue)
+				.append(ao.getClOrdID()).append(" Side=(").append(ao.getOrderBookSide().sideReadableValue )
 				.append(") SenderCompId=").append(ao.getSender()).append(" TargetCompId=").append(ao.getTarget())
 				.append(" enqueueing to rawMessageQueue...");
 

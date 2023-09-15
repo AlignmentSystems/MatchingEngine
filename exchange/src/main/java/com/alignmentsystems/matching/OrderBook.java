@@ -36,8 +36,6 @@ import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
 
-import quickfix.Session;
-
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *         <a href=
@@ -45,7 +43,7 @@ import quickfix.Session;
  *
  */
 public class OrderBook
-implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
+implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, InterfaceAddedOrderToOrderBook, Runnable {
 	private final static String CLASSNAME = OrderBook.class.getSimpleName();
 
 	private final static int buyPriorityQueueSize = 100;
@@ -127,11 +125,11 @@ implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, Interfa
 		if (bookCount == 0) {
 
 			snapShotOrderBook.add(
-					targetSide.sideValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount))
+					targetSide.sideReadableValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount))
 					+ Constants.TAB + "No orders...");
 		} else {
 			for (InterfaceOrder io : orders) {
-				snapShotOrderBook.add(targetSide.sideValue
+				snapShotOrderBook.add(targetSide.sideReadableValue
 						+ LibraryFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount))
 						+ io.toString());
 			}
@@ -281,44 +279,6 @@ implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, Interfa
 		}
 	}
 
-	/*
-	 * void run() {
-	 * 
-	 * running.set(true); InterfaceOrder inSeq = null; StringBuilder sb = new
-	 * StringBuilder();
-	 * 
-	 * while (running.get()){ //inSeq = inboundSequenced.poll(); if (inSeq!=null) {
-	 * sb = new StringBuilder() .append(CLASSNAME)
-	 * .append(LibraryFunctions.wrapNameSquareBracketsAndSpaces(inSeq.getSymbol()))
-	 * .append(" add to =") .append(inSeq.getOrderBookSide().sideValue)
-	 * //.append(" OrderId=") //.append(inSeq.getOrderId()) .append(" OUT=(")
-	 * .append(inSeq.getOrderUniquenessTuple()) .append(")") ;
-	 * 
-	 * debugger.info(sb.toString()); if
-	 * (inSeq.getOrderBookSide()==OrderBookSide.BUY) { this.buy.add(inSeq);
-	 * 
-	 * 
-	 * }else if (inSeq.getOrderBookSide()==OrderBookSide.SELL) {
-	 * this.sell.add(inSeq);
-	 * 
-	 * }else { //TODO Error - how do we handle this? } addedOrderToOrderBook(inSeq);
-	 * this.orderBookLastUpdateTime = OffsetDateTime.now(Constants.HERE);
-	 * //this.snapShotOrderBook(); this.runMatch();
-	 * 
-	 * 
-	 * }else { try { Thread.currentThread(); Thread.sleep(milliSleep);
-	 * 
-	 * }catch(InterruptedException e){
-	 * 
-	 * running.set(false);
-	 * 
-	 * Thread.currentThread().interrupt();
-	 * 
-	 * System.err.println(e.getMessage());
-	 * 
-	 * System.err.println(new StringBuilder() .append(CLASSNAME)
-	 * .append(Constants.SPACE) .append(e.getMessage()) .toString()); } } } }
-	 */
 
 	@Override
 	@NotYetImplemented
@@ -362,4 +322,27 @@ implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, Interfa
 
 	}
 
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		running.set(true); 
+
+		InterfaceOrder inSeq = null; 
+		StringBuilder sb = new StringBuilder();
+
+		try { 
+			Thread.currentThread(); 
+			Thread.sleep(milliSleep);
+
+		}catch(InterruptedException e){
+
+			running.set(false);
+
+			Thread.currentThread().interrupt();
+
+			System.err.println(e.getMessage());
+
+			System.err.println(new StringBuilder() .append(CLASSNAME).append(Constants.SPACE) .append(e.getMessage()) .toString()); 
+		} 
+	}
 }

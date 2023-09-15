@@ -41,12 +41,7 @@ public class QueueSequenced implements Runnable, InterfaceQueueSequencedDeduplic
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override
-	public boolean initialise(ConcurrentLinkedQueue<InterfaceOrder> inQueue, ConcurrentLinkedQueue<InterfaceOrder> outQueue) {
-		this.inQueue = inQueue;
-		this.outQueue = outQueue;
-		return true;
-	}
+	
 
 	@Override
 	public void run() {
@@ -91,4 +86,16 @@ public class QueueSequenced implements Runnable, InterfaceQueueSequencedDeduplic
 
 		}
 	}
+
+	@Override
+	public ConcurrentLinkedQueue<InterfaceOrder> getOutputQueue() {
+		return this.outQueue;
+	}
+
+	@Override
+	public boolean initialise(ConcurrentLinkedQueue<InterfaceOrder> inQueue) {
+			this.inQueue = inQueue;
+			this.outQueue = new ConcurrentLinkedQueue<InterfaceOrder>();
+			return true;
+		}
 }

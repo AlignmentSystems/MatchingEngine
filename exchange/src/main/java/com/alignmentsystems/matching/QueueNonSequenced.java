@@ -29,6 +29,7 @@ public class QueueNonSequenced implements Runnable, InterfaceQueueNonSequenced {
 	private LogEncapsulation log = null;
 	private final static int MILLISLEEP = 200;
 	private AtomicBoolean running = new AtomicBoolean(false);
+	private AtomicBoolean initialised = new AtomicBoolean(false);
 
 	@Override
 	public void run() {
@@ -55,19 +56,25 @@ public class QueueNonSequenced implements Runnable, InterfaceQueueNonSequenced {
 	}
 
 	@Override
-	public void addReceivedOrder(InterfaceOrder io) {
-		nonSequencedIn.add(io);
+	public boolean addReceivedOrder(InterfaceOrder io) {
+		return nonSequencedIn.add(io);
 
 	}
 
 	@Override
 	public boolean initialise(LogEncapsulation log) {
-		this.log = log;
-		return true;
+		if (!initialised.get()) {
+			this.log = log;
+			this.nonSequencedIn = new ConcurrentLinkedQueue<InterfaceOrder> ();
+			initialised.set(true);
+		}
+		return initialised.get();
 	}
 
+	
+
 	@Override
-	public ConcurrentLinkedQueue<InterfaceOrder> getQueue() {
+	public ConcurrentLinkedQueue<InterfaceOrder> getOutputQueue() {
 		return this.nonSequencedIn;
 	}
 }

@@ -6,9 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.alignmentsystems.fix44.MessageFactory;
 import com.alignmentsystems.library.LibraryFunctions;
 import com.alignmentsystems.library.LogEncapsulation;
@@ -17,7 +14,6 @@ import com.alignmentsystems.library.constants.FailureConditionConstants;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceInstanceWrapper;
 import com.alignmentsystems.library.interfaces.InterfaceMatch;
-import com.alignmentsystems.library.interfaces.InterfaceOrder;
 
 import quickfix.Acceptor;
 import quickfix.ConfigError;
@@ -34,8 +30,6 @@ import quickfix.SocketAcceptor;
 public class InstanceWrapper implements InterfaceInstanceWrapper {
 	private final String CLASSNAME = this.getClass().getSimpleName();
 	private List<FIXEngineExchange> engines = new ArrayList<FIXEngineExchange>();
-	private ConcurrentLinkedQueue<InterfaceOrder> sequenced = new ConcurrentLinkedQueue<InterfaceOrder>();
-	private ConcurrentLinkedQueue<InterfaceOrder> deduplicatedSequenced = new ConcurrentLinkedQueue<InterfaceOrder>();
 	private ConcurrentLinkedQueue<InterfaceMatch> marketDataQueue = new ConcurrentLinkedQueue<InterfaceMatch>();
 	private InstanceType instanceType;
 	private final LogEncapsulation log = new LogEncapsulation(InstanceWrapper.class);
@@ -79,11 +73,11 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 			break;
 		}
 		 while (returnValue) {
-	            try {
-	                this.wait(2000);
-	            } catch (InterruptedException e) {
-	                log.error(e.getMessage() , e );
-	            }
+//	            try {
+//	                //wait(2000);
+//	            } catch (InterruptedException e) {
+//	                log.error(e.getMessage() , e );
+//	            }
 	        }
 		 return returnValue;
 		
@@ -100,6 +94,7 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 			log.error(e.getMessage(), e);
 			return false;
 		}
+		
 		OrderBookWrapper obw = new OrderBookWrapper();
 
 		try {
@@ -132,11 +127,11 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 
 		QueueSequenced queueSequenced = new QueueSequenced();
 		Thread queueSequencedThread = new Thread(null, queueSequenced, QueueSequenced.CLASSNAME);
-		queueSequenced.initialise(sequenced, deduplicatedSequenced);
+		queueSequenced.initialise(queueNonSequenced.getOutputQueue());
 
 		FIXToBinaryProcessor fixToBinaryProcessor = new FIXToBinaryProcessor();
 		try {
-			fixToBinaryProcessor.initialise(deduplicatedSequenced , log);
+			fixToBinaryProcessor.initialise(queueSequenced.getOutputQueue() , log);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			return false;

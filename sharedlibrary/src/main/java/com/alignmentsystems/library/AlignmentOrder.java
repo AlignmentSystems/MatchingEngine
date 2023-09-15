@@ -65,7 +65,7 @@ public class AlignmentOrder implements InterfaceOrder{
 				.append(", symbol=")
 				.append(this.symbol)
 				.append(", side=")
-				.append(this.orderBookSide.sideValue)
+				.append(this.orderBookSide.sideReadableValue)
 				.append(", orderQty=")
 				.append(Long.toString(this.orderQty))
 				.append(", sessionId=")
