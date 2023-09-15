@@ -16,4 +16,5 @@ rootProject.name = 'AlignmentMatching'
 include('sharedlibrary')
 include('exchange')
 include('fixclient')
+include('administrator')
 

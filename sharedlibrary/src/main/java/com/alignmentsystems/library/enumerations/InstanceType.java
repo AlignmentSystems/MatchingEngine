@@ -26,6 +26,7 @@ public enum InstanceType {
 	KAFKA("Kafka" , Boolean.FALSE, Boolean.FALSE),
 	MEMBERA("MemberA" , Boolean.TRUE, Boolean.FALSE),
 	MEMBERB("MemberB" , Boolean.TRUE, Boolean.FALSE),
+	ADMIN("Administrator" , Boolean.TRUE, Boolean.FALSE)
 	;
 
 	public final String type;
