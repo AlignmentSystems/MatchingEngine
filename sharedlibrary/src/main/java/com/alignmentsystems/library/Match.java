@@ -13,14 +13,8 @@ package com.alignmentsystems.library;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-import com.alignmentsystems.fix44.field.Side;
-import com.alignmentsystems.library.annotations.Experimental;
-import com.alignmentsystems.library.enumerations.Encodings;
-import com.alignmentsystems.library.exceptions.RepresentationSBENotAvailable;
+import com.alignmentsystems.library.enumerations.OrderBookSide;
 import com.alignmentsystems.library.interfaces.InterfaceMatch;
-import com.alignmentsystems.library.interfaces.InterfaceOrder;
-import com.alignmentsystems.library.sbe.SimpleBinaryEncodingMessage;
-import com.alignmentsystems.library.sbe.SimpleOpenFramingHeaderMessage;
 
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
@@ -29,49 +23,71 @@ import com.alignmentsystems.library.sbe.SimpleOpenFramingHeaderMessage;
 public class Match implements InterfaceMatch {
 	private Long matchQuantity = 0L;
 	private Long matchPrice = 0L;
-	private InterfaceOrder buyOrder = null;
-	private InterfaceOrder sellOrder = null;
-	private Side aggressorSide = null;
+	private OrderBookSide aggressorSide = null;
 	private OffsetDateTime timestamp = null;
 	private UUID buyClOrdId = null;
 	private UUID sellClOrdId = null;
 	private UUID buyOrderId = null;
-	private UUID sellOrderId = null;	
+	private UUID sellOrderId = null;
+	private Long buyCumQty = null;
+	private Long sellCumQty  = null;
+	private Long buyOrderQty  = null;
+	private Long sellOrderQty  = null;
+	private Long buyAvgPx  = null;
+	private Long sellAvgPx  = null;
+	private String buySenderId = null;
+	private String buyTargetId = null;
+	private String sellSenderId = null;
+	private String sellTargetId = null;	
+
+
 	private UUID matchId = null;
 	private Boolean isEligibleForMarketData = Boolean.FALSE;
-	private byte[] innerSBERepresentation = null;
-	private byte[] innerSOFHRepresentation = null;
-	private SimpleBinaryEncodingMessage sbe = null;
-	
-	
-	public Match() {		
-	}
 
 
 	public Match(
 			Long matchQuantity
 			, Long matchPrice
-			, InterfaceOrder buyOrder
-			, InterfaceOrder sellOrder
-			, Side aggressorSide
+			, OrderBookSide aggressorSide
 			, OffsetDateTime timestamp
 			, UUID buyClOrdId 
 			, UUID sellClOrdId
 			, UUID buyOrderId
 			, UUID sellOrderId
+			, Long buyCumQty
+			, Long sellCumQty
+			, Long buyOrderQty
+			, Long sellOrderQty
+			, Long buyAvgPx
+			, Long sellAvgPx
+			, String buySenderId 
+			, String buyTargetId 
+			, String sellSenderId
+			, String sellTargetId
+
 			, Boolean getIsEligibleForMarketData
 			) {
 		super();
 		this.matchQuantity = matchQuantity;
 		this.matchPrice = matchPrice;
-		this.buyOrder = buyOrder;
-		this.sellOrder = sellOrder;
 		this.aggressorSide = aggressorSide;
 		this.timestamp = timestamp;
 		this.buyClOrdId = buyClOrdId;
 		this.sellClOrdId = sellClOrdId;
 		this.buyOrderId = buyOrderId;
 		this.sellOrderId = sellOrderId;
+		this.buyCumQty = buyCumQty;
+		this.sellCumQty = sellCumQty;
+		this.buyOrderQty = buyOrderQty;
+		this.sellOrderQty = sellOrderQty;
+		this.buyAvgPx = buyAvgPx;
+		this.sellAvgPx = sellAvgPx;
+		
+		this.buySenderId = buySenderId;
+		this.buyTargetId = buyTargetId; 
+		this.sellSenderId = sellSenderId;
+		this.sellTargetId = sellTargetId;
+
 		this.isEligibleForMarketData = getIsEligibleForMarketData;
 		this.matchId = UUID.randomUUID();		
 	}
@@ -89,10 +105,6 @@ public class Match implements InterfaceMatch {
 				.append(Double.toString(this.matchPrice))
 				.append(", matchId=")
 				.append(this.matchId)
-				.append(", buyOrder=")
-				.append(this.buyOrder)
-				.append(", sellOrder=")
-				.append(this.sellOrder)
 				.append(", aggressorSide=")
 				.append(this.aggressorSide)
 				.append(", buyClOrdId=")
@@ -102,7 +114,11 @@ public class Match implements InterfaceMatch {
 				.append(", buyOrderId=")
 				.append(this.buyOrderId) 
 				.append(", sellOrderId=")
-				.append(this.sellOrderId) 
+				.append(this.sellOrderId)
+				.append(" buyCumQty=")
+				.append(this.buyCumQty)
+				.append(" sellCumQty=")
+				.append(this.sellCumQty) 
 				.append(", isEligibleForMarketData=")
 				.append(this.isEligibleForMarketData) 
 				.append( "]")
@@ -121,17 +137,7 @@ public class Match implements InterfaceMatch {
 	}
 
 	@Override
-	public InterfaceOrder getBuyOrder() {
-		return this.buyOrder;
-	}
-
-	@Override
-	public InterfaceOrder getSellOrder() {
-		return this.sellOrder;
-	}
-
-	@Override
-	public Side getAggressorSide() {
+	public OrderBookSide getAggressorSide() {
 		return this.aggressorSide;
 	}
 
@@ -174,27 +180,74 @@ public class Match implements InterfaceMatch {
 	}
 
 	@Override
-	@Experimental
-	public byte[] getSBERepresentation(Long sequenceNumber) {
-
-		if (innerSBERepresentation==null) {
-			sbe = new SimpleBinaryEncodingMessage(sequenceNumber);
-			sbe.setMessage(this);
-			Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
-			this.innerSBERepresentation = sbe.getByteArray(encoding);
-			return this.innerSBERepresentation;
-		}else {
-			return this.innerSBERepresentation;
-		}
+	public Long getBuyCumQty() {
+		return buyCumQty;
 	}
 
 	@Override
-	public byte[] getSOFHRepresentation() throws RepresentationSBENotAvailable{
-		if (innerSOFHRepresentation==null) {
-			throw new RepresentationSBENotAvailable("SBE Representation not available. Call getSBERepresentation(Long sequenceNumber) first");
-		}
-		
-		SimpleOpenFramingHeaderMessage sofh = new SimpleOpenFramingHeaderMessage(this.sbe);
-		return sofh.getSOFHWrappedSBEMessage();
+	public Long getSellCumQty() {
+		return sellCumQty;
+	}
+
+
+
+	@Override
+	public Long getBuyOrderQty() {
+		return this.buyOrderQty;
+	}
+
+
+	@Override
+	public Long getSellOrderQty() {
+		return this.sellOrderQty;
+	}
+
+
+	@Override
+	public Long getBuyAvgPx() {
+		return this.buyAvgPx;
+	}
+
+
+	@Override
+	public Long getSellAvgPx() {
+		return this.sellAvgPx;
+	}
+
+	@Override
+	public void setBuyAvgPx(Long avgPx) {
+		this.buyAvgPx = avgPx;
+
+	}
+
+
+	@Override
+	public void getSellAvgPx(Long avgPx) {
+		this.sellAvgPx = avgPx;
+
+	}
+
+
+	@Override
+	public String getBuySenderId() {
+		return this.buySenderId;
+	}
+
+
+	@Override
+	public String getBuyTargetId() {
+		return this.buyTargetId;
+	}
+
+
+	@Override
+	public String getSellSenderId() {
+		return this.sellSenderId;
+	}
+
+
+	@Override
+	public String getSellTargetId() {
+		return this.sellTargetId;
 	}
 }

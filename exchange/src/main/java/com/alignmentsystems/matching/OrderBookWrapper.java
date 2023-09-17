@@ -15,35 +15,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-import com.alignmentsystems.fix44.ExecutionReport;
-import com.alignmentsystems.fix44.field.AvgPx;
-import com.alignmentsystems.fix44.field.CumQty;
-import com.alignmentsystems.fix44.field.ExecID;
-import com.alignmentsystems.fix44.field.ExecType;
-import com.alignmentsystems.fix44.field.LeavesQty;
-import com.alignmentsystems.fix44.field.OrdStatus;
-import com.alignmentsystems.fix44.field.OrderID;
-import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.PersistenceToFileClient;
-import com.alignmentsystems.library.interfaces.InterfaceAddedOrderToOrderBook;
-import com.alignmentsystems.library.interfaces.InterfaceMatch;
 import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
-import com.alignmentsystems.library.interfaces.InterfaceOrder;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBookWrapper;
-
-import quickfix.Session;
-import quickfix.SessionNotFound;
 
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class OrderBookWrapper
-implements InterfaceOrderBookWrapper, InterfaceMatchEvent, InterfaceAddedOrderToOrderBook {
+public class OrderBookWrapper implements InterfaceOrderBookWrapper{
 	private final static String CLASSNAME = OrderBookWrapper.class.getSimpleName();
 
 	private Map<String, InterfaceOrderBook> orderBooks = new HashMap<String, InterfaceOrderBook>();
@@ -72,7 +55,12 @@ implements InterfaceOrderBookWrapper, InterfaceMatchEvent, InterfaceAddedOrderTo
 		final String symbol = "BADGER.W";
 
 		OrderBook orderBook = new OrderBook();
-		if(orderBook.initialise(symbol, this.log, this.debugger, this, this)) {
+		
+		OrderBookKafkaProducer obkp = null;
+		
+		obkp.initialise(log);
+		
+		if(orderBook.initialise(symbol, this.log, this.debugger, obkp, obkp)) {
 
 		}else{
 			return false;
@@ -82,12 +70,12 @@ implements InterfaceOrderBookWrapper, InterfaceMatchEvent, InterfaceAddedOrderTo
 
 		obThread.start();
 
-		OrderBookKafka obk = null;
+		OrderBookKafkaConsumer obkc = null;
 
 		try {
-			obk = new OrderBookKafka();
-			Thread obkThread = new Thread(null, obk, OrderBookKafka.CLASSNAME);
-			obk.initialise(this.log);			
+			obkc = new OrderBookKafkaConsumer();
+			Thread obkThread = new Thread(null, obkc, OrderBookKafkaConsumer.CLASSNAME);
+			obkc.initialise(this.log);			
 			obkThread.start();
 		} catch (Exception e) {
 			//log.error(e.getMessage() ,  e);
@@ -96,58 +84,12 @@ implements InterfaceOrderBookWrapper, InterfaceMatchEvent, InterfaceAddedOrderTo
 
 
 		try {
-			obk.runAlways(symbol, orderBook);
+			obkc.runAlways(symbol, orderBook);
 		} catch (Exception e) {
 			//log.error(e.getMessage() ,  e);
 			throw e;
 		}
 
 		return true;
-	}
-
-	@Override
-	public void matchHappened(InterfaceMatch match) {
-		for (InterfaceMatchEvent hl : listenersMatchEvent)
-			hl.matchHappened(match);
-	}
-
-	@Override
-	public void addedOrderToOrderBook(InterfaceOrder nos) {
-		sendExecutionReportAcknowledgementForReceivedOrder(nos);
-		// for (InterfaceAddedOrderToOrderBook hl : listenersAddedOrderToOrderBook)
-		// hl.addedOrderToOrderBook(nos);
-	}
-
-	private void sendExecutionReportAcknowledgementForReceivedOrder(InterfaceOrder nos) {
-		final String methodName = "sendExecutionReportAcknowledgementForReceivedOrder";
-
-		ExecutionReport er = getExecutionReportAcknowledgementForOrder(nos);
-
-		final Boolean connectionToFIXEngineWorking = Boolean.FALSE;
-
-		if(connectionToFIXEngineWorking) {
-			try {
-				Session.sendToTarget(er, nos.getSender(), nos.getTarget());
-				//Session.sendToTarget(er, sessionID);
-			} catch (SessionNotFound e) {
-				log.error(e.getMessage(), e);
-			}
-		}
-
-	}
-
-	private static ExecutionReport getExecutionReportAcknowledgementForOrder(InterfaceOrder nos) {
-		OrderID orderId = new OrderID(nos.getOrderId().toString());
-		ExecID execID = new ExecID(UUID.randomUUID().toString());
-		ExecType execType = new ExecType(ExecType.NEW);
-		OrdStatus ordStatus = new OrdStatus(OrdStatus.NEW);
-		Side side = new Side(nos.getOrderBookSide().sideCharValue);
-		LeavesQty leavesQty = new LeavesQty(0d);
-		CumQty cumQty = new CumQty(0d);
-		AvgPx avgPx = new AvgPx(0d);
-
-		ExecutionReport er = new ExecutionReport(orderId, execID, execType, ordStatus, side, leavesQty, cumQty, avgPx);
-
-		return er;
 	}
 }

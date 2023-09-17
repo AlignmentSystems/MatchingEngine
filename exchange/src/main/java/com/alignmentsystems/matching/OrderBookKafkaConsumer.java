@@ -6,7 +6,7 @@ package com.alignmentsystems.matching;
  *	Date            :	13th September 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	OrderBookKafka
+ *	Artefact		:	OrderBookKafkaConsumer
  *	Description		:
  *****************************************************************************/
 
@@ -28,8 +28,8 @@ import com.alignmentsystems.library.LibraryFunctions;
 import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.enumerations.InstanceType;
 
-public class OrderBookKafka  extends KafkaAbstractSimple implements Runnable{
-	public final static String CLASSNAME = OrderBookKafka.class.getSimpleName();
+public class OrderBookKafkaConsumer  extends KafkaAbstractSimple implements Runnable{
+	public final static String CLASSNAME = OrderBookKafkaConsumer.class.getSimpleName();
 	private final int TIME_OUT_MS = 5000;
 	private KafkaConsumer<String, byte[]> kafkaConsumer = null;
 	private final AtomicBoolean closed = new AtomicBoolean(false);
@@ -38,7 +38,7 @@ public class OrderBookKafka  extends KafkaAbstractSimple implements Runnable{
 
 
 
-	public OrderBookKafka() throws Exception {
+	public OrderBookKafkaConsumer() throws Exception {
 		super();
 		// TODO Auto-generated constructor stub
 	}
@@ -47,7 +47,7 @@ public class OrderBookKafka  extends KafkaAbstractSimple implements Runnable{
 		this.log = log;
 
 		try {
-			props = LibraryFunctions.getProperties(OrderBookKafka.class.getClassLoader(), InstanceType.KAFKA.getProperties());
+			props = LibraryFunctions.getProperties(OrderBookKafkaConsumer.class.getClassLoader(), InstanceType.KAFKA.getProperties());
 		} catch (FileNotFoundException  |NullPointerException e) {
 			throw e;
 		}
@@ -115,35 +115,11 @@ public class OrderBookKafka  extends KafkaAbstractSimple implements Runnable{
 
 	@Override
 	public void runAlways(String topicName, KafkaMessageHandler callback) throws Exception {
-		Properties props;
-		try {
-			props = LibraryFunctions.getProperties(OrderBookKafka.class.getClassLoader() , InstanceType.KAFKA.getProperties());
-		} catch (FileNotFoundException | NullPointerException e) {
-			//log.error(e.getMessage() , e);
-			throw e;
-		}
-		// make the consumer available for graceful shutdown
-		setKafkaConsumer(new KafkaConsumer<>(props));
-
-		// keep running forever or until shutdown() is called from another thread.
-		try {
-			getKafkaConsumer().subscribe(List.of(topicName));
-			while (!closed.get()) {
-				ConsumerRecords<String, byte[]> records = getKafkaConsumer().poll(Duration.ofMillis(TIME_OUT_MS));
-				if (records.count() == 0) {
-					log.info("No records retrieved");
-				}else {
-
-					for (ConsumerRecord<String, byte[]> record : records) {
-						callback.processMessage(topicName, record);
-					}
-				}
-			}
-		} catch (WakeupException e) {
-			// Ignore exception if closing
-			if (!closed.get())
-				throw e;
-		}
+		
+		List<String> topicNames = List.of(topicName);
+		runAlways(topicNames, callback);
+		
+	
 	}
 
 	@Override
@@ -157,6 +133,42 @@ public class OrderBookKafka  extends KafkaAbstractSimple implements Runnable{
 			}
 		}
 
+	}
+
+	@Override
+	public void runAlways(List<String> topicNames, KafkaMessageHandler callback) throws Exception {
+		
+		Properties props;
+		try {
+			props = LibraryFunctions.getProperties(OrderBookKafkaConsumer.class.getClassLoader() , InstanceType.KAFKA.getProperties());
+		} catch (FileNotFoundException | NullPointerException e) {
+			//log.error(e.getMessage() , e);
+			throw e;
+		}
+		// make the consumer available for graceful shutdown
+		setKafkaConsumer(new KafkaConsumer<>(props));
+
+		// keep running forever or until shutdown() is called from another thread.
+		try {
+			getKafkaConsumer().subscribe(topicNames);
+			while (!closed.get()) {
+				ConsumerRecords<String, byte[]> records = getKafkaConsumer().poll(Duration.ofMillis(TIME_OUT_MS));
+				if (records.count() == 0) {
+					log.info("No records retrieved");
+				}else {
+
+					for (ConsumerRecord<String, byte[]> record : records) {
+						
+						callback.processMessage(record.topic(), record);
+					}
+				}
+			}
+		} catch (WakeupException e) {
+			// Ignore exception if closing
+			if (!closed.get())
+				throw e;
+		}
+		
 	}
 
 }

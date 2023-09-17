@@ -29,6 +29,12 @@ import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceFIXToBinaryProcessor;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 
+
+
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProcessor {
 	protected final static String CLASSNAME = FIXToBinaryProcessor.class.getSimpleName().toString();
 	private LogEncapsulation log = null;

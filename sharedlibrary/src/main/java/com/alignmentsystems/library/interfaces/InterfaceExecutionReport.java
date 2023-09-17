@@ -10,6 +10,8 @@ package com.alignmentsystems.library.interfaces;
  *	Description		:
  *****************************************************************************/
 
+import java.time.OffsetDateTime;
+
 import com.alignmentsystems.fix44.ExecutionReport;
 
 import quickfix.SessionID;
@@ -18,9 +20,23 @@ import quickfix.SessionID;
  *
  */
 public interface InterfaceExecutionReport {
-	public void setExecutionReport(String execID, ExecutionReport er, SessionID sessionId);
-	public ExecutionReport getExecutionReport();
-	public SessionID getSessionID();
-	public String getExecID();
+	public void setExecutionReport(
+			String execID
+			, String buySenderId 
+			, String buyTargetId 
+			, String sellSenderId
+			, String sellTargetId
+			, OffsetDateTime timestamp
+			, Long executionQuantity
+			, Long executionPrice
+			);
 	
+	public String getExecID();
+	public String getBuySenderId(); 
+	public String getBuyTargetId(); 
+	public String getSellSenderId();
+	public String getSellTargetId();
+	public OffsetDateTime getTimestamp();
+	public Long getExecutionQuantity();
+	public Long getExecutionPrice();
 }

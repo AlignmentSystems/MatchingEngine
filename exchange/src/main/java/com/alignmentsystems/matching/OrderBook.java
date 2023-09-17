@@ -171,15 +171,15 @@ implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, Interfa
 			// preferred price...
 			final OffsetDateTime topOfBuyBookTimestamp = topOfBuyBook.getTimestamp();
 			final OffsetDateTime topOfSellBookTimestamp = topOfSellBook.getTimestamp();
-			Side aggressor = null;
+			OrderBookSide aggressor = null;
 
 			if (topOfBuyBookTimestamp.compareTo(topOfSellBookTimestamp) < 0) {
 				// Returns: the comparator value, negative if less, positive if greater
 				// Therefore topOfBuyBookTimestamp is less than topOfSellBookTimestamp
 				// So topOfBuyBookTimestamp came first and is therefore NOT the aggressor
-				aggressor = new Side(Side.SELL);
+				aggressor = OrderBookSide.SELL; 
 			} else {
-				aggressor = new Side(Side.BUY);
+				aggressor = OrderBookSide.BUY;
 			}
 
 			Long topOfBuyBookQty = topOfBuyBook.getOrderQty();
@@ -187,25 +187,44 @@ implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, Interfa
 
 			tradedQuantity = Math.min(topOfBuyBookQty, topOfSellBookQty);
 
-			switch (aggressor.getValue()) {
-			case Side.SELL:
+			switch (aggressor) {
+			case SELL:
 				tradedPrice = Math. max(topOfBuyBookPrice, topOfSellBookPrice);
 				break;
-			case Side.BUY:
+			case BUY:
 				tradedPrice = Math.min(topOfBuyBookPrice, topOfSellBookPrice);
 				break;
 			}
 			OffsetDateTime executionTimestamp = OffsetDateTime.now(Constants.HERE);
 
-			UUID  buyClOrdID = topOfBuyBook.getClOrdID();
-			UUID  sellClOrdID = topOfSellBook.getClOrdID();
-			UUID buyOrderID = topOfBuyBook.getOrderId();
-			UUID sellOrderID = topOfSellBook.getOrderId();
+			final UUID buyClOrdID = topOfBuyBook.getClOrdID();
+			final UUID sellClOrdID = topOfSellBook.getClOrdID();
+			final UUID buyOrderID = topOfBuyBook.getOrderId();
+			final UUID sellOrderID = topOfSellBook.getOrderId();
 			final boolean isEligibleForMarketData = true;
+	
+			Match match = new Match(
+					tradedQuantity
+					, tradedPrice
+					, aggressor
+					, executionTimestamp
+					, buyClOrdID
+					, sellClOrdID
+					, buyOrderID
+					, sellOrderID
+					, topOfBuyBook.getCumQty() // Long buyCumQty
+					, topOfSellBook.getCumQty() // Long sellCumQty
+					, topOfBuyBook.getOrderQty() //Long buyOrderQty
+					, topOfSellBook.getOrderQty() //Long sellOrderQty
+					, topOfBuyBook.getAvgPx()//Long buyAvgPx
+					, topOfSellBook.getAvgPx()//Long sellAvgPx
+					, topOfBuyBook.getSender() //String buySenderId
+					, topOfBuyBook.getTarget() //String buyTargetId
+					, topOfSellBook.getSender() // String sellSenderId
+					, topOfSellBook.getTarget() //String sellTargetId
+					, isEligibleForMarketData);
 
-			Match match = new Match(tradedQuantity, tradedPrice, topOfBuyBook, topOfSellBook, aggressor,
-					executionTimestamp, buyClOrdID, sellClOrdID, buyOrderID, sellOrderID, isEligibleForMarketData);
-
+			//tradedQuantity, tradedPrice, aggressor, executionTimestamp, buyClOrdID, sellClOrdID, buyOrderID, sellOrderID, isEligibleForMarketData
 			buy.remove(topOfBuyBook);
 			sell.remove(topOfSellBook);
 

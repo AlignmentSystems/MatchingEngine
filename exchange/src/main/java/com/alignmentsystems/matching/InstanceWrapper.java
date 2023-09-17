@@ -1,10 +1,10 @@
 package com.alignmentsystems.matching;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.alignmentsystems.fix44.MessageFactory;
 import com.alignmentsystems.library.LibraryFunctions;
@@ -13,7 +13,6 @@ import com.alignmentsystems.library.PersistenceToFileClient;
 import com.alignmentsystems.library.constants.FailureConditionConstants;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceInstanceWrapper;
-import com.alignmentsystems.library.interfaces.InterfaceMatch;
 
 import quickfix.Acceptor;
 import quickfix.ConfigError;
@@ -30,7 +29,7 @@ import quickfix.SocketAcceptor;
 public class InstanceWrapper implements InterfaceInstanceWrapper {
 	private final String CLASSNAME = this.getClass().getSimpleName();
 	private List<FIXEngineExchange> engines = new ArrayList<FIXEngineExchange>();
-	private ConcurrentLinkedQueue<InterfaceMatch> marketDataQueue = new ConcurrentLinkedQueue<InterfaceMatch>();
+	//private ConcurrentLinkedQueue<InterfaceMatch> marketDataQueue = new ConcurrentLinkedQueue<InterfaceMatch>();
 	private InstanceType instanceType;
 	private final LogEncapsulation log = new LogEncapsulation(InstanceWrapper.class);
 
@@ -45,11 +44,9 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 		sb.append(CLASSNAME).append(" Started instance=").append(this.instanceType.type).append(" Started version=")
 				.append(LibraryFunctions.getVersion(this.getClass()));
 
-		
 		Boolean returnValue = Boolean.FALSE;
 		log.info(sb.toString());
-		
-		
+				
 		log.showSystemProperties();
 
 		// What do we do here?
@@ -136,6 +133,7 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 			log.error(e.getMessage(), e);
 			return false;
 		}
+		
 		Thread fixToBinaryProcessorThread = new Thread(null, fixToBinaryProcessor, FIXToBinaryProcessor.CLASSNAME);
 		
 		
@@ -145,13 +143,41 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 		queueSequencedThread.start();
 		queueNonSequencedThread.start();
 
-		FIXEngineExchange engineExchange = new FIXEngineExchange(log, queueNonSequenced,
-				InstanceType.EXCHANGEFIXACCEPTOR);
+		FIXEngineKafkaListener fixEngineKafkaListener = null;
+		
+		try {
+			fixEngineKafkaListener =  new FIXEngineKafkaListener();
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			return false;
+		}
+		try {
+			fixEngineKafkaListener.initialise(log);
+		} catch (NullPointerException | FileNotFoundException e) {
+			log.error(e.getMessage(), e);
+			return false;
+		}
+		
+		
+		
+		FIXEngineExchange engineExchange = new FIXEngineExchange(log , queueNonSequenced , InstanceType.EXCHANGEFIXACCEPTOR);
 		engines.add(engineExchange);
 
 		String[] acceptors = { InstanceType.EXCHANGEFIXACCEPTOR.getProperties() };
 		log.debug("get" + acceptors[0]);
 
+		final List<String> messagesToSendToFIXEngine =  List.of("fill","ack","rej");
+		
+		
+		try {
+			fixEngineKafkaListener.runAlways(messagesToSendToFIXEngine, engineExchange);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			return false;
+		}
+		
+		
+		
 		Acceptor exchange = null;
 
 		try {

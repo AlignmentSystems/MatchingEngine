@@ -21,6 +21,7 @@ import com.alignmentsystems.fix44.field.LeavesQty;
 import com.alignmentsystems.fix44.field.OrdStatus;
 import com.alignmentsystems.fix44.field.OrderID;
 import com.alignmentsystems.fix44.field.Side;
+import com.alignmentsystems.fix44.field.TimeInForce;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 
@@ -57,6 +58,7 @@ public class LibraryOrders {
 		LeavesQty leavesQty  = null;
 		CumQty cumQty = new CumQty(0d);
 		AvgPx avgPx = new AvgPx(0d);
+		TimeInForce tif = new TimeInForce(nos.getTimeInForce());
 
 		try {
 			side = new Side(nos.getNewOrderSingle().getSide().getValue());
@@ -78,8 +80,8 @@ public class LibraryOrders {
 				, cumQty
 				, avgPx
 				);
-
-
+		
+		er.set(tif);
 
 
 		return er;

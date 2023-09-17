@@ -12,9 +12,7 @@ package com.alignmentsystems.library.interfaces;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-import com.alignmentsystems.fix44.field.Side;
-import com.alignmentsystems.library.annotations.Experimental;
-import com.alignmentsystems.library.exceptions.RepresentationSBENotAvailable;
+import com.alignmentsystems.library.enumerations.OrderBookSide;
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
@@ -23,17 +21,26 @@ public interface InterfaceMatch {
 	public OffsetDateTime getTimestamp();
 	public Long getMatchQuantity();
 	public Long getMatchPrice();
-	public InterfaceOrder getBuyOrder();
-	public InterfaceOrder getSellOrder();
-	public Side getAggressorSide();
+	public OrderBookSide getAggressorSide();
 	public UUID getBuyClOrdId();
 	public UUID getSellClOrdId();
 	public UUID getBuyOrderId();
 	public UUID getSellOrderId();
 	public UUID getMatchId();
+	public Long getBuyCumQty();
+	public Long getSellCumQty();
+	public Long getBuyOrderQty();
+	public Long getSellOrderQty();
+	public Long getBuyAvgPx();
+	public Long getSellAvgPx();
+	public String getBuySenderId();
+	public String getBuyTargetId();
+	public String getSellSenderId();
+	public String getSellTargetId();
+	public void setBuyAvgPx(Long avgPx);
+	
+	public void getSellAvgPx(Long avgPx);
 	public void setMatchId(UUID matchID);
 	public Boolean getIsEligibleForMarketData();
-	@Experimental
-	public byte[] getSBERepresentation(Long sequenceNumber);
-	public byte[] getSOFHRepresentation() throws RepresentationSBENotAvailable;
+	
 }
