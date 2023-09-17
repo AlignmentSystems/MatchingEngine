@@ -21,10 +21,10 @@ import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.enumerations.Encodings;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
 
-public class BinaryToCanonicalRepresentationProcessor {
+public class BinaryToFIXProcessor {
 	final static Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
 
-	public BinaryToCanonicalRepresentationProcessor() {
+	public BinaryToFIXProcessor() {
 	} 
 
 
