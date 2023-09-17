@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import com.alignmentsystems.fix44.ExecutionReport;
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -17,6 +18,7 @@ import java.util.UUID;
  *	Description		:
  *****************************************************************************/
 import com.alignmentsystems.library.AlignmentOrder;
+import com.alignmentsystems.library.annotations.NotYetImplemented;
 import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.enumerations.Encodings;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
@@ -27,6 +29,20 @@ public class BinaryToFIXProcessor {
 	public BinaryToFIXProcessor() {
 	} 
 
+	
+	@NotYetImplemented
+	public static ExecutionReport getExecutionReport(byte[] message) {
+		ExecutionReport er = new ExecutionReport();
+		
+		try {			
+			ByteBuffer bb = ByteBuffer.wrap(message).order(encoding.getByteOrder());
+			final short msgType = bb.getShort();	//		buf.putShort(messageType);
+		} catch(BufferUnderflowException | DateTimeException e) {
+			throw e;
+		}
+		return er;
+				
+	}
 
 	
 	
