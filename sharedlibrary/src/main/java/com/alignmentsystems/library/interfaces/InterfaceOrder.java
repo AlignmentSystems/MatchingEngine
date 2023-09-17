@@ -46,9 +46,15 @@ public interface InterfaceOrder{
 	public void setOrderId(UUID OrderId);
 	public UUID getOrderId();
 	public String getOrderUniquenessTuple();
-
+	public short getAlignmentType();
+	public void setAlignmentType(short alignmentType);
+	public char getTimeInForce();
+	public void setTimeInForce(char timeInForce);
+	
+	
 	public void reCreateOrder(
 			String symbol
+			, Character timeInForce
 			, OrderBookSide orderBookSide
 			, Long orderQty 
 			, Long limitPrice 

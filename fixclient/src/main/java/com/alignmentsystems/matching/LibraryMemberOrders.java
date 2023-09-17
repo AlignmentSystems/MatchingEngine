@@ -20,6 +20,7 @@ import com.alignmentsystems.fix44.field.OrderQty;
 import com.alignmentsystems.fix44.field.Price;
 import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.fix44.field.Symbol;
+import com.alignmentsystems.fix44.field.TimeInForce;
 import com.alignmentsystems.fix44.field.TransactTime;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
 
@@ -41,6 +42,8 @@ public class LibraryMemberOrders {
 		final Price price = new Price(priceForOrder);
 		final TransactTime transactTime = new TransactTime(LocalDateTime.now());  
 		final OrdType ordType = new OrdType(OrdType.LIMIT);
+		String tif = "0";
+		final TimeInForce timeInForce = new TimeInForce(tif.charAt(0));
 
 
 		if (orderBookSide==OrderBookSide.BUY) {
@@ -58,6 +61,7 @@ public class LibraryMemberOrders {
 		nos.set(symbol);
 		nos.set(ordQty);
 		nos.set(price);
+		nos.set(timeInForce);
 
 
 		return nos;

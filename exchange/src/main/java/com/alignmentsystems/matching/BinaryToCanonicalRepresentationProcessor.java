@@ -33,6 +33,7 @@ public class BinaryToCanonicalRepresentationProcessor {
 
 		try {
 			//			ByteBuffer buf = ByteBuffer.allocate(bufferLength).order(encoding.getByteOrder());
+			//			buf.putShort(messageType);
 			//			buf.putLong(inSeq.getClOrdID().getLeastSignificantBits());
 			//			buf.putLong(inSeq.getClOrdID().getMostSignificantBits());
 			//			buf.putLong(inSeq.getOrderId().getLeastSignificantBits());
@@ -45,11 +46,13 @@ public class BinaryToCanonicalRepresentationProcessor {
 			//			buf.putLong(inSeq.getTimestamp().toInstant().getEpochSecond());
 			//			buf.putInt(inSeq.getTimestamp().toInstant().getNano());		
 			//			buf.putLong(exchangeSideCodeMappedFromSideCode);
+			//			buf.putShort(exchangeTimeInForceMappedFromTimeInForce);
+		
 			//			buf.flip();
 
 
 			ByteBuffer bb = ByteBuffer.wrap(message).order(encoding.getByteOrder());
-
+			final short msgType = bb.getShort();	//		buf.putShort(messageType);
 			final Long clOrdIdLeast = bb.getLong();//			buf.putLong(inSeq.getClOrdID().getLeastSignificantBits());
 			final Long clOrdIdMost = bb.getLong();//			buf.putLong(inSeq.getClOrdID().getMostSignificantBits());
 			final Long orderIdLeast = bb.getLong();//			buf.putLong(inSeq.getOrderId().getLeastSignificantBits());
@@ -62,7 +65,7 @@ public class BinaryToCanonicalRepresentationProcessor {
 			final Long timeStampEpochSeconds = bb.getLong();//			buf.putLong(inSeq.getTimestamp().toInstant().getEpochSecond());
 			final int timeStampNanoseconds = bb.getInt();//			buf.putInt(inSeq.getTimestamp().toInstant().getNano());
 			final Long sideCode = bb.getLong();//			buf.putLong(exchangeSideCodeMappedFromSideCode);
-
+			final short msgTimeInForce = bb.getShort();//	buf.putShort(exchangeTimeInForceMappedFromTimeInForce);
 			final UUID clOrdId = new UUID(clOrdIdMost, clOrdIdLeast);
 			final UUID orderId = new UUID(orderIdMost, orderIdLeast);
 
@@ -73,10 +76,10 @@ public class BinaryToCanonicalRepresentationProcessor {
 			final Instant instant = Instant.ofEpochSecond(timeStampEpochSeconds).plusNanos(timeStampNanoseconds);
 			final OffsetDateTime ts =  OffsetDateTime.ofInstant(instant, Constants.HERE);
 			final OrderBookSide obs = OrderBookSide.getEnumForString(sideCodeFIX);
-			
+			final char tif = DataMapper.getExchangeTimeInForceMappedToMemberTimeInForce(msgTimeInForce);
 			
 			AlignmentOrder ao = new AlignmentOrder();			
-			ao.reCreateOrder(instrument , obs , orderQty , limitPrice , ts , senderCompId , targetCompId , orderId , clOrdId);
+			ao.reCreateOrder(instrument , tif, obs , orderQty , limitPrice , ts , senderCompId , targetCompId , orderId , clOrdId);
 			return ao;	
 		} catch(BufferUnderflowException | DateTimeException e) {
 			throw e;
