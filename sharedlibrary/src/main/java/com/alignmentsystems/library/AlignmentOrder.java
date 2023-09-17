@@ -46,6 +46,8 @@ public class AlignmentOrder implements InterfaceOrder{
 	private UUID orderId = null;
 	private UUID clOrdId = null;
 	private short alignmentType = 0;
+	private Long cumQty = null;
+	private Long avgPx = null;
 
 	@Override
 	public String toString() {
@@ -148,7 +150,19 @@ public class AlignmentOrder implements InterfaceOrder{
 
 	@Override
 	public void execute(ExecutionReport execution) {		
-		this.executions.add(execution);
+		
+		try {
+			//int countOfExecutions = this.executions.size();
+			Long existingAvgPx = this.avgPx;
+			Long existingQuantityExecuted = this.cumQty;
+			Long thisExecutionQuantity = (long) execution.getLastQty().getValue();
+			Long thisExecutionPrice = (long) execution.getLastPx().getValue();
+			this.avgPx = ((existingAvgPx * existingQuantityExecuted) + (thisExecutionQuantity * thisExecutionPrice)) / (existingQuantityExecuted + thisExecutionQuantity);
+			this.cumQty = this.cumQty + thisExecutionQuantity;
+			this.executions.add(execution);	
+		} catch (FieldNotFound e) {
+			e.printStackTrace();
+		}
 	}
 
 
@@ -224,5 +238,15 @@ public class AlignmentOrder implements InterfaceOrder{
 	@Override
 	public void setTimeInForce(char timeInForce) {
 		this.timeInForce = timeInForce; 		
+	}
+
+	@Override
+	public long getCumQty() {
+		return this.cumQty;
+	}
+
+	@Override
+	public long getAvgPx() {
+		return this.avgPx;
 	}	
 }

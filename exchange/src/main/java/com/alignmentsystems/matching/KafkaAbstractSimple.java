@@ -10,6 +10,8 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
+import java.util.List;
+
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  * @see <a href="https://kafka.apache.org/documentation/#quickstart">Kafka</a>
@@ -57,4 +59,17 @@ public abstract class KafkaAbstractSimple {
 	 * @throws Exception the exception that get thrown upon error
 	 */
 	public abstract void runAlways(String topicName, KafkaMessageHandler callback) throws Exception;
+	
+	
+	
+	/**
+	 * This purpose of this method is to provide continuous behavior to produce or
+	 * consume messages from a Kafka broker
+	 *
+	 * @param topicNames the topicNames to execute against
+	 * @param callback  a callback function to provide processing logic after a
+	 *                  message is produced or after a message is consumed
+	 * @throws Exception the exception that get thrown upon error
+	 */
+	public abstract void runAlways(List<String> topicNames , KafkaMessageHandler callback) throws Exception;
 }

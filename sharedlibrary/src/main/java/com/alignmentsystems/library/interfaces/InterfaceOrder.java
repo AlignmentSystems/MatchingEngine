@@ -50,7 +50,8 @@ public interface InterfaceOrder{
 	public void setAlignmentType(short alignmentType);
 	public char getTimeInForce();
 	public void setTimeInForce(char timeInForce);
-	
+	public long getCumQty();
+	public long getAvgPx();
 	
 	public void reCreateOrder(
 			String symbol

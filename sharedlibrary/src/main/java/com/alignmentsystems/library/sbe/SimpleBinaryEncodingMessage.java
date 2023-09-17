@@ -16,6 +16,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import com.alignmentsystems.library.Match;
+import com.alignmentsystems.library.annotations.NotYetImplemented;
 import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.enumerations.Encodings;
 import com.alignmentsystems.library.interfaces.InterfaceMatch;
@@ -100,8 +101,9 @@ public class SimpleBinaryEncodingMessage implements InterfaceSimpleBinaryEncodin
 	}
 
 	@Override
+	@NotYetImplemented
 	public InterfaceMatch getMessage() {
-		InterfaceMatch match = new Match();
+		InterfaceMatch match = new Match(marketDataPrice, marketDataPrice, null, timestamp, marketDataId, marketDataId, marketDataId, marketDataId, marketDataPrice, marketDataPrice, marketDataPrice, marketDataPrice, marketDataPrice, marketDataPrice, null, null, null, null, null);
 		return match;
 	}
 

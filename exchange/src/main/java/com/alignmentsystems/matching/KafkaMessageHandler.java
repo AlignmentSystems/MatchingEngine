@@ -18,7 +18,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
  * The interface KafkaMessageHandler.
  *
  * This interface is the template callback functions that can be passed to an
- * instance of the {@link com.alignmentsystems.matching.OrderBookKafka}
+ * instance of the {@link com.alignmentsystems.matching.OrderBookKafkaConsumer}
  */
 @FunctionalInterface
 public interface KafkaMessageHandler {
