@@ -68,19 +68,25 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 		try {
 		receivedSymbol = inSeq.getSymbol();
 		orderId = inSeq.getOrderId().toString();
+		
+		final short messageType = inSeq.getAlignmentType();
 		final String receivedSender = inSeq.getSender();
 		final String receivedTarget = inSeq.getTarget();
 		final String receivedSide = inSeq.getOrderBookSide().getSideFIXStringValue();
+		final char receivedTimeInForce = inSeq.getTimeInForce();
 		//get mappings...
 		final Long exchangeIdMappedFromSenderCompID = DataMapper.getExchangeIdMappedFromSenderCompID(receivedSender);
 		final Long exchangeIdMappedFromTargetCompID = DataMapper.getExchangeIdMappedFromTargetCompID(receivedTarget);
 		final Long exchangeInstrumentIdMappedFromSymbol = DataMapper.getExchangeIdMappedFromInstrumentId(receivedSymbol);
 		final Long exchangeSideCodeMappedFromSideCode = DataMapper.getExchangeSideCodeMappedFromMemberSideCode(receivedSide);
+		final Short exchangeTimeInForceMappedFromTimeInForce = DataMapper.getMemberTimeInForceMappedToExchangeTimeInForce(receivedTimeInForce);
 		
 		final Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
 		
 		
-		final int bufferLength = 
+		final int bufferLength =
+				Short.BYTES //messageType
+				+
 				Long.BYTES * 2 //ClOrdId 
 				+
 				Long.BYTES * 2 //OrderId
@@ -100,9 +106,12 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 				Integer.BYTES // this.ts getNano()
 				+
 				Long.BYTES //this.SideCode
+				+
+				Short.BYTES //inSeq.getTimeInForce()
 				;
 
 		buf = ByteBuffer.allocate(bufferLength).order(encoding.getByteOrder());
+		buf.putShort(messageType);
 		buf.putLong(inSeq.getClOrdID().getLeastSignificantBits());
 		buf.putLong(inSeq.getClOrdID().getMostSignificantBits());
 		buf.putLong(inSeq.getOrderId().getLeastSignificantBits());
@@ -115,6 +124,7 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 		buf.putLong(inSeq.getTimestamp().toInstant().getEpochSecond());
 		buf.putInt(inSeq.getTimestamp().toInstant().getNano());		
 		buf.putLong(exchangeSideCodeMappedFromSideCode);
+		buf.putShort(exchangeTimeInForceMappedFromTimeInForce);
 		
 		buf.flip();
 		} catch (Exception e) {

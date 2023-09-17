@@ -40,10 +40,12 @@ public class AlignmentOrder implements InterfaceOrder{
 	private OffsetDateTime ts;
 	private String sender = null;
 	private String target = null;
+	private char timeInForce;
 	private final static ZoneOffset zo = Constants.HERE;
 	private List<ExecutionReport> executions =  new ArrayList<ExecutionReport>();
 	private UUID orderId = null;
 	private UUID clOrdId = null;
+	private short alignmentType = 0;
 
 	@Override
 	public String toString() {
@@ -104,6 +106,7 @@ public class AlignmentOrder implements InterfaceOrder{
 			this.orderQty = (long) nos.getOrderQty().getValue();
 			this.limitPrice = (long) nos.getPrice().getValue();			
 			this.symbol = nos.getSymbol().getValue();
+			this.timeInForce = nos.getTimeInForce().getValue();
 		} catch (FieldNotFound e) {
 			throw e;
 		}
@@ -188,9 +191,10 @@ public class AlignmentOrder implements InterfaceOrder{
 	}
 
 	@Override
-	public void reCreateOrder(String symbol, OrderBookSide orderBookSide, Long orderQty, Long limitPrice,
+	public void reCreateOrder(String symbol , Character timeInForce , OrderBookSide orderBookSide, Long orderQty, Long limitPrice,
 			OffsetDateTime ts,  String sender, String target, UUID orderId, UUID clOrdId) {
 		this.symbol = symbol;
+		this.timeInForce = timeInForce; 
 		this.orderBookSide = orderBookSide;
 		this.orderQty = orderQty;
 		this.limitPrice = limitPrice;
@@ -199,6 +203,26 @@ public class AlignmentOrder implements InterfaceOrder{
 		this.target = target;
 		this.orderId = orderId;
 		this.clOrdId = clOrdId;
-		
+
+	}
+
+	@Override
+	public short getAlignmentType() {
+		return this.alignmentType;
+	}
+
+	@Override
+	public void setAlignmentType(short alignmentType) {
+		this.alignmentType = alignmentType;
+	}
+
+	@Override
+	public char getTimeInForce() {
+		return this.timeInForce;
+	}
+
+	@Override
+	public void setTimeInForce(char timeInForce) {
+		this.timeInForce = timeInForce; 		
 	}	
 }
