@@ -49,45 +49,7 @@ public class LibraryOrders {
 		}
 	}
 
-	public static ExecutionReport getExecutionReportAcknowledgementForOrder(InterfaceOrder nos) throws FieldNotFound {
-		OrderID orderId = new OrderID(nos.getOrderId().toString());
-		ExecID execID = new ExecID (UUID.randomUUID().toString());		
-		ExecType execType = new ExecType(ExecType.NEW);		
-		OrdStatus ordStatus = new OrdStatus(OrdStatus.NEW);
-		Side side = null;
-		LeavesQty leavesQty  = null;
-		CumQty cumQty = new CumQty(0d);
-		AvgPx avgPx = new AvgPx(0d);
-		TimeInForce tif = new TimeInForce(nos.getTimeInForce());
-
-		try {
-			side = new Side(nos.getNewOrderSingle().getSide().getValue());
-			leavesQty = new LeavesQty(nos.getNewOrderSingle().getOrderQty().getValue());		
-
-		} catch (FieldNotFound e) {
-			throw e;
-		}
-
-
-
-		ExecutionReport er = new ExecutionReport(
-				orderId
-				, execID
-				, execType
-				, ordStatus
-				, side
-				, leavesQty
-				, cumQty
-				, avgPx
-				);
-		
-		er.set(tif);
-
-
-		return er;
-
-	}
-
+	
 
 
 	

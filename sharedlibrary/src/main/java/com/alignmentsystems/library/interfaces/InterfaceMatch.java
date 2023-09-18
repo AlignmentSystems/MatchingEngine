@@ -12,6 +12,7 @@ package com.alignmentsystems.library.interfaces;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import com.alignmentsystems.library.AlignmentExecutionReport;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
@@ -38,9 +39,15 @@ public interface InterfaceMatch {
 	public String getSellSenderId();
 	public String getSellTargetId();
 	public void setBuyAvgPx(Long avgPx);
-	
+	public Short getBuyOrdStatus();
+	public Short getBuyExecType();
+	public Short getSellOrdStatus();
+	public Short getSellExecType();
+
 	public void getSellAvgPx(Long avgPx);
 	public void setMatchId(UUID matchID);
 	public Boolean getIsEligibleForMarketData();
+	public AlignmentExecutionReport getBuyReport();
+	public AlignmentExecutionReport getSellReport();
 	
 }
