@@ -37,6 +37,7 @@ import com.alignmentsystems.library.interfaces.InterfaceMatch;
 import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
+import com.alignmentsystems.library.interfaces.InterfaceOrderBookEvents;
 
 import quickfix.FieldNotFound;
 
@@ -47,7 +48,7 @@ import quickfix.FieldNotFound;
  *
  */
 public class OrderBook
-implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, InterfaceAddedOrderToOrderBook, Runnable {
+implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, InterfaceAddedOrderToOrderBook, InterfaceOrderBookEvents, Runnable {
 	private final static String CLASSNAME = OrderBook.class.getSimpleName();
 
 	private final static int buyPriorityQueueSize = 100;
@@ -57,9 +58,9 @@ implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, Interfa
 	private PriorityQueue<InterfaceOrder> buy = new PriorityQueue<InterfaceOrder>(buyPriorityQueueSize, aboc);
 	private PriorityQueue<InterfaceOrder> sell = new PriorityQueue<InterfaceOrder>(sellPriorityQueueSize, asoc);
 
-	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
 	private PersistenceToFileClient debugger = null;
 
+	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
 	private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
 	private AtomicBoolean running = new AtomicBoolean(false);
 	private AtomicBoolean initialised = new AtomicBoolean(false);
