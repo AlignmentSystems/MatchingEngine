@@ -21,18 +21,20 @@ import com.alignmentsystems.library.PersistenceToFileClient;
 import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBookWrapper;
+import com.alignmentsystems.matching.udp.MulticastServer;
 
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
 public class OrderBookWrapper implements InterfaceOrderBookWrapper{
+	@SuppressWarnings("unused")
 	private final static String CLASSNAME = OrderBookWrapper.class.getSimpleName();
 
 	private Map<String, InterfaceOrderBook> orderBooks = new HashMap<String, InterfaceOrderBook>();
 	private LogEncapsulation log = null;
 	private PersistenceToFileClient debugger = null;
-	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
+	//private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
 	// private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook =
 	// new ArrayList<InterfaceAddedOrderToOrderBook>();
 
@@ -56,7 +58,7 @@ public class OrderBookWrapper implements InterfaceOrderBookWrapper{
 
 		OrderBook orderBook = new OrderBook();
 		
-		OrderBookKafkaProducer obkp = null;
+		OrderBookKafkaProducer obkp = new OrderBookKafkaProducer();
 		
 		obkp.initialise(log);
 		
@@ -65,6 +67,18 @@ public class OrderBookWrapper implements InterfaceOrderBookWrapper{
 		}else{
 			return false;
 		};
+		
+		MulticastServer multicast = new MulticastServer();
+		
+		
+		Thread multiCastServerThread = new Thread(null , multicast, MulticastServer.CLASSNAME);
+		
+		multiCastServerThread.start();
+		
+		
+		obkp.addAddedOrderToOrderBookListener(multicast);
+		obkp.addMatchEventListener(multicast);
+		
 
 		Thread obThread = new Thread(orderBook);
 
@@ -82,6 +96,11 @@ public class OrderBookWrapper implements InterfaceOrderBookWrapper{
 			throw e;
 		}
 
+		//orderBook.addAddedOrderToOrderBookListener(multicast);
+		//orderBook.addMatchEventListener(multicast);
+		
+		
+		
 
 		try {
 			obkc.runAlways(symbol, orderBook);

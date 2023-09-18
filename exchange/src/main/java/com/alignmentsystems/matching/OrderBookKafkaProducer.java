@@ -11,6 +11,8 @@ package com.alignmentsystems.matching;
  *****************************************************************************/
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -26,15 +28,25 @@ import com.alignmentsystems.library.interfaces.InterfaceAddedOrderToOrderBook;
 import com.alignmentsystems.library.interfaces.InterfaceExecutionReport;
 import com.alignmentsystems.library.interfaces.InterfaceMatch;
 import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
+import com.alignmentsystems.library.interfaces.InterfaceOrderBookEvents;
 
-public class OrderBookKafkaProducer implements InterfaceMatchEvent, InterfaceAddedOrderToOrderBook, Runnable {
+public class OrderBookKafkaProducer implements InterfaceMatchEvent, InterfaceAddedOrderToOrderBook, InterfaceOrderBookEvents, Runnable {
 	private KafkaProducer<String, byte[]> kafkaProducerB = null;
 	private LogEncapsulation log = null;
 	private static BinaryFromToCanonical binaryFromToCanonical = new BinaryFromToCanonical();
+	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
+	private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
 
 
-
-
+	@Override
+	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd) {
+		this.listenersAddedOrderToOrderBook.add(toAdd);		
+	}
+	
+	@Override
+	public void addMatchEventListener(InterfaceMatchEvent toAdd) {
+		this.listenersMatchEvent.add(toAdd);
+	}
 
 	public OrderBookKafkaProducer() {
 		// TODO Auto-generated constructor stub
@@ -119,4 +131,5 @@ public class OrderBookKafkaProducer implements InterfaceMatchEvent, InterfaceAdd
 		byte[] ack = binaryFromToCanonical.getBufferFromExecutionReport(er);
 		this.send(TOPIC, er.getExecID().toString(), ack);		
 	}
+
 }

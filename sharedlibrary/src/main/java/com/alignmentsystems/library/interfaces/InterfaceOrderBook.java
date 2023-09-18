@@ -34,8 +34,6 @@ public interface InterfaceOrderBook {
 	public OffsetDateTime getOrderBookCreationTime();
 	public OffsetDateTime getOrderBookLastUpdateTime();
 	public int getOrderCountBySide(OrderBookSide orderBookSide );
-	public void addMatchEventListener(InterfaceMatchEvent toAdd);
-	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd);
 	public void upsertTopOfBook(InterfaceOrder nos);
 	public void updateLevelsOfDepth();	
 }
