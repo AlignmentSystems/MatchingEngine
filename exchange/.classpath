@@ -19,5 +19,6 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
 	<classpathentry exported="true" kind="src" path="/sharedlibrary"/>
+	<classpathentry kind="lib" path="/sharedlibrary/src/main/java"/>
 	<classpathentry kind="output" path="bin/default"/>
 </classpath>

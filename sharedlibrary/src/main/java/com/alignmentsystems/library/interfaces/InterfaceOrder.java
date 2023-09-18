@@ -52,6 +52,7 @@ public interface InterfaceOrder{
 	public void setTimeInForce(char timeInForce);
 	public long getCumQty();
 	public long getAvgPx();
+	public Long getLeavesQty();
 	
 	public void reCreateOrder(
 			String symbol

@@ -1,4 +1,4 @@
-package com.alignmentsystems.matching;
+package com.alignmentsystems.library;
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -20,43 +20,66 @@ public class DataMapper {
 	private static HashMap<String , Long> memberFIXSenderCompIdToExchangeIdMap = new HashMap<String, Long>();
 	private static HashMap<String , Long> memberFIXTargetCompIdToExchangeIdMap = new HashMap<String, Long>();
 	private static HashMap<String , Long> memberInstrumentIdToExchangeInstrumentIdMap = new HashMap<String, Long>();
-	private static HashMap<String , Long> memberSideCodeToExchangeSideCodeMap = new HashMap<String, Long>();
-
+	private static HashMap<Character , Short> memberSideCodeToExchangeSideCodeMap = new HashMap<Character , Short>();
 	private static HashMap<String , Short> memberMessageTypeToExchangeMessageTypeMap = new HashMap<String, Short>();
-
 	private static HashMap<Character , Short> memberTimeInForceToExchangeTimeInForceMap = new HashMap<Character, Short>();
 
+	private static HashMap<Character , Short> memberExecTypeToExchangeExecTypeMap = new HashMap<Character, Short>();
+	private static HashMap<Character , Short> memberOrdStatusToExchangeOrdStatusMap = new HashMap<Character, Short>();
 
 
 	private static HashMap<Long , String> exchangeIdToMemberFIXSenderCompIdMap = new HashMap<Long , String>();
 	private static HashMap<Long , String> exchangeIdToMemberFIXTargetCompIdMap = new HashMap<Long , String>();
 	private static HashMap<Long , String> exchangeInstrumentIdToMemberInstrumentIdMap = new HashMap<Long , String>();
-	private static HashMap<Long , String> exchangeSideCodeToMemberSideCodeMap = new HashMap<Long , String>();
-
+	private static HashMap<Short , Character> exchangeSideCodeToMemberSideCodeMap = new HashMap<Short , Character>();
 	private static HashMap<Short , String > exchangeMessageTypeToMemberMessageTypeMap = new HashMap<Short , String>();
-
 	private static HashMap<Short , Character  > exchangeTimeInForceToMemberTimeInForceMap = new HashMap<Short , Character>();
 
+	private static HashMap<Short , Character  > exchangeExecTypeToExecTypeMap = new HashMap<Short , Character>();
+	private static HashMap<Short , Character  > exchangeOrdStatusToMemberOrdStatusMap = new HashMap<Short , Character>();
 
-	private  static AtomicBoolean initialised = new AtomicBoolean(false);
+
+
+	private static AtomicBoolean initialised = new AtomicBoolean(false);
+	public final static Short EXCHANGEMESSAGETYPEMAPPEDFROMEXECUTIONREPORT = getExchangeMessageTypeMappedFromMemberMessageType("8");
+	public final static Short EXCHANGEMESSAGETYPEMAPPEDFROMNEWORDERSINGLE = getExchangeMessageTypeMappedFromMemberMessageType("D");
+	public final static Short EXCHANGEORDSTATUSNEW = memberOrdStatusToExchangeOrdStatusMap.get("0".charAt(0));
+	public final static Short EXCHANGEEXECTYPENEW = memberExecTypeToExchangeExecTypeMap.get("0".charAt(0));
+
+	public final static Short EXCHANGEORDSTATUSFILLED = memberOrdStatusToExchangeOrdStatusMap.get("2".charAt(0));
+	public final static Short EXCHANGEEXECTYPETRADE = memberExecTypeToExchangeExecTypeMap.get("F".charAt(0));
+
+	public final static Short EXCHANGESIDEBUY = memberSideCodeToExchangeSideCodeMap.get(Integer.toString(1).charAt(0));
+	public final static Short EXCHANGESIDESELL = memberSideCodeToExchangeSideCodeMap.get(Integer.toString(2).charAt(0));
+
+
+
+
+
 
 	public DataMapper(){
 		initialise();
+
+
 	}
 
 	private static void initialise() {
-		loadFIXSenderCompIdToExchangeId();
-		loadFIXTargetCompIdToExchangeId();
-		loadInstrumentIdToExchangeInstrumentId();
-		loadMemberSideCodeToExchangeSideCode();
-		loadMemberMessageTypeToExchangeMessageType();
-		loadmemberTimeInForceToExchangeTimeInForce();
-		initialised.set(true);
+		if(!initialised.get()) {
+			loadFIXSenderCompIdToExchangeId();
+			loadFIXTargetCompIdToExchangeId();
+			loadInstrumentIdToExchangeInstrumentId();
+			loadMemberSideCodeToExchangeSideCode();
+			loadMemberMessageTypeToExchangeMessageType();
+			loadmemberTimeInForceToExchangeTimeInForce();
+			loadExecTypeToExchangeId();
+			loadMemberOrdStatusToExchangeOrdStatus();
+			initialised.set(true);
+		}
 	}	
 
 
 
-	private static void addMemberSideCodeToExchangeSideCode(Long exchangeId , String memberId) {
+	private static void addMemberSideCodeToExchangeSideCode(Short exchangeId , Character memberId) {
 		memberSideCodeToExchangeSideCodeMap.put(memberId, exchangeId);
 		exchangeSideCodeToMemberSideCodeMap.put(exchangeId, memberId);
 	}
@@ -77,6 +100,70 @@ public class DataMapper {
 		memberInstrumentIdToExchangeInstrumentIdMap.put(memberId, exchangeId);
 		exchangeInstrumentIdToMemberInstrumentIdMap.put(exchangeId, memberId);
 	}
+
+	private static void addmemberExecTypeToExchangeExecTypeMap(Short exchangeId , Character memberId) {
+		memberExecTypeToExchangeExecTypeMap.put(memberId, exchangeId);
+		exchangeExecTypeToExecTypeMap.put(exchangeId, memberId);
+	}
+
+
+	private static void loadMemberOrdStatusToExchangeOrdStatus() {
+		Short id = 0;
+
+		addMemberOrdStatusToExchangeOrdStatusMap(id++,"0".charAt(0));//New
+		addMemberOrdStatusToExchangeOrdStatusMap(id++,"1".charAt(0));//Partially filled
+		addMemberOrdStatusToExchangeOrdStatusMap(id++,"2".charAt(0));//Filled
+		addMemberOrdStatusToExchangeOrdStatusMap(id++,"3".charAt(0));//Done for day
+		addMemberOrdStatusToExchangeOrdStatusMap(id++,"4".charAt(0));//Canceled
+		addMemberOrdStatusToExchangeOrdStatusMap(id++,"5".charAt(0));//Replaced (No longer used)
+		addMemberOrdStatusToExchangeOrdStatusMap(id++,"6".charAt(0));//Pending Cancel (i.e. result of Order Cancel Request)
+		addMemberOrdStatusToExchangeOrdStatusMap(id++,"7".charAt(0));//Stopped
+		addMemberOrdStatusToExchangeOrdStatusMap(id++,"8".charAt(0));//Rejected
+		addMemberOrdStatusToExchangeOrdStatusMap(id++,"9".charAt(0));//Suspended
+		addMemberOrdStatusToExchangeOrdStatusMap(id++,"A".charAt(0));//Pending New
+		addMemberOrdStatusToExchangeOrdStatusMap(id++,"B".charAt(0));//Calculated
+		addMemberOrdStatusToExchangeOrdStatusMap(id++,"C".charAt(0));//Expired
+		addMemberOrdStatusToExchangeOrdStatusMap(id++,"D".charAt(0));//Accepted for Bidding
+		addMemberOrdStatusToExchangeOrdStatusMap(id++,"E".charAt(0));//Pending Replace (i.e. result of Order Cancel/Replace Request)
+	}
+
+	private static void addMemberOrdStatusToExchangeOrdStatusMap(Short exchangeOrdStatus , Character memberOrdStatus ) {
+		memberOrdStatusToExchangeOrdStatusMap.put(memberOrdStatus, exchangeOrdStatus);
+		exchangeOrdStatusToMemberOrdStatusMap.put(exchangeOrdStatus, memberOrdStatus);
+	}
+
+
+
+	//	setField(ordStatus);
+	private static void loadExecTypeToExchangeId() {
+		Short id = 0;
+		addmemberExecTypeToExchangeExecTypeMap(id++,"0".charAt(0));//New
+		addmemberExecTypeToExchangeExecTypeMap(id++,"3".charAt(0));//Done for day
+		addmemberExecTypeToExchangeExecTypeMap(id++,"4".charAt(0));//Canceled
+		addmemberExecTypeToExchangeExecTypeMap(id++,"5".charAt(0));//Replaced
+		addmemberExecTypeToExchangeExecTypeMap(id++,"6".charAt(0));//Pending Cancel
+		addmemberExecTypeToExchangeExecTypeMap(id++,"7".charAt(0));//Stopped
+		addmemberExecTypeToExchangeExecTypeMap(id++,"8".charAt(0));//Rejected
+		addmemberExecTypeToExchangeExecTypeMap(id++,"9".charAt(0));//Suspended
+		addmemberExecTypeToExchangeExecTypeMap(id++,"A".charAt(0));//Pending New
+		addmemberExecTypeToExchangeExecTypeMap(id++,"B".charAt(0));//Calculated
+		addmemberExecTypeToExchangeExecTypeMap(id++,"C".charAt(0));//Expired
+		addmemberExecTypeToExchangeExecTypeMap(id++,"D".charAt(0));//Restated
+		addmemberExecTypeToExchangeExecTypeMap(id++,"E".charAt(0));//Pending Replace (e.g. result of Order Cancel/Replace Request)
+		addmemberExecTypeToExchangeExecTypeMap(id++,"F".charAt(0));//Trade (partial fill or fill)
+		addmemberExecTypeToExchangeExecTypeMap(id++,"G".charAt(0));//Trade Correct
+		addmemberExecTypeToExchangeExecTypeMap(id++,"H".charAt(0));//Trade Cancel
+		addmemberExecTypeToExchangeExecTypeMap(id++,"I".charAt(0));//Order Status
+		addmemberExecTypeToExchangeExecTypeMap(id++,"J".charAt(0));//Trade in a Clearing Hold
+		addmemberExecTypeToExchangeExecTypeMap(id++,"J".charAt(0));//Trade has been released to Clearing
+		addmemberExecTypeToExchangeExecTypeMap(id++,"L".charAt(0));//Triggered or Activated by System
+		addmemberExecTypeToExchangeExecTypeMap(id++,"M".charAt(0));//Locked
+		addmemberExecTypeToExchangeExecTypeMap(id++,"N".charAt(0));//Released
+	}	
+
+
+
+
 
 
 	private static void loadFIXSenderCompIdToExchangeId() {
@@ -290,11 +377,13 @@ public class DataMapper {
 	}
 
 
-	public static Short getExchangeMessageTypeMappedFromMemberMessageType( String memberId) {
+
+
+	public static Short getExchangeMessageTypeMappedFromMemberMessageType( String memberMessageType) {
 		if (!initialised.get()) {
 			initialise();
 		}
-		return memberMessageTypeToExchangeMessageTypeMap.get(memberId);
+		return memberMessageTypeToExchangeMessageTypeMap.get(memberMessageType);
 	};
 
 	public static String getMemberMessageTypeMappedFromExchangeMessageType( Short exchangeId) {
@@ -316,19 +405,17 @@ public class DataMapper {
 	}
 
 	private static void loadMemberSideCodeToExchangeSideCode() {
-		Long added = 0L;
+		Short added = 0;
 
-		addMemberSideCodeToExchangeSideCode(added, Integer.toString(1));//Buy
+		addMemberSideCodeToExchangeSideCode(added, Integer.toString(1).charAt(0));//Buy
 		added++;
 
-		addMemberSideCodeToExchangeSideCode(added, Integer.toString(2));//Sell
+		addMemberSideCodeToExchangeSideCode(added, Integer.toString(2).charAt(0));//Sell
 		added++;
 
 		//call addMemberSideCodeToExchangeSideCode(added, Integer.toString(1));
 		//here as required...	
 
-		//		1	=	Buy
-		//		2	=	Sell
 		//		3	=	Buy minus
 		//		4	=	Sell plus
 		//		5	=	Sell short
@@ -375,14 +462,14 @@ public class DataMapper {
 		return exchangeIdToMemberFIXSenderCompIdMap.get(exchangeId);
 	}
 
-	public static String getMemberSideCodeMappedFromExchangeSideCode(Long exchangeId) {
+	public static Character getMemberSideCodeMappedFromExchangeSideCode(Short exchangeId) {
 		if (!initialised.get()) {
 			initialise();
 		}
 		return exchangeSideCodeToMemberSideCodeMap.get(exchangeId);
 	}
 
-	public static Long getExchangeSideCodeMappedFromMemberSideCode(String  sideCode) {
+	public static Short getExchangeSideCodeMappedFromMemberSideCode(Character  sideCode) {
 		if (!initialised.get()) {
 			initialise();
 		}
@@ -404,11 +491,60 @@ public class DataMapper {
 	}
 
 	public static Short getMemberTimeInForceMappedToExchangeTimeInForce (char memberTimeInForce) {
+		if (!initialised.get()) {
+			initialise();
+		}
 		return memberTimeInForceToExchangeTimeInForceMap.get(memberTimeInForce);
 	}
 
 
 	public static char getExchangeTimeInForceMappedToMemberTimeInForce(Short exchangeTimeInForce) {
+		if (!initialised.get()) {
+			initialise();
+		}
 		return exchangeTimeInForceToMemberTimeInForceMap.get( exchangeTimeInForce);
 	}
+
+
+	public static Short getExchangeExecTypeMappedFromMemberExecType (char memberExecType) {
+		if (!initialised.get()) {
+			initialise();
+		}
+		return memberExecTypeToExchangeExecTypeMap.get(memberExecType);
+	}
+
+
+	public static char getMemberExecTypeMappedFromExchangeExecType(Short exchangeExecType) {
+		if (!initialised.get()) {
+			initialise();
+		}
+		return exchangeExecTypeToExecTypeMap.get(exchangeExecType);
+	}
+
+
+	
+
+	public static Short getExchangeOrdStatusMappedToMemberOrdStatus (char memberOrdStatus) {
+		if (!initialised.get()) {
+			initialise();
+		}
+		
+		return memberOrdStatusToExchangeOrdStatusMap.get(memberOrdStatus);
+		
+		
+	}
+
+
+	public static char getMemberOrdStatusMappedToExchangeOrdStatus(Short exchangeOrdStatus) {
+		if (!initialised.get()) {
+			initialise();
+		}
+		return exchangeOrdStatusToMemberOrdStatusMap.get(exchangeOrdStatus);
+		
+	}
+
+	
+	
+
+
 }

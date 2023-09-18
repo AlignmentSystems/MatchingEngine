@@ -20,21 +20,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import com.alignmentsystems.fix44.field.Side;
+import com.alignmentsystems.library.AlignmentExecutionReport;
+import com.alignmentsystems.library.AlignmentMatch;
 import com.alignmentsystems.library.AlignmentOrderComparatorBuy;
 import com.alignmentsystems.library.AlignmentOrderComparatorSell;
+import com.alignmentsystems.library.DataMapper;
 import com.alignmentsystems.library.LibraryFunctions;
 import com.alignmentsystems.library.LogEncapsulation;
-import com.alignmentsystems.library.Match;
 import com.alignmentsystems.library.PersistenceToFileClient;
 import com.alignmentsystems.library.annotations.NotYetImplemented;
 import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
 import com.alignmentsystems.library.interfaces.InterfaceAddedOrderToOrderBook;
+import com.alignmentsystems.library.interfaces.InterfaceExecutionReport;
 import com.alignmentsystems.library.interfaces.InterfaceMatch;
 import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
+
+import quickfix.FieldNotFound;
 
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
@@ -65,6 +69,7 @@ implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, Interfa
 
 	private OffsetDateTime orderBookCreationTime = null;
 	private OffsetDateTime orderBookLastUpdateTime = null;
+	private static BinaryFromToCanonical binaryFromToCanonical = new BinaryFromToCanonical();
 
 
 	@Override
@@ -106,7 +111,7 @@ implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, Interfa
 	private void snapShotOrderBook() {
 		List<String> buy = snapShotOrderBookBySide(OrderBookSide.BUY);
 		List<String> sell = snapShotOrderBookBySide(OrderBookSide.SELL);
-		log.infoOrderBookStatus(buy, sell);
+		this.log.infoOrderBookStatus(buy, sell);
 	}
 
 	/**
@@ -203,7 +208,7 @@ implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, Interfa
 			final UUID sellOrderID = topOfSellBook.getOrderId();
 			final boolean isEligibleForMarketData = true;
 	
-			Match match = new Match(
+			AlignmentMatch match = new AlignmentMatch(
 					tradedQuantity
 					, tradedPrice
 					, aggressor
@@ -218,11 +223,18 @@ implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, Interfa
 					, topOfSellBook.getOrderQty() //Long sellOrderQty
 					, topOfBuyBook.getAvgPx()//Long buyAvgPx
 					, topOfSellBook.getAvgPx()//Long sellAvgPx
+					, topOfBuyBook.getLeavesQty()
+					, topOfSellBook.getLeavesQty() 
 					, topOfBuyBook.getSender() //String buySenderId
 					, topOfBuyBook.getTarget() //String buyTargetId
 					, topOfSellBook.getSender() // String sellSenderId
 					, topOfSellBook.getTarget() //String sellTargetId
-					, isEligibleForMarketData);
+					, DataMapper.EXCHANGEORDSTATUSFILLED //buyOrderStatus
+					, DataMapper.EXCHANGEEXECTYPETRADE //buyExecType
+					, DataMapper.EXCHANGEORDSTATUSFILLED //sellOrderStatus
+					, DataMapper.EXCHANGEEXECTYPETRADE //sellExecType
+					, isEligibleForMarketData
+					);
 
 			//tradedQuantity, tradedPrice, aggressor, executionTimestamp, buyClOrdID, sellClOrdID, buyOrderID, sellOrderID, isEligibleForMarketData
 			buy.remove(topOfBuyBook);
@@ -256,10 +268,13 @@ implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, Interfa
 	}
 
 	@Override
-	public void addedOrderToOrderBook(InterfaceOrder nos) {
+	public void addedOrderToOrderBook(InterfaceExecutionReport toAdd) {
 		for (InterfaceAddedOrderToOrderBook hl : listenersAddedOrderToOrderBook)
-			hl.addedOrderToOrderBook(nos);
+			hl.addedOrderToOrderBook(toAdd);
 	}
+
+
+	
 
 	@Override
 	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd) {
@@ -325,15 +340,19 @@ implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, Interfa
 	@Override
 	public void processMessage(String topicName, ConsumerRecord<String, byte[]> message) throws Exception {
 		// TODO Auto-generated method stub
-		InterfaceOrder io = BinaryToCanonicalRepresentationProcessor.getAlignmentOrder(message.value());
+		InterfaceOrder io = BinaryFromToCanonical.getAlignmentOrderFromBuffer(message.value());
 
 		if (io.getOrderBookSide()==OrderBookSide.SELL) {
 			this.sell.add(io);
 		}else {
 			this.buy.add(io);
 		}
-		addedOrderToOrderBook(io);
 
+		//get ExecutionReport from the Order...
+		InterfaceExecutionReport er = getExecutionReportAcknowledgementForOrder(io);
+		this.addedOrderToOrderBook(er);	//raise the event out to the listeners...	
+		
+		
 		this.orderBookLastUpdateTime = OffsetDateTime.now(Constants.HERE);
 		//		 this.snapShotOrderBook(); 
 		this.runMatch();
@@ -341,13 +360,49 @@ implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, Interfa
 
 	}
 
+	private  static InterfaceExecutionReport getExecutionReportAcknowledgementForOrder(InterfaceOrder nos) throws FieldNotFound {
+//		UUID execID 
+//		, UUID clOrdID
+//		, UUID orderID
+//		, String buySenderId
+//		, String buyTargetId
+//		, String sellSenderId
+//		, String sellTargetId
+//		, OffsetDateTime timestamp
+//		, Long executionQuantity
+//		, Long executionPrice
+//		, Long leavesQuantity
+//		, Long cumQuantity
+//		, Long averagePrice
+//		, Short ordStatus
+//		, Short execType
+//		, Short sideCode
+		
+		InterfaceExecutionReport er2 = new AlignmentExecutionReport();
+		er2.setExecutionReport(
+				null
+				, nos.getClOrdID()
+				, nos.getOrderId()
+				, nos.getSender()
+				, nos.getTarget()
+				, null
+				, null
+				, nos.getTimestamp()
+				, 0L
+				, 0L
+				, 0L
+				, 0L
+				, 0L
+				, DataMapper.EXCHANGEORDSTATUSNEW
+				, DataMapper.EXCHANGEEXECTYPENEW
+				, DataMapper.getExchangeSideCodeMappedFromMemberSideCode(nos.getOrderBookSide().sideCharValue)
+				);
+		return er2;
+	}
+	
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		running.set(true); 
-
-		InterfaceOrder inSeq = null; 
-		StringBuilder sb = new StringBuilder();
 
 		try { 
 			Thread.currentThread(); 

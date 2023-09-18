@@ -48,6 +48,7 @@ public class AlignmentOrder implements InterfaceOrder{
 	private short alignmentType = 0;
 	private Long cumQty = null;
 	private Long avgPx = null;
+	private Long leavesQty = null;
 
 	@Override
 	public String toString() {
@@ -108,7 +109,7 @@ public class AlignmentOrder implements InterfaceOrder{
 			this.orderQty = (long) nos.getOrderQty().getValue();
 			this.limitPrice = (long) nos.getPrice().getValue();			
 			this.symbol = nos.getSymbol().getValue();
-			this.timeInForce = nos.getTimeInForce().getValue();
+			this.timeInForce = nos.getTimeInForce().getValue();			
 		} catch (FieldNotFound e) {
 			throw e;
 		}
@@ -248,5 +249,10 @@ public class AlignmentOrder implements InterfaceOrder{
 	@Override
 	public long getAvgPx() {
 		return this.avgPx;
+	}
+
+	@Override
+	public Long getLeavesQty() {
+		return this.leavesQty;
 	}	
 }

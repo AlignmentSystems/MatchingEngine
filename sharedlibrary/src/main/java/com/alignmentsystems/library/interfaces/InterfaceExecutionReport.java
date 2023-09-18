@@ -11,6 +11,7 @@ package com.alignmentsystems.library.interfaces;
  *****************************************************************************/
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 import com.alignmentsystems.fix44.ExecutionReport;
 
@@ -20,8 +21,31 @@ import quickfix.SessionID;
  *
  */
 public interface InterfaceExecutionReport {
+
+	
+	/**
+	 * 
+	 * @param execID
+	 * @param clOrdID
+	 * @param orderID
+	 * @param buySenderId
+	 * @param buyTargetId
+	 * @param sellSenderId
+	 * @param sellTargetId
+	 * @param timestamp
+	 * @param executionQuantity
+	 * @param executionPrice
+	 * @param leavesQuantity
+	 * @param cumQuantity
+	 * @param averagePrice
+	 * @param ordStatus
+	 * @param execType
+	 * @param sideCode
+	 */
 	public void setExecutionReport(
-			String execID
+			UUID execID
+			, UUID clOrdID
+			, UUID orderID
 			, String buySenderId 
 			, String buyTargetId 
 			, String sellSenderId
@@ -29,9 +53,21 @@ public interface InterfaceExecutionReport {
 			, OffsetDateTime timestamp
 			, Long executionQuantity
 			, Long executionPrice
+			, Long leavesQuantity
+			, Long cumQuantity
+			, Long averagePrice
+			, Short ordStatus
+			, Short execType
+			, Short sideCode
 			);
-	
-	public String getExecID();
+
+	/**
+	 * 
+	 * @return
+	 */
+	public UUID getClOrdID();
+	public UUID getOrderID();
+	public UUID getExecID();
 	public String getBuySenderId(); 
 	public String getBuyTargetId(); 
 	public String getSellSenderId();
@@ -39,4 +75,10 @@ public interface InterfaceExecutionReport {
 	public OffsetDateTime getTimestamp();
 	public Long getExecutionQuantity();
 	public Long getExecutionPrice();
+	public Long getLeavesQuantity();
+	public Long getCumQuantity();
+	public Long getAveragePrice();
+	public Short getOrdStatus();
+	public Short getExecType();
+	public Short getSideCode();
 }

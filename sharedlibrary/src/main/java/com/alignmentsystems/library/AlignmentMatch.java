@@ -20,7 +20,7 @@ import com.alignmentsystems.library.interfaces.InterfaceMatch;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class Match implements InterfaceMatch {
+public class AlignmentMatch implements InterfaceMatch {
 	private Long matchQuantity = 0L;
 	private Long matchPrice = 0L;
 	private OrderBookSide aggressorSide = null;
@@ -35,17 +35,29 @@ public class Match implements InterfaceMatch {
 	private Long sellOrderQty  = null;
 	private Long buyAvgPx  = null;
 	private Long sellAvgPx  = null;
+	private Long buyLeavesQty = null;
+	private Long sellLeavesQty  = null;
+	
 	private String buySenderId = null;
 	private String buyTargetId = null;
 	private String sellSenderId = null;
 	private String sellTargetId = null;	
+	private UUID buyExecId = null;
+	private UUID sellExecId = null;
 
+	private Short buyOrdStatus  = null;
+	private Short buyExecType  = null;
 
+	private Short sellOrdStatus  = null;
+	private Short sellExecType  = null;
+
+	
+	
 	private UUID matchId = null;
 	private Boolean isEligibleForMarketData = Boolean.FALSE;
 
 
-	public Match(
+	public AlignmentMatch(
 			Long matchQuantity
 			, Long matchPrice
 			, OrderBookSide aggressorSide
@@ -60,10 +72,19 @@ public class Match implements InterfaceMatch {
 			, Long sellOrderQty
 			, Long buyAvgPx
 			, Long sellAvgPx
+			, Long buyLeavesQty 
+			, Long sellLeavesQty
+			
 			, String buySenderId 
 			, String buyTargetId 
 			, String sellSenderId
 			, String sellTargetId
+			
+			, Short buyOrdStatus
+			, Short buyExecType
+
+			, Short sellOrdStatus
+			, Short sellExecType
 
 			, Boolean getIsEligibleForMarketData
 			) {
@@ -82,13 +103,27 @@ public class Match implements InterfaceMatch {
 		this.sellOrderQty = sellOrderQty;
 		this.buyAvgPx = buyAvgPx;
 		this.sellAvgPx = sellAvgPx;
+		this.buyLeavesQty = buyLeavesQty ;
+		this.sellLeavesQty = sellLeavesQty ;
 		
 		this.buySenderId = buySenderId;
 		this.buyTargetId = buyTargetId; 
 		this.sellSenderId = sellSenderId;
 		this.sellTargetId = sellTargetId;
 
+		this.buyOrdStatus = buyOrdStatus;
+		this.buyExecType = buyExecType;
+
+		this.sellOrdStatus = sellOrdStatus; 
+		this.sellExecType = sellExecType; 
+		
+
 		this.isEligibleForMarketData = getIsEligibleForMarketData;
+		
+		this.buyExecId = UUID.randomUUID();
+		this.sellExecId = UUID.randomUUID();
+		
+		
 		this.matchId = UUID.randomUUID();		
 	}
 
@@ -249,5 +284,78 @@ public class Match implements InterfaceMatch {
 	@Override
 	public String getSellTargetId() {
 		return this.sellTargetId;
+	}
+
+
+
+
+
+	@Override
+	public AlignmentExecutionReport getBuyReport() {
+		AlignmentExecutionReport buy = new AlignmentExecutionReport();
+		buy.setExecutionReport(
+				this.buyExecId
+				, this.buyClOrdId
+				, this.buyOrderId				
+				, this.buySenderId
+				, this.buyTargetId
+				, this.sellSenderId
+				, this.sellTargetId
+				, this.timestamp
+				, this.matchQuantity
+				, this.matchPrice
+				, this.buyLeavesQty
+				, this.buyCumQty
+				, this.buyAvgPx
+				, this.buyOrdStatus
+				, this.buyExecType
+				, DataMapper.EXCHANGESIDEBUY
+				);
+		return buy;
+	}
+
+
+	@Override
+	public AlignmentExecutionReport getSellReport() {
+		AlignmentExecutionReport sell = new AlignmentExecutionReport();
+		sell.setExecutionReport(
+				this.buyExecId
+				, this.sellClOrdId
+				, this.sellOrderId	
+				, this.sellSenderId
+				, this.sellTargetId
+				, this.sellSenderId
+				, this.sellTargetId
+				, this.timestamp
+				, this.matchQuantity
+				, this.matchPrice
+				, this.sellLeavesQty
+				, this.sellCumQty
+				, this.sellAvgPx
+				, this.sellOrdStatus
+				, this.sellExecType
+				, DataMapper.EXCHANGESIDESELL
+				);
+		return sell;
+	}
+
+	@Override
+	public Short getBuyOrdStatus() {
+		return this.buyOrdStatus;
+	}
+
+	@Override
+	public Short getBuyExecType() {
+		return this.buyExecType;
+	}
+
+	@Override
+	public Short getSellOrdStatus() {
+		return this.sellOrdStatus;
+	}
+
+	@Override
+	public Short getSellExecType() {
+		return this.sellExecType;
 	}
 }

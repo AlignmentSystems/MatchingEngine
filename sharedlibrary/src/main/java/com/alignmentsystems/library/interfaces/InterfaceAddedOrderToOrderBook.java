@@ -1,4 +1,7 @@
 package com.alignmentsystems.library.interfaces;
+
+import com.alignmentsystems.library.AlignmentExecutionReport;
+
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -15,5 +18,5 @@ package com.alignmentsystems.library.interfaces;
  *
  */
 public interface InterfaceAddedOrderToOrderBook {
-	public void addedOrderToOrderBook(InterfaceOrder nos);
+	public void addedOrderToOrderBook(InterfaceExecutionReport er);
 }
