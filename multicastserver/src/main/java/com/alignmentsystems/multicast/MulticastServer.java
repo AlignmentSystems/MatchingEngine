@@ -21,28 +21,32 @@ import java.net.SocketException;
 import java.net.SocketOption;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+
+import com.alignmentsystems.library.DataMapper;
 import com.alignmentsystems.library.LibraryFunctions;
 import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.PersistenceToFileClient;
-import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.enumerations.ConfigurationProperties;
+import com.alignmentsystems.library.enumerations.Encodings;
 import com.alignmentsystems.library.enumerations.InstanceType;
-import com.alignmentsystems.library.interfaces.InterfaceAddedOrderToOrderBook;
-import com.alignmentsystems.library.interfaces.InterfaceExecutionReport;
-import com.alignmentsystems.library.interfaces.InterfaceMatch;
-import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
+import com.alignmentsystems.library.enumerations.VersionSOFH;
+import com.alignmentsystems.library.interfaces.InterfaceKafkaMessageHandler;
 import com.alignmentsystems.library.interfaces.InterfaceMulticastServer;
+import com.alignmentsystems.library.sbe.SimpleBinaryEncodingMessage;
 
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class MulticastServer implements InterfaceMulticastServer ,  InterfaceMatchEvent, InterfaceAddedOrderToOrderBook, Runnable{
+public class MulticastServer implements InterfaceMulticastServer ,  Runnable , InterfaceKafkaMessageHandler{
 	public final static String CLASSNAME = MulticastServer.class.getSimpleName().toString();
+	final static Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
+
 	private DatagramSocket socket;
 	private InetAddress group;
 	private LogEncapsulation log = null;
@@ -50,7 +54,6 @@ public class MulticastServer implements InterfaceMulticastServer ,  InterfaceMat
 	private String host = null;
 	private int port = 0;
 	private AtomicBoolean running = new AtomicBoolean(false);
-	private final static int MILLISLEEP = 200;
 	private Long sequenceNumber = Long.MIN_VALUE;
 
 	private DatagramSocket getSocket() throws SocketException {
@@ -103,7 +106,7 @@ public class MulticastServer implements InterfaceMulticastServer ,  InterfaceMat
 	@Override
 	public boolean initialise(LogEncapsulation log, PersistenceToFileClient debugger, String host, int port) {
 		this.log = log;
-		
+
 		this.debugger = debugger;
 		this.host = host;
 		this.port = port;
@@ -128,32 +131,109 @@ public class MulticastServer implements InterfaceMulticastServer ,  InterfaceMat
 	}
 
 	@Override
-	public Long getCurrentSequenceNumber() {
+	public Long getSequenceNumberForNextMessage() {
 		return ++sequenceNumber;
 	}
 
 	@Override
-	public void addedOrderToOrderBook(InterfaceExecutionReport arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void matchHappened(InterfaceMatch arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void run() {
-		AtomicBoolean run = new AtomicBoolean(true);
-		while (run.get()) {
+		running.set(true);
+		while (running.get()) {
 			try {
 				wait(2000);
 			} catch (InterruptedException e) {
 				log.error(e.getMessage() , e );
 			}
 		}
-		
+
 	}
+
+	@Override
+	public void processMessage(String topicName, ConsumerRecord<String, byte[]> message) throws Exception {
+		//So,we listen to the Kafka queue to see what's going on.
+		//Fundamentally there are a few complex problems to resolve.
+		//The Messages that go out via UDP/Multicast on Feed-A, Feed-B and Feed-C
+		byte[] toMulticast = null;
+		if (message.value().length>2) {
+			ByteBuffer bb = ByteBuffer.wrap(message.value()).order(this.encoding.getByteOrder()); 
+			 
+			//if the message is longer than two bytes then we can take the first two bytes as being the MessageType
+			if (bb.getShort()==DataMapper.EXCHANGEMESSAGETYPEMATCH) {
+				//We have a trade match...
+				ByteBuffer bb2 = ByteBuffer.allocate(Long.BYTES + message.value().length).order(this.encoding.getByteOrder());
+				bb2.putLong(this.getSequenceNumberForNextMessage());
+				bb2.put(message.value());
+				//==>We now have the message plus a sequence number add at the beginning
+				toMulticast = addSOFHeader(encoding, VersionSOFH.ONE, bb2.array());
+			}
+		}else {
+			//failure!
+		}
+		if (toMulticast!=null) {
+			this.multicastThis(toMulticast);
+		}
+	}
+	
+	@SuppressWarnings("unused")
+	private byte[] addSOFHeader(
+			Encodings encoding 
+			, VersionSOFH versionSOFH 
+			, byte[] payloadWithoutHeader 
+			) {
+
+		final String methodName = "addSOFHeader";
+
+		final int messageEncodingLength = 2;
+		final int messagePayloadLength = 4;
+		int messageActualLength = 0;
+		short EncodingNumber = 0;
+		String EncodingHexString = null;
+		ByteBuffer bbh = null;
+
+
+		final ByteOrder nbo = ByteOrder.BIG_ENDIAN;
+
+		//While the Simple Open Framing Header specification is normative, the following is an interpretation of that 
+		//standard as an SBE encoding. Note that the framing standard specifies that the framing header will always 
+		//be encoded in big-endian byte order, also known as network byte order. 
+		try {
+
+			final byte[] messageEncodedAsSBE = payloadWithoutHeader;
+			//The Message_Length shall be defined to be the length in octets (i.e. bytes) of a message inclusive of the length of the Simple Open Framing Header.
+			messageActualLength = 
+					messageEncodedAsSBE.length
+					+ messageEncodingLength 
+					+ messagePayloadLength;
+
+			bbh = ByteBuffer.allocate(messageActualLength);
+
+			bbh.order(nbo);
+
+			switch(versionSOFH) {
+			case ONE:
+
+				EncodingNumber = encoding.getEncodingValue();
+				EncodingHexString = encoding.getEncodingAsString();
+
+				bbh.putInt(messageActualLength);
+				bbh.putShort(EncodingNumber); //FIXSBELittleEndian(0xEB50),
+				bbh.put(messageEncodedAsSBE);
+				bbh.flip();
+
+				break;
+			case TWO:
+				break;
+			default:
+				break;
+			}
+		} catch (Exception e) {
+			throw e;		
+		}	
+		return bbh.array();
+	}
+	
+	
+	
+	
+	
 }

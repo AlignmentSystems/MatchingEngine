@@ -1,4 +1,4 @@
-package com.alignmentsystems.matching;
+package com.alignmentsystems.library.interfaces;
 
 /******************************************************************************
  * 
@@ -13,6 +13,7 @@ package com.alignmentsystems.matching;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
+
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  * The interface KafkaMessageHandler.
@@ -21,7 +22,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
  * instance of the {@link com.alignmentsystems.matching.OrderBookKafkaConsumer}
  */
 @FunctionalInterface
-public interface KafkaMessageHandler {
+public interface InterfaceKafkaMessageHandler {
 	/**
 	 * The method that defines the message processing behavior
 	 *

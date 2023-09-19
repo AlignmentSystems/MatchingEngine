@@ -1,9 +1,9 @@
-package com.alignmentsystems.matching;
+package com.alignmentsystems.multicast;
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
  *	Contact			:	sales@alignment-systems.com
- *	Date            :	24th August 2023
+ *	Date            :	19th September 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
  *	Artefact		:	FIXEngineKafkaListener
@@ -31,15 +31,15 @@ import com.alignmentsystems.library.interfaces.InterfaceKafkaMessageHandler;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class FIXEngineKafkaListener extends InterfaceKafkaAbstractSimple implements Runnable {
-	public final static String CLASSNAME = OrderBookKafkaConsumer.class.getSimpleName();
+public class MulticastServerKafkaListener extends InterfaceKafkaAbstractSimple implements Runnable {
+	public final static String CLASSNAME = MulticastServerKafkaListener.class.getSimpleName();
 	private final int TIME_OUT_MS = 5000;
 	private KafkaConsumer<String, byte[]> kafkaConsumer = null;
 	private final AtomicBoolean closed = new AtomicBoolean(false);
 	private LogEncapsulation log = null;
 	private Properties props = null;
 
-	public FIXEngineKafkaListener() throws Exception {
+	public MulticastServerKafkaListener() throws Exception {
 		super();
 		// TODO Auto-generated constructor stub
 	}
@@ -56,7 +56,7 @@ public class FIXEngineKafkaListener extends InterfaceKafkaAbstractSimple impleme
 		this.log = log;
 
 		try {
-			this.props = LibraryFunctions.getProperties(FIXEngineKafkaListener.class.getClassLoader(), InstanceType.KAFKA.getProperties());
+			this.props = LibraryFunctions.getProperties(MulticastServerKafkaListener.class.getClassLoader(), InstanceType.KAFKA.getProperties());
 		} catch (FileNotFoundException  |NullPointerException e) {
 			throw e;
 		}
@@ -112,7 +112,7 @@ public class FIXEngineKafkaListener extends InterfaceKafkaAbstractSimple impleme
 	public void runAlways(List<String> topicNames , InterfaceKafkaMessageHandler callback) throws Exception {
 		Properties props;
 		try {
-			props = LibraryFunctions.getProperties(OrderBookKafkaConsumer.class.getClassLoader() , InstanceType.KAFKA.getProperties());
+			props = LibraryFunctions.getProperties(MulticastServerKafkaListener.class.getClassLoader() , InstanceType.KAFKA.getProperties());
 		} catch (FileNotFoundException | NullPointerException e) {
 			//log.error(e.getMessage() , e);
 			throw e;

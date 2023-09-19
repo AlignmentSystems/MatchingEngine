@@ -29,6 +29,7 @@ import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.enumerations.MessageDirection;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
 import com.alignmentsystems.library.interfaces.InterfaceQueueNonSequenced;
+import com.alignmentsystems.library.interfaces.InterfaceKafkaMessageHandler;
 
 import quickfix.DoNotSend;
 import quickfix.FieldNotFound;
@@ -45,7 +46,7 @@ import quickfix.UnsupportedMessageType;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class FIXEngineExchange extends MessageCracker implements quickfix.Application , KafkaMessageHandler{
+public class FIXEngineExchange extends MessageCracker implements quickfix.Application , InterfaceKafkaMessageHandler{
 	protected final static String CLASSNAME = FIXEngineExchange.class.getSimpleName();
 	private InterfaceQueueNonSequenced queueNonSequenced = null;
 	private final static Encodings encoding = Encodings.FIXSBELITTLEENDIAN;

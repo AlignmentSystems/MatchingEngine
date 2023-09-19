@@ -12,6 +12,7 @@ package com.alignmentsystems.multicast;
 
 import com.alignmentsystems.library.LibraryFunctions;
 import com.alignmentsystems.library.enumerations.InstanceType;
+import com.alignmentsystems.multicast.MulticastServerKafkaListener;
 
 
 /**
@@ -25,6 +26,7 @@ public class App {
 		InstanceType instanceType = LibraryFunctions.getInstanceType(args);
 		System.setProperty(LOGBACKLOGNAME, instanceType.type);
 
+		
 		MulticastInstanceWrapper wrapper = new MulticastInstanceWrapper();
 		wrapper.initialise(instanceType);
 	} 

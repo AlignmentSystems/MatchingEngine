@@ -11,5 +11,5 @@ public interface InterfaceMulticastServer {
 	public boolean initialise(LogEncapsulation log, PersistenceToFileClient debugger, String host, int port) throws Exception;
 	public boolean initialise(LogEncapsulation log, PersistenceToFileClient debugger) throws Exception;
 	public void multicastThis(byte[] multicastBytes) throws IOException;
-	public Long getCurrentSequenceNumber();
+	public Long getSequenceNumberForNextMessage();
 }

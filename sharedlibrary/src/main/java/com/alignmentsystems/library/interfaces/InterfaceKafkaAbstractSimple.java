@@ -1,4 +1,4 @@
-package com.alignmentsystems.matching;
+package com.alignmentsystems.library.interfaces;
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -6,7 +6,7 @@ package com.alignmentsystems.matching;
  *	Date            :	13th September 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	MatchingEngineWrapper
+ *	Artefact		:	KafkaAbstractSimple
  *	Description		:
  *****************************************************************************/
 
@@ -17,7 +17,7 @@ import java.util.List;
  * @see <a href="https://kafka.apache.org/documentation/#quickstart">Kafka</a>
  *
  */
-public abstract class KafkaAbstractSimple {
+public abstract class InterfaceKafkaAbstractSimple {
 	/**
 	 * Instantiates a new Abstract class, SimpleKafka.
 	 * <p>
@@ -26,7 +26,7 @@ public abstract class KafkaAbstractSimple {
 	 *
 	 * @throws Exception the exception
 	 */
-	public KafkaAbstractSimple() throws Exception {
+	public InterfaceKafkaAbstractSimple() throws Exception {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
@@ -58,7 +58,7 @@ public abstract class KafkaAbstractSimple {
 	 *                  message is produced or after a message is consumed
 	 * @throws Exception the exception that get thrown upon error
 	 */
-	public abstract void runAlways(String topicName, KafkaMessageHandler callback) throws Exception;
+	public abstract void runAlways(String topicName, InterfaceKafkaMessageHandler callback) throws Exception;
 	
 	
 	
@@ -71,5 +71,5 @@ public abstract class KafkaAbstractSimple {
 	 *                  message is produced or after a message is consumed
 	 * @throws Exception the exception that get thrown upon error
 	 */
-	public abstract void runAlways(List<String> topicNames , KafkaMessageHandler callback) throws Exception;
+	public abstract void runAlways(List<String> topicNames , InterfaceKafkaMessageHandler callback) throws Exception;
 }
