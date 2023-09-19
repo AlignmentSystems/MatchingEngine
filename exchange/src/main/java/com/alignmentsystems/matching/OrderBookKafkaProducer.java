@@ -20,8 +20,8 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import com.alignmentsystems.library.AlignmentKafkaSender;
-import com.alignmentsystems.library.LibraryFunctions;
-import com.alignmentsystems.library.LogEncapsulation;
+import com.alignmentsystems.library.AlignmentFunctions;
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.enumerations.OperationEventType;
 import com.alignmentsystems.library.interfaces.InterfaceAddedOrderToOrderBook;
@@ -32,7 +32,7 @@ import com.alignmentsystems.library.interfaces.InterfaceOrderBookEvents;
 
 public class OrderBookKafkaProducer implements InterfaceMatchEvent, InterfaceAddedOrderToOrderBook, InterfaceOrderBookEvents, Runnable {
 	private KafkaProducer<String, byte[]> kafkaProducerB = null;
-	private LogEncapsulation log = null;
+	private AlignmentLogEncapsulation log = null;
 	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
 	private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
 
@@ -52,14 +52,14 @@ public class OrderBookKafkaProducer implements InterfaceMatchEvent, InterfaceAdd
 	}
 
 
-	public boolean initialise(LogEncapsulation log) throws Exception{
+	public boolean initialise(AlignmentLogEncapsulation log) throws Exception{
 
 		this.log = log;
 
 		if (this.kafkaProducerB == null) {
 			Properties props;
 			try {
-				props = LibraryFunctions.getProperties(FIXToBinaryProcessor.class.getClassLoader(), InstanceType.KAFKA.getProperties());
+				props = AlignmentFunctions.getProperties(FIXToBinaryProcessor.class.getClassLoader(), InstanceType.KAFKA.getProperties());
 			} catch (FileNotFoundException | NullPointerException e) {
 				this.log.error(e.getMessage() , e);
 				throw e;

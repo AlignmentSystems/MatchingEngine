@@ -6,7 +6,7 @@ package com.alignmentsystems.library;
  *	Date            :	24th August 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	LogEncapsulation
+ *	Artefact		:	AlignmentLogEncapsulation
  *	Description		:
  *****************************************************************************/
 
@@ -32,7 +32,7 @@ import quickfix.SessionID;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
+public class AlignmentLogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 	private Logger innerLog = null;
 	final static String LIBRARYPATH = "java.library.path";
 	final static String CLASSPATH = "java.class.path";
@@ -43,12 +43,12 @@ public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 	 * 
 	 * @param clazz
 	 */
-	public LogEncapsulation(Class<?> clazz) {
+	public AlignmentLogEncapsulation(Class<?> clazz) {
 		super();
 		innerLog = LoggerFactory.getLogger(clazz);
 
 	}
-	public LogEncapsulation(String name) {
+	public AlignmentLogEncapsulation(String name) {
 		super();
 		innerLog = LoggerFactory.getLogger(name);		
 	}
@@ -157,13 +157,13 @@ public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 	private String getInformation(String msg, SessionID sessionId, String methodName, String className, InstanceType instanceType) {
 		StringBuilder sb = new StringBuilder();
 		sb
-		.append(LibraryFunctions.wrapNameSquareBracketsAndSpaces(instanceType.type))
+		.append(AlignmentFunctions.wrapNameSquareBracketsAndSpaces(instanceType.type))
 		.append(Constants.TAB)
-		.append(LibraryFunctions.wrapNameSquareBrackets(className))
+		.append(AlignmentFunctions.wrapNameSquareBrackets(className))
 		.append(Constants.TAB)
-		.append(LibraryFunctions.wrapNameSquareBrackets(methodName))
+		.append(AlignmentFunctions.wrapNameSquareBrackets(methodName))
 		.append(Constants.TAB)
-		.append(LibraryFunctions.wrapNameSquareBrackets(sessionId.toString()))
+		.append(AlignmentFunctions.wrapNameSquareBrackets(sessionId.toString()))
 		.append(Constants.TAB)
 		.append(msg);
 		return sb.toString();	
@@ -185,15 +185,15 @@ public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 	private String getInformation(String msg, SessionID sessionId, MessageDirection direction, String methodName, String className, InstanceType instanceType) {
 		StringBuilder sb = new StringBuilder();
 		sb
-		.append(LibraryFunctions.wrapNameSquareBracketsAndSpaces(instanceType.type))
+		.append(AlignmentFunctions.wrapNameSquareBracketsAndSpaces(instanceType.type))
 		.append(Constants.TAB)
-		.append(LibraryFunctions.wrapNameSquareBrackets(className))
+		.append(AlignmentFunctions.wrapNameSquareBrackets(className))
 		.append(Constants.TAB)
-		.append(LibraryFunctions.wrapNameSquareBrackets(methodName))
+		.append(AlignmentFunctions.wrapNameSquareBrackets(methodName))
 		.append(Constants.TAB)
-		.append(LibraryFunctions.wrapNameSquareBrackets(direction.value))
+		.append(AlignmentFunctions.wrapNameSquareBrackets(direction.value))
 		.append(Constants.TAB)		
-		.append(LibraryFunctions.wrapNameSquareBrackets(sessionId.toString()))
+		.append(AlignmentFunctions.wrapNameSquareBrackets(sessionId.toString()))
 		.append(Constants.TAB)
 		.append(msg)
 		;
@@ -228,7 +228,7 @@ public class LogEncapsulation implements Logger , InterfaceCustomLoggerMessage {
 	@Override
 	public void infoMatchingEvent(OperationEventType operationEventType, InterfaceMatch match) {
 		StringBuilder sb = new StringBuilder()
-				.append(LibraryFunctions.wrapNameSquareBrackets(operationEventType.value))
+				.append(AlignmentFunctions.wrapNameSquareBrackets(operationEventType.value))
 				.append(Constants.TAB)
 				.append(match.toString())
 				;

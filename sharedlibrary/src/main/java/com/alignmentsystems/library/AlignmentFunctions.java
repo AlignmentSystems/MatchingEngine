@@ -6,7 +6,7 @@ package com.alignmentsystems.library;
  *	Date            :	24th August 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	LibraryFunctions
+ *	Artefact		:	AlignmentFunctions
  *	Description		:
  *****************************************************************************/
 
@@ -25,10 +25,12 @@ import java.util.jar.Manifest;
 
 import org.slf4j.Logger;
 
+import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.constants.FailureConditionConstants;
 import com.alignmentsystems.library.enumerations.ConfigurationProperties;
 import com.alignmentsystems.library.enumerations.InstanceType;
+import com.alignmentsystems.library.enumerations.OrderBookSide;
 import com.alignmentsystems.library.enumerations.OrderBookState;
 import com.alignmentsystems.library.enumerations.TimestampUsage;
 
@@ -37,8 +39,22 @@ import com.alignmentsystems.library.enumerations.TimestampUsage;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class LibraryFunctions {
+public class AlignmentFunctions {
 
+/**
+ * 
+ * @param side
+ * @return
+ */
+	public static OrderBookSide getOrderBookSideFromFIXSide(Side side) {
+		if (side.getObject()==Side.BUY) {
+			return OrderBookSide.BUY;	
+		}else if (side.getObject()==Side.SELL) {
+			return OrderBookSide.SELL;	
+		}else {
+			return OrderBookSide.ERROR;
+		}
+	}
 
 
 	/**
@@ -521,7 +537,7 @@ public class LibraryFunctions {
 	private static void showHelp() {
 		System.out.println("Help will go here..");
 		System.out.println("Call with /license on command line to see license information" );
-		System.out.println(getVersionWithTitle(LibraryFunctions.class));
+		System.out.println(getVersionWithTitle(AlignmentFunctions.class));
 		for (InstanceType it : InstanceType.values()) {
 			System.out.println(it.type + " is creatable=" + it.creatable);
 			if (it.creatable) {

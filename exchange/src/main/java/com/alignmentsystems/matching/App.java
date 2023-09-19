@@ -9,7 +9,7 @@ package com.alignmentsystems.matching;
  *	Artefact		:	App
  *	Description		:
  *****************************************************************************/
-import com.alignmentsystems.library.LibraryFunctions;
+import com.alignmentsystems.library.AlignmentFunctions;
 import com.alignmentsystems.library.constants.FailureConditionConstants;
 import com.alignmentsystems.library.enumerations.InstanceType;
 
@@ -21,7 +21,7 @@ public class App {
 	private final static String LOGBACKLOGNAME = "log.name";
 	public static void main(String[] args) {
 
-		InstanceType instanceType = LibraryFunctions.getInstanceType(args);
+		InstanceType instanceType = AlignmentFunctions.getInstanceType(args);
 		System.setProperty(LOGBACKLOGNAME, instanceType.type);
 
 		InstanceWrapper wrapper = new InstanceWrapper();

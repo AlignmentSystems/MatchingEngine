@@ -25,10 +25,10 @@ import com.alignmentsystems.library.AlignmentMatch;
 import com.alignmentsystems.library.AlignmentOrder;
 import com.alignmentsystems.library.AlignmentOrderComparatorBuy;
 import com.alignmentsystems.library.AlignmentOrderComparatorSell;
-import com.alignmentsystems.library.DataMapper;
-import com.alignmentsystems.library.LibraryFunctions;
-import com.alignmentsystems.library.LogEncapsulation;
-import com.alignmentsystems.library.PersistenceToFileClient;
+import com.alignmentsystems.library.AlignmentDataMapper;
+import com.alignmentsystems.library.AlignmentFunctions;
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
+import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 import com.alignmentsystems.library.annotations.NotYetImplemented;
 import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
@@ -60,14 +60,14 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 	private PriorityQueue<InterfaceOrder> buy = new PriorityQueue<InterfaceOrder>(buyPriorityQueueSize, aboc);
 	private PriorityQueue<InterfaceOrder> sell = new PriorityQueue<InterfaceOrder>(sellPriorityQueueSize, asoc);
 
-	private PersistenceToFileClient debugger = null;
+	private AlignmentPersistenceToFileClient debugger = null;
 
 	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
 	private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
 	private AtomicBoolean running = new AtomicBoolean(false);
 	private AtomicBoolean initialised = new AtomicBoolean(false);
 	private String symbol = null;
-	private LogEncapsulation log = null;
+	private AlignmentLogEncapsulation log = null;
 	private final int milliSleep = 200;
 
 	private OffsetDateTime orderBookCreationTime = null;
@@ -75,7 +75,7 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 
 
 	@Override
-	public Boolean initialise(String symbol, LogEncapsulation log, PersistenceToFileClient debugger,
+	public Boolean initialise(String symbol, AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger,
 			InterfaceMatchEvent toAddMatch, InterfaceAddedOrderToOrderBook toAddOrder) {
 		Boolean returnValue = Boolean.FALSE;
 		this.orderBookCreationTime = OffsetDateTime.now(Constants.HERE);
@@ -132,12 +132,12 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 		if (bookCount == 0) {
 
 			snapShotOrderBook.add(
-					targetSide.sideReadableValue + LibraryFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount))
+					targetSide.sideReadableValue + AlignmentFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount))
 					+ Constants.TAB + "No orders...");
 		} else {
 			for (InterfaceOrder io : orders) {
 				snapShotOrderBook.add(targetSide.sideReadableValue
-						+ LibraryFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount))
+						+ AlignmentFunctions.wrapNameSquareBracketsAndSpaces(Integer.toString(bookCount))
 						+ io.toString());
 			}
 		}
@@ -231,10 +231,10 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 					, topOfBuyBook.getTarget() //String buyTargetId
 					, topOfSellBook.getSender() // String sellSenderId
 					, topOfSellBook.getTarget() //String sellTargetId
-					, DataMapper.EXCHANGEORDSTATUSFILLED //buyOrderStatus
-					, DataMapper.EXCHANGEEXECTYPETRADE //buyExecType
-					, DataMapper.EXCHANGEORDSTATUSFILLED //sellOrderStatus
-					, DataMapper.EXCHANGEEXECTYPETRADE //sellExecType
+					, AlignmentDataMapper.EXCHANGEORDSTATUSFILLED //buyOrderStatus
+					, AlignmentDataMapper.EXCHANGEEXECTYPETRADE //buyExecType
+					, AlignmentDataMapper.EXCHANGEORDSTATUSFILLED //sellOrderStatus
+					, AlignmentDataMapper.EXCHANGEEXECTYPETRADE //sellExecType
 					, isEligibleForMarketData
 					);
 
@@ -398,9 +398,9 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 				, 0L
 				, 0L
 				, 0L
-				, DataMapper.EXCHANGEORDSTATUSNEW
-				, DataMapper.EXCHANGEEXECTYPENEW
-				, DataMapper.getExchangeSideCodeMappedFromMemberSideCode(nos.getOrderBookSide().sideCharValue)
+				, AlignmentDataMapper.EXCHANGEORDSTATUSNEW
+				, AlignmentDataMapper.EXCHANGEEXECTYPENEW
+				, AlignmentDataMapper.getExchangeSideCodeMappedFromMemberSideCode(nos.getOrderBookSide().sideCharValue)
 				);
 		return er2;
 	}

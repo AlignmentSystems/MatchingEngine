@@ -6,7 +6,7 @@ package com.alignmentsystems.library;
  *	Date            :	30th August 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	PersistenceToFileClient
+ *	Artefact		:	AlignmentPersistenceToFileClient
  *	Description		:
  *****************************************************************************/
 
@@ -27,7 +27,7 @@ import com.alignmentsystems.library.interfaces.InterfacePersistenceServer;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class PersistenceToFileClient implements InterfacePersistenceClient{
+public class AlignmentPersistenceToFileClient implements InterfacePersistenceClient{
 	private ConcurrentLinkedQueue<String> logQueue = new ConcurrentLinkedQueue<String>();
 	private Boolean runOnce = Boolean.TRUE;
 	private final static int MILLISLEEP = 200;
@@ -44,9 +44,9 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 		if(hasExecutedInit.get()) {
 		}else {
 	
-			PersistenceToFileServer persistenceToFileServer = new PersistenceToFileServer();
+			AlignmentPersistenceToFileServer persistenceToFileServer = new AlignmentPersistenceToFileServer();
 			try {
-				persistenceToFileServer.initialise(cl, this.logQueue, instanceTypeName, PersistenceToFileClient.MILLISLEEP);
+				persistenceToFileServer.initialise(cl, this.logQueue, instanceTypeName, AlignmentPersistenceToFileClient.MILLISLEEP);
 			} catch (FileNotFoundException e) {				
 				throw e;
 			} catch (IOException e) {
@@ -79,9 +79,9 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 
 			this.tag = tag;
 
-			PersistenceToFileServer persistenceToFileServer = new PersistenceToFileServer();
+			AlignmentPersistenceToFileServer persistenceToFileServer = new AlignmentPersistenceToFileServer();
 			try {
-				persistenceToFileServer.initialise(cl, this.logQueue, instanceTypeName, this.tag, PersistenceToFileClient.MILLISLEEP);
+				persistenceToFileServer.initialise(cl, this.logQueue, instanceTypeName, this.tag, AlignmentPersistenceToFileClient.MILLISLEEP);
 			} catch (IOException e) {
 				throw e;
 			}
@@ -350,9 +350,9 @@ public class PersistenceToFileClient implements InterfacePersistenceClient{
 			return false;
 		}else {
 			cleanLogMessage(toLog);
-			logExecute(PersistenceRecordType.ERROR.recordType + LibraryFunctions.wrapNameBrackets(methodName) +  Constants.BLOCKER);
+			logExecute(PersistenceRecordType.ERROR.recordType + AlignmentFunctions.wrapNameBrackets(methodName) +  Constants.BLOCKER);
 
-			returnValue = logExecute(PersistenceRecordType.ERROR.recordType + LibraryFunctions.wrapNameBrackets(methodName) + toLog);
+			returnValue = logExecute(PersistenceRecordType.ERROR.recordType + AlignmentFunctions.wrapNameBrackets(methodName) + toLog);
 
 			if (!returnValue) {
 				return returnValue;

@@ -14,9 +14,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.alignmentsystems.fix44.MessageFactory;
-import com.alignmentsystems.library.LibraryFunctions;
-import com.alignmentsystems.library.LogEncapsulation;
-import com.alignmentsystems.library.PersistenceToFileClient;
+import com.alignmentsystems.library.AlignmentFunctions;
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
+import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 import com.alignmentsystems.library.constants.FailureConditionConstants;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceInstanceWrapper;
@@ -38,7 +38,7 @@ public class AdministratorWrapper implements InterfaceInstanceWrapper{
 	private final int milliSleep = 200;
 	private InstanceType instanceType ;
 
-	private LogEncapsulation log = new LogEncapsulation(this.getClass());
+	private AlignmentLogEncapsulation log = new AlignmentLogEncapsulation(this.getClass());
 
 	@Override
 	public boolean initialise(InstanceType instanceType) {
@@ -52,7 +52,7 @@ public class AdministratorWrapper implements InterfaceInstanceWrapper{
 		.append(" Started instance=")
 		.append(this.instanceType.type)
 		.append(" Started version=")
-		.append(LibraryFunctions.getVersion(this.getClass()));
+		.append(AlignmentFunctions.getVersion(this.getClass()));
 
 		log.info(sb.toString());
 
@@ -90,7 +90,7 @@ public class AdministratorWrapper implements InterfaceInstanceWrapper{
 	}
 
 	public Boolean initialiseAdmin(InstanceType instanceType) {
-		PersistenceToFileClient debugger = new PersistenceToFileClient();
+		AlignmentPersistenceToFileClient debugger = new AlignmentPersistenceToFileClient();
 		try {			
 			debugger.initialise(AdministratorWrapper.class.getClassLoader() , instanceType.getLoggerProperties());
 			log.debug("Using " + instanceType.getLoggerProperties());

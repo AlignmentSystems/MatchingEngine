@@ -13,8 +13,8 @@ package com.alignmentsystems.library.interfaces;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-import com.alignmentsystems.library.LogEncapsulation;
-import com.alignmentsystems.library.PersistenceToFileClient;
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
+import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
@@ -23,8 +23,8 @@ import com.alignmentsystems.library.enumerations.OrderBookSide;
 public interface InterfaceOrderBook {
 	public Boolean initialise(
 			String symbol
-			, LogEncapsulation log
-			, PersistenceToFileClient debugger
+			, AlignmentLogEncapsulation log
+			, AlignmentPersistenceToFileClient debugger
 			, InterfaceMatchEvent toAdd
 			, InterfaceAddedOrderToOrderBook toAddOrder
 			);

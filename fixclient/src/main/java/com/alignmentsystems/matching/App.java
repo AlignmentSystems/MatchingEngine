@@ -10,7 +10,7 @@ package com.alignmentsystems.matching;
  *	Description		:
  *****************************************************************************/
 
-import com.alignmentsystems.library.LibraryFunctions;
+import com.alignmentsystems.library.AlignmentFunctions;
 import com.alignmentsystems.library.enumerations.InstanceType;
 
 
@@ -22,7 +22,7 @@ public class App {
 	private final static String LOGBACKLOGNAME = "log.name";
 
 	public static void main(String[] args) {		
-		InstanceType instanceType = LibraryFunctions.getInstanceType(args);
+		InstanceType instanceType = AlignmentFunctions.getInstanceType(args);
 		System.setProperty(LOGBACKLOGNAME, instanceType.type);
 
 		ClientInstanceWrapper wrapper = new ClientInstanceWrapper();

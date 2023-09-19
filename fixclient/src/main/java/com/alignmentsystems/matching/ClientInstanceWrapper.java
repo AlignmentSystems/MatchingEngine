@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.alignmentsystems.fix44.MessageFactory;
-import com.alignmentsystems.library.LibraryFunctions;
-import com.alignmentsystems.library.LogEncapsulation;
-import com.alignmentsystems.library.PersistenceToFileClient;
+import com.alignmentsystems.library.AlignmentFunctions;
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
+import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 import com.alignmentsystems.library.constants.FailureConditionConstants;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceInstanceWrapper;
@@ -41,7 +41,7 @@ public class ClientInstanceWrapper implements InterfaceInstanceWrapper{
 
 	private InstanceType instanceType ;
 
-	private LogEncapsulation log = new LogEncapsulation(this.getClass());
+	private AlignmentLogEncapsulation log = new AlignmentLogEncapsulation(this.getClass());
 
 	@Override
 	public boolean initialise(InstanceType instanceType) {
@@ -55,7 +55,7 @@ Boolean returnValue = Boolean.FALSE;
 		.append(" Started instance=")
 		.append(this.instanceType.type)
 		.append(" Started version=")
-		.append(LibraryFunctions.getVersion(this.getClass()));
+		.append(AlignmentFunctions.getVersion(this.getClass()));
 
 		log.info(sb.toString());
 
@@ -92,7 +92,7 @@ Boolean returnValue = Boolean.FALSE;
 	}
 
 	public Boolean initialiseMember(InstanceType instanceType) {
-		PersistenceToFileClient debugger = new PersistenceToFileClient();
+		AlignmentPersistenceToFileClient debugger = new AlignmentPersistenceToFileClient();
 		try {			
 			debugger.initialise(ClientInstanceWrapper.class.getClassLoader() , instanceType.getLoggerProperties());
 			log.debug("Using " + instanceType.getLoggerProperties());
@@ -118,7 +118,7 @@ Boolean returnValue = Boolean.FALSE;
 			System.exit(FailureConditionConstants.ERROR_MEMBER_FIX_PROPERTIES_FILE);			
 		}
 
-		LibraryFunctions.threadStatusCheck(Thread.currentThread(), log);
+		AlignmentFunctions.threadStatusCheck(Thread.currentThread(), log);
 
 		return true;			
 	}

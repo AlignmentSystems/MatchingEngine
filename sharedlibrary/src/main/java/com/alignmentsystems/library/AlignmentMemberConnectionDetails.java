@@ -6,10 +6,10 @@ package com.alignmentsystems.library;
  *	Date            :	18th September 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	ConnectionDetails
+ *	Artefact		:	AlignmentMemberConnectionDetails
  *	Description		:
  *****************************************************************************/
-public class ConnectionDetails {
+public class AlignmentMemberConnectionDetails {
 
 	private String senderCompId = null;
 	private String targetCompId = null;
@@ -22,7 +22,7 @@ public class ConnectionDetails {
 	 * @param fixVersion
 	 * @param cancelOnDisconnect
 	 */
-	protected ConnectionDetails(String senderCompId, String targetCompId, String fixVersion,
+	protected AlignmentMemberConnectionDetails(String senderCompId, String targetCompId, String fixVersion,
 			Boolean cancelOnDisconnect) {
 		super();
 		this.senderCompId = senderCompId;

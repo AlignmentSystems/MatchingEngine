@@ -38,7 +38,7 @@ import com.alignmentsystems.library.enumerations.Encodings;
 import com.alignmentsystems.library.interfaces.InterfaceExecutionReport;
 
 public class AlignmentExecutionReport implements InterfaceExecutionReport {
-	public final static Short EXCHANGEMESSAGETYPE = DataMapper.EXCHANGEMESSAGETYPEMAPPEDFROMEXECUTIONREPORT;
+	public final static Short EXCHANGEMESSAGETYPE = AlignmentDataMapper.EXCHANGEMESSAGETYPEMAPPEDFROMEXECUTIONREPORT;
 	
 	private UUID execID = null;
 	private String buySenderId = null; 
@@ -186,7 +186,7 @@ public class AlignmentExecutionReport implements InterfaceExecutionReport {
 		ByteBuffer buf = null;
 		final Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
 
-		final Short msgType = DataMapper.EXCHANGEMESSAGETYPEMAPPEDFROMEXECUTIONREPORT;
+		final Short msgType = AlignmentDataMapper.EXCHANGEMESSAGETYPEMAPPEDFROMEXECUTIONREPORT;
 
 		final List<String> ls = new ArrayList<String>();
 		try {
@@ -292,9 +292,9 @@ public class AlignmentExecutionReport implements InterfaceExecutionReport {
 
 			final UUID clOrdId = new UUID(clOrdIdMost, clOrdIdLeast);
 			final UUID orderId = new UUID(orderIdMost, orderIdLeast);
-			final char execTypeFIX = DataMapper.getMemberExecTypeMappedFromExchangeExecType(execType);
-			final char orderStatusFIX = DataMapper.getMemberOrdStatusMappedToExchangeOrdStatus(ordStatus);
-			final char sideFIX = DataMapper.getMemberSideCodeMappedFromExchangeSideCode(sideCode);
+			final char execTypeFIX = AlignmentDataMapper.getMemberExecTypeMappedFromExchangeExecType(execType);
+			final char orderStatusFIX = AlignmentDataMapper.getMemberOrdStatusMappedToExchangeOrdStatus(ordStatus);
+			final char sideFIX = AlignmentDataMapper.getMemberSideCodeMappedFromExchangeSideCode(sideCode);
 			er = new ExecutionReport(
 					new OrderID(orderId.toString())
 					, new ExecID(execId.toString())

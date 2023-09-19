@@ -6,7 +6,7 @@ package com.alignmentsystems.library;
  *	Date            :	13th September 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	DataMapper
+ *	Artefact		:	AlignmentDataMapper
  *	Description		:
  *****************************************************************************/
 import java.util.HashMap;
@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class DataMapper {
+public class AlignmentDataMapper {
 	private static HashMap<String , Long> memberFIXSenderCompIdToExchangeIdMap = new HashMap<String, Long>();
 	private static HashMap<String , Long> memberFIXTargetCompIdToExchangeIdMap = new HashMap<String, Long>();
 	private static HashMap<String , Long> memberInstrumentIdToExchangeInstrumentIdMap = new HashMap<String, Long>();
@@ -60,7 +60,7 @@ public class DataMapper {
 
 
 
-	public DataMapper(){
+	public AlignmentDataMapper(){
 		initialise();
 
 
