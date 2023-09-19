@@ -17,7 +17,6 @@ import java.util.UUID;
 import com.alignmentsystems.fix44.ExecutionReport;
 import com.alignmentsystems.fix44.NewOrderSingle;
 import com.alignmentsystems.library.AlignmentKafkaSender;
-import com.alignmentsystems.library.AlignmentOrder;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
 
 import quickfix.FieldNotFound;

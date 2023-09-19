@@ -9,7 +9,6 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import com.alignmentsystems.library.AlignmentKafkaSender;
-import com.alignmentsystems.library.AlignmentOrder;
 import com.alignmentsystems.library.LibraryFunctions;
 import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.constants.Constants;

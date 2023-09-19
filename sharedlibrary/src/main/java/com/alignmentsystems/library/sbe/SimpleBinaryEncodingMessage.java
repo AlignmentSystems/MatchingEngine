@@ -15,7 +15,6 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-import com.alignmentsystems.library.AlignmentMatch;
 import com.alignmentsystems.library.annotations.NotYetImplemented;
 import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.enumerations.Encodings;

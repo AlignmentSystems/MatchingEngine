@@ -1,7 +1,5 @@
 package com.alignmentsystems.library.interfaces;
 
-import com.alignmentsystems.library.AlignmentExecutionReport;
-
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
