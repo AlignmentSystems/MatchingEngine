@@ -9,8 +9,8 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import com.alignmentsystems.library.AlignmentKafkaSender;
-import com.alignmentsystems.library.LibraryFunctions;
-import com.alignmentsystems.library.LogEncapsulation;
+import com.alignmentsystems.library.AlignmentFunctions;
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceFIXToBinaryProcessor;
@@ -24,7 +24,7 @@ import com.alignmentsystems.library.interfaces.InterfaceOrder;
  */
 public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProcessor {
 	protected final static String CLASSNAME = FIXToBinaryProcessor.class.getSimpleName().toString();
-	private LogEncapsulation log = null;
+	private AlignmentLogEncapsulation log = null;
 	private ConcurrentLinkedQueue<InterfaceOrder> inQueue = null;
 	private KafkaProducer<String, byte[]> kafkaProducerB = null;
 	private AtomicBoolean running = new AtomicBoolean(false);
@@ -36,14 +36,14 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 	}
 
 	@Override
-	public boolean initialise(ConcurrentLinkedQueue<InterfaceOrder> inQueue, LogEncapsulation log) throws Exception{
+	public boolean initialise(ConcurrentLinkedQueue<InterfaceOrder> inQueue, AlignmentLogEncapsulation log) throws Exception{
 		this.inQueue = inQueue;
 		this.log = log;
 
 		if (this.kafkaProducerB == null) {
 			Properties props;
 			try {
-				props = LibraryFunctions.getProperties(FIXToBinaryProcessor.class.getClassLoader(), InstanceType.KAFKA.getProperties());
+				props = AlignmentFunctions.getProperties(FIXToBinaryProcessor.class.getClassLoader(), InstanceType.KAFKA.getProperties());
 			} catch (FileNotFoundException | NullPointerException e) {
 				this.log.error(e.getMessage() , e);
 				throw e;

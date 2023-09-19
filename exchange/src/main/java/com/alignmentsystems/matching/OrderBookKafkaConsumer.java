@@ -24,8 +24,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 
-import com.alignmentsystems.library.LibraryFunctions;
-import com.alignmentsystems.library.LogEncapsulation;
+import com.alignmentsystems.library.AlignmentFunctions;
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceKafkaAbstractSimple;
 import com.alignmentsystems.library.interfaces.InterfaceKafkaMessageHandler;
@@ -35,7 +35,7 @@ public class OrderBookKafkaConsumer  extends InterfaceKafkaAbstractSimple implem
 	private final int TIME_OUT_MS = 5000;
 	private KafkaConsumer<String, byte[]> kafkaConsumer = null;
 	private final AtomicBoolean closed = new AtomicBoolean(false);
-	private LogEncapsulation log = null;
+	private AlignmentLogEncapsulation log = null;
 	private Properties props = null;
 
 
@@ -45,11 +45,11 @@ public class OrderBookKafkaConsumer  extends InterfaceKafkaAbstractSimple implem
 		// TODO Auto-generated constructor stub
 	}
 
-	public Boolean initialise(LogEncapsulation log) throws FileNotFoundException , NullPointerException{
+	public Boolean initialise(AlignmentLogEncapsulation log) throws FileNotFoundException , NullPointerException{
 		this.log = log;
 
 		try {
-			props = LibraryFunctions.getProperties(OrderBookKafkaConsumer.class.getClassLoader(), InstanceType.KAFKA.getProperties());
+			props = AlignmentFunctions.getProperties(OrderBookKafkaConsumer.class.getClassLoader(), InstanceType.KAFKA.getProperties());
 		} catch (FileNotFoundException  |NullPointerException e) {
 			throw e;
 		}
@@ -142,7 +142,7 @@ public class OrderBookKafkaConsumer  extends InterfaceKafkaAbstractSimple implem
 		
 		Properties props;
 		try {
-			props = LibraryFunctions.getProperties(OrderBookKafkaConsumer.class.getClassLoader() , InstanceType.KAFKA.getProperties());
+			props = AlignmentFunctions.getProperties(OrderBookKafkaConsumer.class.getClassLoader() , InstanceType.KAFKA.getProperties());
 		} catch (FileNotFoundException | NullPointerException e) {
 			//log.error(e.getMessage() , e);
 			throw e;

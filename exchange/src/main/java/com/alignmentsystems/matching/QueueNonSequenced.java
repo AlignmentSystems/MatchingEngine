@@ -14,7 +14,7 @@ package com.alignmentsystems.matching;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.alignmentsystems.library.LogEncapsulation;
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 import com.alignmentsystems.library.interfaces.InterfaceQueueNonSequenced;
@@ -26,7 +26,7 @@ import com.alignmentsystems.library.interfaces.InterfaceQueueNonSequenced;
 public class QueueNonSequenced implements Runnable, InterfaceQueueNonSequenced {
 	protected final static String CLASSNAME = QueueNonSequenced.class.getSimpleName().toString();
 	private ConcurrentLinkedQueue<InterfaceOrder> nonSequencedIn;
-	private LogEncapsulation log = null;
+	private AlignmentLogEncapsulation log = null;
 	private final static int MILLISLEEP = 200;
 	private AtomicBoolean running = new AtomicBoolean(false);
 	private AtomicBoolean initialised = new AtomicBoolean(false);
@@ -62,7 +62,7 @@ public class QueueNonSequenced implements Runnable, InterfaceQueueNonSequenced {
 	}
 
 	@Override
-	public boolean initialise(LogEncapsulation log) {
+	public boolean initialise(AlignmentLogEncapsulation log) {
 		if (!initialised.get()) {
 			this.log = log;
 			this.nonSequencedIn = new ConcurrentLinkedQueue<InterfaceOrder> ();

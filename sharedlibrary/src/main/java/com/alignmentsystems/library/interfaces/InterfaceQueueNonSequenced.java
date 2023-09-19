@@ -2,7 +2,7 @@ package com.alignmentsystems.library.interfaces;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import com.alignmentsystems.library.LogEncapsulation;
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
 
 /******************************************************************************
  * 
@@ -16,7 +16,7 @@ import com.alignmentsystems.library.LogEncapsulation;
  *****************************************************************************/
 
 public interface InterfaceQueueNonSequenced {
-	public boolean initialise(LogEncapsulation log);
+	public boolean initialise(AlignmentLogEncapsulation log);
 	public boolean addReceivedOrder(InterfaceOrder io);
 	public ConcurrentLinkedQueue<InterfaceOrder> getOutputQueue();
 }

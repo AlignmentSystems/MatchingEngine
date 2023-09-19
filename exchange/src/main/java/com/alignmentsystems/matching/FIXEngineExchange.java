@@ -20,9 +20,9 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import com.alignmentsystems.fix44.ExecutionReport;
 import com.alignmentsystems.library.AlignmentExecutionReport;
 import com.alignmentsystems.library.AlignmentOrder;
-import com.alignmentsystems.library.DataMapper;
-import com.alignmentsystems.library.LibraryOrders;
-import com.alignmentsystems.library.LogEncapsulation;
+import com.alignmentsystems.library.AlignmentDataMapper;
+import com.alignmentsystems.library.AlignmentFunctions;
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.enumerations.Encodings;
 import com.alignmentsystems.library.enumerations.InstanceType;
@@ -50,11 +50,11 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 	protected final static String CLASSNAME = FIXEngineExchange.class.getSimpleName();
 	private InterfaceQueueNonSequenced queueNonSequenced = null;
 	private final static Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
-	private LogEncapsulation log = null;
+	private AlignmentLogEncapsulation log = null;
 	private InstanceType instanceType = null;
 
 
-	public FIXEngineExchange(LogEncapsulation log, InterfaceQueueNonSequenced queueNonSequenced,
+	public FIXEngineExchange(AlignmentLogEncapsulation log, InterfaceQueueNonSequenced queueNonSequenced,
 			InstanceType instanceType) {
 		this.log = log;
 
@@ -246,7 +246,7 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 			throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
 		final String METHODNAME = "onMessage".intern();
 
-		OrderBookSide orderBookSide = LibraryOrders.getOrderBookSideFromFIXSide(message.getSide());
+		OrderBookSide orderBookSide = AlignmentFunctions.getOrderBookSideFromFIXSide(message.getSide());
 
 		AlignmentOrder ao = new AlignmentOrder();
 
@@ -306,11 +306,11 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 		String target = null;
 		AlignmentExecutionReport aer = new AlignmentExecutionReport();
 
-		if (msgType==DataMapper.EXCHANGEMESSAGETYPEMAPPEDFROMEXECUTIONREPORT) {
+		if (msgType==AlignmentDataMapper.EXCHANGEMESSAGETYPEMAPPEDFROMEXECUTIONREPORT) {
 
 			er = aer.getFIXExecutionReport(bb, msgType);
 
-		}else if (msgType==DataMapper.EXCHANGEMESSAGETYPEMAPPEDFROMNEWORDERSINGLE) {
+		}else if (msgType==AlignmentDataMapper.EXCHANGEMESSAGETYPEMAPPEDFROMNEWORDERSINGLE) {
 			//it's an order that has been thrown back to generate an ExecutionReport.
 			//rehydrate into a POJO and then send
 			er = aer.getFIXExecutionReportAckFromOrderBuffer(bb, msgType);	

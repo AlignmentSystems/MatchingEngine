@@ -6,7 +6,7 @@ package com.alignmentsystems.library;
  *	Date            :	30th August 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	PersistenceToFileServer
+ *	Artefact		:	AlignmentPersistenceToFileServer
  *	Description		:
  *****************************************************************************/
 
@@ -33,9 +33,9 @@ import com.alignmentsystems.library.interfaces.InterfacePersistenceServer;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-class PersistenceToFileServer implements Runnable , InterfacePersistenceServer{
+class AlignmentPersistenceToFileServer implements Runnable , InterfacePersistenceServer{
 	private ConcurrentLinkedQueue<String> logQueue = null;
-	private final static String CLASSNAME = PersistenceToFileServer.class.getSimpleName().toString();
+	private final static String CLASSNAME = AlignmentPersistenceToFileServer.class.getSimpleName().toString();
 	private String fullPathAndFileNameToUse = null;
 	private int milliSleep = 0;
 	private Path pathForLogFile = null;
@@ -56,10 +56,10 @@ class PersistenceToFileServer implements Runnable , InterfacePersistenceServer{
 		this.logQueue = queue;
 		this.tag = tag;
 
-		final String logFileDirectory = LibraryFunctions.getLogFileLocation(cl , instanceTypeName);
-		final String filenameSuffix = LibraryFunctions.getFileNameSuffix(cl , instanceTypeName);
+		final String logFileDirectory = AlignmentFunctions.getLogFileLocation(cl , instanceTypeName);
+		final String filenameSuffix = AlignmentFunctions.getFileNameSuffix(cl , instanceTypeName);
 
-		this.fullPathAndFileNameToUse = LibraryFunctions.getFileNameToUseForPersistence(logFileDirectory , tag , filenameSuffix);
+		this.fullPathAndFileNameToUse = AlignmentFunctions.getFileNameToUseForPersistence(logFileDirectory , tag , filenameSuffix);
 		this.milliSleep = milliSleep;
 		StandardOpenOption option = getOpenOption();
 		String toWrite = getFormattedMessage(fullPathAndFileNameToUse);
@@ -84,9 +84,9 @@ class PersistenceToFileServer implements Runnable , InterfacePersistenceServer{
 		String filenameSuffix;
 
 		try {
-			logFileDirectory = LibraryFunctions.getLogFileLocation(cl, instanceTypeName);
-			filenameSuffix = LibraryFunctions.getFileNameSuffix(cl, instanceTypeName);
-			this.fullPathAndFileNameToUse = LibraryFunctions.getFileNameToUseForPersistence(logFileDirectory , null , filenameSuffix);			
+			logFileDirectory = AlignmentFunctions.getLogFileLocation(cl, instanceTypeName);
+			filenameSuffix = AlignmentFunctions.getFileNameSuffix(cl, instanceTypeName);
+			this.fullPathAndFileNameToUse = AlignmentFunctions.getFileNameToUseForPersistence(logFileDirectory , null , filenameSuffix);			
 		} catch (FileNotFoundException | NullPointerException e) {
 			throw e;
 		}
@@ -272,7 +272,7 @@ class PersistenceToFileServer implements Runnable , InterfacePersistenceServer{
 		}
 		
 		StringBuilder sb = new StringBuilder()
-				.append(LibraryFunctions.getUTCTimestamp( OffsetDateTime.now(Constants.HERE), TimestampUsage.INFILE))
+				.append(AlignmentFunctions.getUTCTimestamp( OffsetDateTime.now(Constants.HERE), TimestampUsage.INFILE))
 				.append(Constants.TAB)
 				.append("[")
 				.append(logFileSequenceNumber.toString())

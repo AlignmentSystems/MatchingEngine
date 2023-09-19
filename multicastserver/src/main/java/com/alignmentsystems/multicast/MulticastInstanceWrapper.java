@@ -10,8 +10,8 @@ package com.alignmentsystems.multicast;
  *	Description		:
  *****************************************************************************/
 
-import com.alignmentsystems.library.LibraryFunctions;
-import com.alignmentsystems.library.LogEncapsulation;
+import com.alignmentsystems.library.AlignmentFunctions;
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceInstanceWrapper;
 /**
@@ -23,7 +23,7 @@ public class MulticastInstanceWrapper implements InterfaceInstanceWrapper{
 	private InstanceType instanceType ;
 	private final static String MARKETDATATOPIC = "MDOUT";
 
-	private LogEncapsulation log = new LogEncapsulation(this.getClass());
+	private AlignmentLogEncapsulation log = new AlignmentLogEncapsulation(this.getClass());
 
 	@Override
 	public boolean initialise(InstanceType instanceType) {
@@ -37,7 +37,7 @@ public class MulticastInstanceWrapper implements InterfaceInstanceWrapper{
 		.append(" Started instance=")
 		.append(this.instanceType.type)
 		.append(" Started version=")
-		.append(LibraryFunctions.getVersion(this.getClass()));
+		.append(AlignmentFunctions.getVersion(this.getClass()));
 
 		log.info(sb.toString());
 		MulticastServerKafkaListener mmkl = null;

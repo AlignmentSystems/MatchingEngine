@@ -11,7 +11,7 @@ package com.alignmentsystems.matching;
  *****************************************************************************/
 
 import com.alignmentsystems.fix44.NewOrderSingle;
-import com.alignmentsystems.library.LogEncapsulation;
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.enumerations.MessageDirection;
@@ -35,10 +35,10 @@ import quickfix.UnsupportedMessageType;
  */
 public class FIXEngineMember extends MessageCracker implements quickfix.Application{
 	private final static String CLASSNAME = FIXEngineMember.class.getSimpleName();
-	private LogEncapsulation log = null;
+	private AlignmentLogEncapsulation log = null;
 	private InstanceType instanceType = null;
 
-	public FIXEngineMember(LogEncapsulation log, InstanceType instanceType) {
+	public FIXEngineMember(AlignmentLogEncapsulation log, InstanceType instanceType) {
 		this.log = log;
 		this.instanceType = instanceType;
 	}

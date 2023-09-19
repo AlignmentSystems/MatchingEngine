@@ -313,7 +313,7 @@ public class AlignmentMatch implements InterfaceMatch {
 				, this.buyAvgPx
 				, this.buyOrdStatus
 				, this.buyExecType
-				, DataMapper.EXCHANGESIDEBUY
+				, AlignmentDataMapper.EXCHANGESIDEBUY
 				);
 		return buy;
 	}
@@ -338,7 +338,7 @@ public class AlignmentMatch implements InterfaceMatch {
 				, this.sellAvgPx
 				, this.sellOrdStatus
 				, this.sellExecType
-				, DataMapper.EXCHANGESIDESELL
+				, AlignmentDataMapper.EXCHANGESIDESELL
 				);
 		return sell;
 	}
@@ -369,7 +369,7 @@ public class AlignmentMatch implements InterfaceMatch {
 
 	@Override
 	public AlignmentKafkaSender getMarketDataBytesAsSBEInSender() {
-		final Short msgType = DataMapper.EXCHANGEMESSAGETYPEMATCH;
+		final Short msgType = AlignmentDataMapper.EXCHANGEMESSAGETYPEMATCH;
 		final String MARKETDATATOPIC = "MDOUT";
 
 		ByteBuffer buf = null;

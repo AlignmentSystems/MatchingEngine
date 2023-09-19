@@ -10,12 +10,12 @@ package com.alignmentsystems.library.interfaces;
  *	Description		:
  *****************************************************************************/
 
-import com.alignmentsystems.library.LogEncapsulation;
-import com.alignmentsystems.library.PersistenceToFileClient;
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
+import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
 public interface InterfaceOrderBookWrapper {
-	public boolean initialise(LogEncapsulation log , PersistenceToFileClient debugger) throws Exception;
+	public boolean initialise(AlignmentLogEncapsulation log , AlignmentPersistenceToFileClient debugger) throws Exception;
 }

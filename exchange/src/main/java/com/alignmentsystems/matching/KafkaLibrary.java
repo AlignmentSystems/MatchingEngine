@@ -14,7 +14,7 @@ package com.alignmentsystems.matching;
 import javax.json.Json;
 import javax.json.JsonObject;
 
-import com.alignmentsystems.library.LibraryFunctions;
+import com.alignmentsystems.library.AlignmentFunctions;
 import com.alignmentsystems.library.enumerations.ConfigurationProperties;
 import com.alignmentsystems.library.enumerations.InstanceType;
 
@@ -28,7 +28,7 @@ public class KafkaLibrary {
 	public static JsonObject getMessageLogEntryJSON(String source, String topic, String key, String message)
 			throws Exception {
 
-		String bootstrapServers = LibraryFunctions.getProperty(KafkaLibrary.class.getClassLoader(), InstanceType.KAFKA.getProperties(),
+		String bootstrapServers = AlignmentFunctions.getProperty(KafkaLibrary.class.getClassLoader(), InstanceType.KAFKA.getProperties(),
 				ConfigurationProperties.BOOTSTRAPSERVERS);
 
 		JsonObject model = Json.createObjectBuilder().add("bootstrapServers", bootstrapServers).add("source", source)

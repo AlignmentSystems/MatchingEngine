@@ -10,10 +10,10 @@ package com.alignmentsystems.multicast;
  *	Description		:
  *****************************************************************************/
 
-import com.alignmentsystems.library.LibraryFunctions;
+
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.multicast.MulticastServerKafkaListener;
-
+import com.alignmentsystems.library.AlignmentFunctions;
 
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
@@ -23,7 +23,7 @@ public class App {
 	private final static String LOGBACKLOGNAME = "log.name";
 
 	public static void main(String[] args) {		
-		InstanceType instanceType = LibraryFunctions.getInstanceType(args);
+		InstanceType instanceType = AlignmentFunctions.getInstanceType(args);
 		System.setProperty(LOGBACKLOGNAME, instanceType.type);
 
 		

@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.alignmentsystems.fix44.MessageFactory;
-import com.alignmentsystems.library.LibraryFunctions;
-import com.alignmentsystems.library.LogEncapsulation;
-import com.alignmentsystems.library.PersistenceToFileClient;
+import com.alignmentsystems.library.AlignmentFunctions;
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
+import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 import com.alignmentsystems.library.constants.FailureConditionConstants;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceInstanceWrapper;
@@ -31,7 +31,7 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 	private List<FIXEngineExchange> engines = new ArrayList<FIXEngineExchange>();
 	//private ConcurrentLinkedQueue<InterfaceMatch> marketDataQueue = new ConcurrentLinkedQueue<InterfaceMatch>();
 	private InstanceType instanceType;
-	private final LogEncapsulation log = new LogEncapsulation(InstanceWrapper.class);
+	private final AlignmentLogEncapsulation log = new AlignmentLogEncapsulation(InstanceWrapper.class);
 
 
 	@Override
@@ -42,7 +42,7 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append(CLASSNAME).append(" Started instance=").append(this.instanceType.type).append(" Started version=")
-				.append(LibraryFunctions.getVersion(this.getClass()));
+				.append(AlignmentFunctions.getVersion(this.getClass()));
 
 		Boolean returnValue = Boolean.FALSE;
 		log.info(sb.toString());
@@ -54,7 +54,7 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 		// a FIXMESSAGINGINFRA;
 		// b ORDERBOOK;
 		// Then there is a clear segregation of duties.
-		//FIXMESSAGINGINFRA handles the FIX Connections, the non-sequenced queue, the sequenced queue, the DataMapper and the FIXToBinaryProcessor
+		//FIXMESSAGINGINFRA handles the FIX Connections, the non-sequenced queue, the sequenced queue, the AlignmentDataMapper and the FIXToBinaryProcessor
 		//
 
 		switch (instanceType) {
@@ -83,7 +83,7 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 
 	private Boolean initialiseOrderBook(InstanceType instanceType)  {
 		
-		PersistenceToFileClient debugger = new PersistenceToFileClient();
+		AlignmentPersistenceToFileClient debugger = new AlignmentPersistenceToFileClient();
 		try {
 			debugger.initialise(InstanceWrapper.class.getClassLoader(), InstanceType.ORDERBOOK.getProperties());
 			debugger.info("Working...");
@@ -109,7 +109,7 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 	}
 
 	private Boolean initialiseFIXMessagingInfrastructure(InstanceType instanceType)  {
-		PersistenceToFileClient debugger = new PersistenceToFileClient();
+		AlignmentPersistenceToFileClient debugger = new AlignmentPersistenceToFileClient();
 		try {
 			debugger.initialise(this.getClass().getClassLoader() , InstanceType.FIXMESSAGINGINFRA.getProperties());
 			debugger.info("Working...");
@@ -188,10 +188,10 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 			System.exit(FailureConditionConstants.ERROR_EXCHANGE_FIX_PROPERTIES_FILE);
 		}
 
-		LibraryFunctions.threadStatusCheck(Thread.currentThread(), log);
-		LibraryFunctions.threadStatusCheck(queueNonSequencedThread, log);
-		LibraryFunctions.threadStatusCheck(queueSequencedThread, log);
-		LibraryFunctions.threadStatusCheck(fixToBinaryProcessorThread, log);
+		AlignmentFunctions.threadStatusCheck(Thread.currentThread(), log);
+		AlignmentFunctions.threadStatusCheck(queueNonSequencedThread, log);
+		AlignmentFunctions.threadStatusCheck(queueSequencedThread, log);
+		AlignmentFunctions.threadStatusCheck(fixToBinaryProcessorThread, log);
 
 		return true;
 	}

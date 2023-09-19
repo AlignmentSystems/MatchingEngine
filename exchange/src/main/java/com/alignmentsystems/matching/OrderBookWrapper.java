@@ -3,8 +3,8 @@ package com.alignmentsystems.matching;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alignmentsystems.library.LogEncapsulation;
-import com.alignmentsystems.library.PersistenceToFileClient;
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
+import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBookWrapper;
 
@@ -17,8 +17,8 @@ public class OrderBookWrapper implements InterfaceOrderBookWrapper{
 	private final static String CLASSNAME = OrderBookWrapper.class.getSimpleName();
 
 	private Map<String, InterfaceOrderBook> orderBooks = new HashMap<String, InterfaceOrderBook>();
-	private LogEncapsulation log = null;
-	private PersistenceToFileClient debugger = null;
+	private AlignmentLogEncapsulation log = null;
+	private AlignmentPersistenceToFileClient debugger = null;
 	//private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
 	// private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook =
 	// new ArrayList<InterfaceAddedOrderToOrderBook>();
@@ -35,7 +35,7 @@ public class OrderBookWrapper implements InterfaceOrderBookWrapper{
 	}
 
 	@Override
-	public boolean initialise(LogEncapsulation log, PersistenceToFileClient debugger) throws Exception {
+	public boolean initialise(AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger) throws Exception {
 		this.log = log;
 		this.debugger = debugger;
 

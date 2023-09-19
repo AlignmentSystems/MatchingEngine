@@ -27,17 +27,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import com.alignmentsystems.library.DataMapper;
-import com.alignmentsystems.library.LibraryFunctions;
-import com.alignmentsystems.library.LogEncapsulation;
-import com.alignmentsystems.library.PersistenceToFileClient;
+import com.alignmentsystems.library.AlignmentDataMapper;
+import com.alignmentsystems.library.AlignmentFunctions;
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
+import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 import com.alignmentsystems.library.enumerations.ConfigurationProperties;
 import com.alignmentsystems.library.enumerations.Encodings;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.enumerations.VersionSOFH;
 import com.alignmentsystems.library.interfaces.InterfaceKafkaMessageHandler;
 import com.alignmentsystems.library.interfaces.InterfaceMulticastServer;
-import com.alignmentsystems.library.sbe.SimpleBinaryEncodingMessage;
 
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
@@ -49,8 +48,8 @@ public class MulticastServer implements InterfaceMulticastServer ,  Runnable , I
 
 	private DatagramSocket socket;
 	private InetAddress group;
-	private LogEncapsulation log = null;
-	private PersistenceToFileClient debugger = null;
+	private AlignmentLogEncapsulation log = null;
+	private AlignmentPersistenceToFileClient debugger = null;
 	private String host = null;
 	private int port = 0;
 	private AtomicBoolean running = new AtomicBoolean(false);
@@ -104,7 +103,7 @@ public class MulticastServer implements InterfaceMulticastServer ,  Runnable , I
 	}
 
 	@Override
-	public boolean initialise(LogEncapsulation log, PersistenceToFileClient debugger, String host, int port) {
+	public boolean initialise(AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger, String host, int port) {
 		this.log = log;
 
 		this.debugger = debugger;
@@ -116,13 +115,13 @@ public class MulticastServer implements InterfaceMulticastServer ,  Runnable , I
 
 	@Override
 	public boolean initialise(
-			LogEncapsulation log
-			, PersistenceToFileClient debugger) throws Exception{
+			AlignmentLogEncapsulation log
+			, AlignmentPersistenceToFileClient debugger) throws Exception{
 		this.log = log;
 		this.debugger = debugger;
 		try {
-			this.host = LibraryFunctions.getProperty(MulticastServer.class.getClassLoader() , InstanceType.MULTICASTSERVER.getProperties(), ConfigurationProperties.MULTICASTHOST);
-			this.port = LibraryFunctions.getPropertyAsInt(MulticastServer.class.getClassLoader() , InstanceType.MULTICASTSERVER.getProperties(), ConfigurationProperties.MULTICASTPORT);
+			this.host = AlignmentFunctions.getProperty(MulticastServer.class.getClassLoader() , InstanceType.MULTICASTSERVER.getProperties(), ConfigurationProperties.MULTICASTHOST);
+			this.port = AlignmentFunctions.getPropertyAsInt(MulticastServer.class.getClassLoader() , InstanceType.MULTICASTSERVER.getProperties(), ConfigurationProperties.MULTICASTPORT);
 		} catch (FileNotFoundException | NullPointerException e) {
 			log.error(e.getMessage() , e);
 			throw e;
@@ -155,12 +154,12 @@ public class MulticastServer implements InterfaceMulticastServer ,  Runnable , I
 		//The Messages that go out via UDP/Multicast on Feed-A, Feed-B and Feed-C
 		byte[] toMulticast = null;
 		if (message.value().length>2) {
-			ByteBuffer bb = ByteBuffer.wrap(message.value()).order(this.encoding.getByteOrder()); 
+			ByteBuffer bb = ByteBuffer.wrap(message.value()).order(MulticastServer.encoding.getByteOrder()); 
 			 
 			//if the message is longer than two bytes then we can take the first two bytes as being the MessageType
-			if (bb.getShort()==DataMapper.EXCHANGEMESSAGETYPEMATCH) {
+			if (bb.getShort()==AlignmentDataMapper.EXCHANGEMESSAGETYPEMATCH) {
 				//We have a trade match...
-				ByteBuffer bb2 = ByteBuffer.allocate(Long.BYTES + message.value().length).order(this.encoding.getByteOrder());
+				ByteBuffer bb2 = ByteBuffer.allocate(Long.BYTES + message.value().length).order(MulticastServer.encoding.getByteOrder());
 				bb2.putLong(this.getSequenceNumberForNextMessage());
 				bb2.put(message.value());
 				

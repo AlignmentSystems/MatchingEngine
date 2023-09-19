@@ -279,11 +279,11 @@ public class AlignmentOrder implements InterfaceOrder{
 			final char receivedSide = this.orderBookSide.sideCharValue;
 			final char receivedTimeInForce = this.timeInForce;
 			//get mappings...
-			final Long exchangeIdMappedFromSenderCompID = DataMapper.getExchangeIdMappedFromSenderCompID(receivedSender);
-			final Long exchangeIdMappedFromTargetCompID = DataMapper.getExchangeIdMappedFromTargetCompID(receivedTarget);
-			final Long exchangeInstrumentIdMappedFromSymbol = DataMapper.getExchangeIdMappedFromInstrumentId(receivedSymbol);
-			final Short exchangeSideCodeMappedFromSideCode = DataMapper.getExchangeSideCodeMappedFromMemberSideCode(receivedSide);
-			final Short exchangeTimeInForceMappedFromTimeInForce = DataMapper.getMemberTimeInForceMappedToExchangeTimeInForce(receivedTimeInForce);
+			final Long exchangeIdMappedFromSenderCompID = AlignmentDataMapper.getExchangeIdMappedFromSenderCompID(receivedSender);
+			final Long exchangeIdMappedFromTargetCompID = AlignmentDataMapper.getExchangeIdMappedFromTargetCompID(receivedTarget);
+			final Long exchangeInstrumentIdMappedFromSymbol = AlignmentDataMapper.getExchangeIdMappedFromInstrumentId(receivedSymbol);
+			final Short exchangeSideCodeMappedFromSideCode = AlignmentDataMapper.getExchangeSideCodeMappedFromMemberSideCode(receivedSide);
+			final Short exchangeTimeInForceMappedFromTimeInForce = AlignmentDataMapper.getMemberTimeInForceMappedToExchangeTimeInForce(receivedTimeInForce);
 
 			final Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
 
@@ -385,14 +385,14 @@ public class AlignmentOrder implements InterfaceOrder{
 			final UUID clOrdId = new UUID(clOrdIdMost, clOrdIdLeast);
 			final UUID orderId = new UUID(orderIdMost, orderIdLeast);
 
-			final String senderCompId = DataMapper.getMemberFIXSenderCompIdMappedFromExchangeId(senderId);
-			final String targetCompId = DataMapper.getMemberFIXTargetCompIdMappedFromExchangeId(targetId);
-			final String instrument = DataMapper.getMemberInstrumentIdMappedFromExchangeInstrumentId(instrumentId);
-			final char sideCodeFIX = DataMapper.getMemberSideCodeMappedFromExchangeSideCode(sideCode);
+			final String senderCompId = AlignmentDataMapper.getMemberFIXSenderCompIdMappedFromExchangeId(senderId);
+			final String targetCompId = AlignmentDataMapper.getMemberFIXTargetCompIdMappedFromExchangeId(targetId);
+			final String instrument = AlignmentDataMapper.getMemberInstrumentIdMappedFromExchangeInstrumentId(instrumentId);
+			final char sideCodeFIX = AlignmentDataMapper.getMemberSideCodeMappedFromExchangeSideCode(sideCode);
 			final Instant instant = Instant.ofEpochSecond(timeStampEpochSeconds).plusNanos(timeStampNanoseconds);
 			final OffsetDateTime ts =  OffsetDateTime.ofInstant(instant, Constants.HERE);
 			final OrderBookSide obs = OrderBookSide.getEnumForID(sideCodeFIX);
-			final char tif = DataMapper.getExchangeTimeInForceMappedToMemberTimeInForce(msgTimeInForce);
+			final char tif = AlignmentDataMapper.getExchangeTimeInForceMappedToMemberTimeInForce(msgTimeInForce);
 
 
 			this.reCreateOrder(instrument , tif, obs , orderQty , limitPrice , ts , senderCompId , targetCompId , orderId , clOrdId);
