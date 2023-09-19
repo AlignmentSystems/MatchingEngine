@@ -19,7 +19,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
-import com.alignmentsystems.library.AlignmentExecutionReport;
 import com.alignmentsystems.library.AlignmentKafkaSender;
 import com.alignmentsystems.library.LibraryFunctions;
 import com.alignmentsystems.library.LogEncapsulation;
