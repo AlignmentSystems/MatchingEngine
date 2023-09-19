@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+	
+	<property name="PRO_HOME" value="/home/john/logs" />
+	<property name="USER_HOME" value="${PRO_HOME}" />
+
+	
+    <!-- Send debug messages to System.out -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{"yyyy-MM-dd HH:mm:ss.SSS",UTC} [%thread] %-5level %logger ==> [%msg]%n</pattern>
+        </encoder>
+    </appender>
+ 
+   <timestamp key="byDay" datePattern="yyyy_MM_dd_HH.mm.ss.SSSZ"/>
+<!--file will be called something like 2016_06_13___10.06.17.774-JavaLoader.log-->
+ 
+
+ 
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--file>C:\logs\${byDay}-Matching.log</file-->
+
+        <file>${USER_HOME}/${byDay}-${log.name}.log</file>
+        <append>true</append>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+          <!--http://logback.qos.ch/manual/layouts.html-->
+          <!--look at the above link for details on how formatting works-->
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger ==> [%msg]%n</Pattern>
+        </encoder>
+ 
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <FileNamePattern>${USER_HOME}/${byDay}-${log.name}-%i.log</FileNamePattern>
+            <!--  FileNamePattern>C:\logs\${byDay}-Matching-%i.log</FileNamePattern-->
+ 
+            <MinIndex>1</MinIndex>  
+            <MaxIndex>10</MaxIndex>
+        </rollingPolicy>  
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>100MB</MaxFileSize>
+        </triggeringPolicy>
+
+    </appender>
+
+    <appender name="ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--file>C:\logs\${byDay}-Matching__ERR.log</file-->
+  
+        <file>${USER_HOME}/${byDay}-${log.name}__ERR.log</file>
+        <append>true</append>
+	 <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+          <!--http://logback.qos.ch/manual/layouts.html-->
+          <!--look at the above link for details on how formatting works-->
+            <Pattern>%d{"yyyy-MM-dd HH:mm:ss.SSS",UTC} [%thread] %-5level %logger ==> [%msg]%n</Pattern>
+        </encoder>
+ 
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <!--FileNamePattern>C:\logs\${byDay}-Matching__ERR-%i.log</FileNamePattern-->
+
+            <FileNamePattern>${USER_HOME}/${byDay}-${log.name}__ERR-%i.log</FileNamePattern>
+            <MinIndex>1</MinIndex>  
+            <MaxIndex>10</MaxIndex>
+        </rollingPolicy>  
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>100MB</MaxFileSize>
+        </triggeringPolicy>
+
+    </appender>
+
+    <!-- By default, the level of the root level is set to DEBUG -->	
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="ERROR" />
+        <appender-ref ref="FILE" />
+    </root>
+</configuration>
