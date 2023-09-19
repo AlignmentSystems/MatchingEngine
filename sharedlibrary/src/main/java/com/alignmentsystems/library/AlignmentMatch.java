@@ -10,9 +10,11 @@ package com.alignmentsystems.library;
  *	Description		:
  *****************************************************************************/
 
+import java.nio.ByteBuffer;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import com.alignmentsystems.library.enumerations.Encodings;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
 import com.alignmentsystems.library.interfaces.InterfaceMatch;
 
@@ -21,6 +23,7 @@ import com.alignmentsystems.library.interfaces.InterfaceMatch;
  *
  */
 public class AlignmentMatch implements InterfaceMatch {
+	final static Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
 	private Long matchQuantity = 0L;
 	private Long matchPrice = 0L;
 	private OrderBookSide aggressorSide = null;
@@ -37,7 +40,7 @@ public class AlignmentMatch implements InterfaceMatch {
 	private Long sellAvgPx  = null;
 	private Long buyLeavesQty = null;
 	private Long sellLeavesQty  = null;
-	
+
 	private String buySenderId = null;
 	private String buyTargetId = null;
 	private String sellSenderId = null;
@@ -51,9 +54,10 @@ public class AlignmentMatch implements InterfaceMatch {
 	private Short sellOrdStatus  = null;
 	private Short sellExecType  = null;
 
-	
-	
+
+
 	private UUID matchId = null;
+	private UUID marketDataId = null;
 	private Boolean isEligibleForMarketData = Boolean.FALSE;
 
 
@@ -74,12 +78,12 @@ public class AlignmentMatch implements InterfaceMatch {
 			, Long sellAvgPx
 			, Long buyLeavesQty 
 			, Long sellLeavesQty
-			
+
 			, String buySenderId 
 			, String buyTargetId 
 			, String sellSenderId
 			, String sellTargetId
-			
+
 			, Short buyOrdStatus
 			, Short buyExecType
 
@@ -105,7 +109,7 @@ public class AlignmentMatch implements InterfaceMatch {
 		this.sellAvgPx = sellAvgPx;
 		this.buyLeavesQty = buyLeavesQty ;
 		this.sellLeavesQty = sellLeavesQty ;
-		
+
 		this.buySenderId = buySenderId;
 		this.buyTargetId = buyTargetId; 
 		this.sellSenderId = sellSenderId;
@@ -116,14 +120,14 @@ public class AlignmentMatch implements InterfaceMatch {
 
 		this.sellOrdStatus = sellOrdStatus; 
 		this.sellExecType = sellExecType; 
-		
+
 
 		this.isEligibleForMarketData = getIsEligibleForMarketData;
-		
+
 		this.buyExecId = UUID.randomUUID();
 		this.sellExecId = UUID.randomUUID();
-		
-		
+
+		this.marketDataId = UUID.randomUUID();
 		this.matchId = UUID.randomUUID();		
 	}
 
@@ -357,5 +361,66 @@ public class AlignmentMatch implements InterfaceMatch {
 	@Override
 	public Short getSellExecType() {
 		return this.sellExecType;
+	}
+
+
+
+
+
+	@Override
+	public AlignmentKafkaSender getMarketDataBytesAsSBEInSender() {
+		final Short msgType = DataMapper.EXCHANGEMESSAGETYPEMATCH;
+		final String MARKETDATATOPIC = "MDOUT";
+
+		ByteBuffer buf = null;
+
+		final int bufferLength =
+				Short.BYTES//messageType
+				+
+				Long.BYTES//marketDataId least
+				+
+				Long.BYTES//marketDataId most
+				+
+				Long.BYTES//price
+				+
+				Long.BYTES//quantity
+				+
+				Long.BYTES //this.timestamp.getEpochSecond
+				+
+				Integer.BYTES // this.timestamp.getNano()
+				;
+		try {
+
+			buf = ByteBuffer.allocate(bufferLength).order(AlignmentMatch.encoding.getByteOrder());
+
+			buf.putLong(this.marketDataId.getLeastSignificantBits());
+			buf.putLong(this.marketDataId.getMostSignificantBits());
+			buf.putLong(this.matchPrice);
+			buf.putLong(this.matchQuantity);
+			buf.putLong(this.timestamp.toInstant().getEpochSecond());
+			buf.putInt(this.timestamp.toInstant().getNano());					
+			buf.flip();
+			
+			
+		} catch (Exception e) {
+			//this.log.error(e.getMessage() , e);
+			throw e;
+		}
+
+		AlignmentKafkaSender sender = new AlignmentKafkaSender();
+
+		sender.initialise(buf.array(), MARKETDATATOPIC, this.marketDataId.toString());
+
+		return sender;
+	}
+
+
+
+
+
+	@Override
+	public UUID getMarketDataId() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -125,6 +125,7 @@ public class OrderBookKafkaProducer implements InterfaceMatchEvent, InterfaceAdd
 
 		//log.infoMatchingEvent(OperationEventType.NEWORDEREVENT, er);
 		AlignmentKafkaSender senderAck= er.getSenderForTopic(TOPIC);
+		
 		this.send(senderAck.getTopic(), senderAck.getKey(), senderAck.getBinaryMessage());		
 	}
 }

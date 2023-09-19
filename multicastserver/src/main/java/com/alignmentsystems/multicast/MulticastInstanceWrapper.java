@@ -3,15 +3,12 @@ package com.alignmentsystems.multicast;
  * 
  *	Author			:	John Greenan 
  *	Contact			:	sales@alignment-systems.com
- *	Date            :	24th August 2023
+ *	Date            :	19th September 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	MatchingEngineWrapper
+ *	Artefact		:	MulticastInstanceWrapper
  *	Description		:
  *****************************************************************************/
-
-import java.util.ArrayList;
-import java.util.List;
 
 import com.alignmentsystems.library.LibraryFunctions;
 import com.alignmentsystems.library.LogEncapsulation;
@@ -23,8 +20,8 @@ import com.alignmentsystems.library.interfaces.InterfaceInstanceWrapper;
  */
 public class MulticastInstanceWrapper implements InterfaceInstanceWrapper{
 	private final String CLASSNAME = this.getClass().getSimpleName();
-	private final int milliSleep = 200;
 	private InstanceType instanceType ;
+	private final static String MARKETDATATOPIC = "MDOUT";
 
 	private LogEncapsulation log = new LogEncapsulation(this.getClass());
 
@@ -43,12 +40,28 @@ public class MulticastInstanceWrapper implements InterfaceInstanceWrapper{
 		.append(LibraryFunctions.getVersion(this.getClass()));
 
 		log.info(sb.toString());
-
+		MulticastServerKafkaListener mmkl = null;
+		
+		try {
+			mmkl = new MulticastServerKafkaListener();
+		} catch (Exception e) {
+			log.error(e.getMessage() , e);
+			return false;
+		}
+		
+		
 		MulticastServer multicast = new MulticastServer();
 
-
+		
 		Thread multiCastServerThread = new Thread(null , multicast, MulticastServer.CLASSNAME);
 
+		try {
+			mmkl.runAlways(MARKETDATATOPIC, multicast);
+		} catch (Exception e) {
+			log.error(e.getMessage() , e);
+			return false;
+		}
+		
 		multiCastServerThread.start();
 
 		while (returnValue) {

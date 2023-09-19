@@ -13,6 +13,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import com.alignmentsystems.library.AlignmentExecutionReport;
+import com.alignmentsystems.library.AlignmentKafkaSender;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
@@ -28,6 +29,7 @@ public interface InterfaceMatch {
 	public UUID getBuyOrderId();
 	public UUID getSellOrderId();
 	public UUID getMatchId();
+	public UUID getMarketDataId();
 	public Long getBuyCumQty();
 	public Long getSellCumQty();
 	public Long getBuyOrderQty();
@@ -43,7 +45,7 @@ public interface InterfaceMatch {
 	public Short getBuyExecType();
 	public Short getSellOrdStatus();
 	public Short getSellExecType();
-
+	public AlignmentKafkaSender getMarketDataBytesAsSBEInSender();
 	public void getSellAvgPx(Long avgPx);
 	public void setMatchId(UUID matchID);
 	public Boolean getIsEligibleForMarketData();

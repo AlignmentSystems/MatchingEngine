@@ -39,6 +39,7 @@ import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBookEvents;
+import com.alignmentsystems.library.interfaces.InterfaceKafkaMessageHandler;
 
 import quickfix.FieldNotFound;
 
@@ -49,7 +50,7 @@ import quickfix.FieldNotFound;
  *
  */
 public class OrderBook
-implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, InterfaceAddedOrderToOrderBook, InterfaceOrderBookEvents, Runnable {
+implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, InterfaceAddedOrderToOrderBook, InterfaceOrderBookEvents, Runnable {
 	private final static String CLASSNAME = OrderBook.class.getSimpleName();
 
 	private final static int buyPriorityQueueSize = 100;

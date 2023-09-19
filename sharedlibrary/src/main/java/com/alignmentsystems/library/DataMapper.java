@@ -43,6 +43,9 @@ public class DataMapper {
 	private static AtomicBoolean initialised = new AtomicBoolean(false);
 	public final static Short EXCHANGEMESSAGETYPEMAPPEDFROMEXECUTIONREPORT = getExchangeMessageTypeMappedFromMemberMessageType("8");
 	public final static Short EXCHANGEMESSAGETYPEMAPPEDFROMNEWORDERSINGLE = getExchangeMessageTypeMappedFromMemberMessageType("D");
+	
+	public final static Short EXCHANGEMESSAGETYPEMATCH = Short.MAX_VALUE;
+	
 	public final static Short EXCHANGEORDSTATUSNEW = memberOrdStatusToExchangeOrdStatusMap.get("0".charAt(0));
 	public final static Short EXCHANGEEXECTYPENEW = memberExecTypeToExchangeExecTypeMap.get("0".charAt(0));
 
@@ -368,6 +371,10 @@ public class DataMapper {
 		addMemberMessageTypeToExchangeMessageType(	id++,	"EB"	);
 		addMemberMessageTypeToExchangeMessageType(	id++,	"DY"	);
 		addMemberMessageTypeToExchangeMessageType(	id++,	"DZ"	);
+		
+		
+		addMemberMessageTypeToExchangeMessageType(	Short.MAX_VALUE,	"MATCH"	);
+		
 	}
 
 

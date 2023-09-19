@@ -27,8 +27,10 @@ import org.apache.kafka.common.errors.WakeupException;
 import com.alignmentsystems.library.LibraryFunctions;
 import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.enumerations.InstanceType;
+import com.alignmentsystems.library.interfaces.InterfaceKafkaAbstractSimple;
+import com.alignmentsystems.library.interfaces.InterfaceKafkaMessageHandler;
 
-public class OrderBookKafkaConsumer  extends KafkaAbstractSimple implements Runnable{
+public class OrderBookKafkaConsumer  extends InterfaceKafkaAbstractSimple implements Runnable{
 	public final static String CLASSNAME = OrderBookKafkaConsumer.class.getSimpleName();
 	private final int TIME_OUT_MS = 5000;
 	private KafkaConsumer<String, byte[]> kafkaConsumer = null;
@@ -59,7 +61,7 @@ public class OrderBookKafkaConsumer  extends KafkaAbstractSimple implements Runn
 		this.kafkaConsumer = kafkaConsumer;
 	}
 
-	void run(String topicName, KafkaMessageHandler callback, Integer numberOfRecords) throws Exception {
+	void run(String topicName, InterfaceKafkaMessageHandler callback, Integer numberOfRecords) throws Exception {
 		// See if the number of records is provided
 		Optional<Integer> recs = Optional.ofNullable(numberOfRecords);
 
@@ -114,7 +116,7 @@ public class OrderBookKafkaConsumer  extends KafkaAbstractSimple implements Runn
 	}
 
 	@Override
-	public void runAlways(String topicName, KafkaMessageHandler callback) throws Exception {
+	public void runAlways(String topicName, InterfaceKafkaMessageHandler callback) throws Exception {
 		
 		List<String> topicNames = List.of(topicName);
 		runAlways(topicNames, callback);
@@ -136,7 +138,7 @@ public class OrderBookKafkaConsumer  extends KafkaAbstractSimple implements Runn
 	}
 
 	@Override
-	public void runAlways(List<String> topicNames, KafkaMessageHandler callback) throws Exception {
+	public void runAlways(List<String> topicNames, InterfaceKafkaMessageHandler callback) throws Exception {
 		
 		Properties props;
 		try {
