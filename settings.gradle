@@ -17,4 +17,5 @@ include('sharedlibrary')
 include('exchange')
 include('fixclient')
 include('administrator')
+include('multicastserver')
 

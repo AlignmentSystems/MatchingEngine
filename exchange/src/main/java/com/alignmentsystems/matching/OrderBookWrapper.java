@@ -7,7 +7,6 @@ import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.PersistenceToFileClient;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBookWrapper;
-import com.alignmentsystems.matching.udp.MulticastServer;
 
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
@@ -54,16 +53,10 @@ public class OrderBookWrapper implements InterfaceOrderBookWrapper{
 			return false;
 		};
 		
-		MulticastServer multicast = new MulticastServer();
 		
 		
-		Thread multiCastServerThread = new Thread(null , multicast, MulticastServer.CLASSNAME);
-		
-		multiCastServerThread.start();
-		
-		
-		obkp.addAddedOrderToOrderBookListener(multicast);
-		obkp.addMatchEventListener(multicast);
+		//obkp.addAddedOrderToOrderBookListener(multicast);
+		//obkp.addMatchEventListener(multicast);
 		
 
 		Thread obThread = new Thread(orderBook);
