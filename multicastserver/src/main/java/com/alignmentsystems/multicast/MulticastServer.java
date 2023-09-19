@@ -163,6 +163,8 @@ public class MulticastServer implements InterfaceMulticastServer ,  Runnable , I
 				ByteBuffer bb2 = ByteBuffer.allocate(Long.BYTES + message.value().length).order(this.encoding.getByteOrder());
 				bb2.putLong(this.getSequenceNumberForNextMessage());
 				bb2.put(message.value());
+				
+				bb2.flip();
 				//==>We now have the message plus a sequence number add at the beginning
 				toMulticast = addSOFHeader(encoding, VersionSOFH.ONE, bb2.array());
 			}
