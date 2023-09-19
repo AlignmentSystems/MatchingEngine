@@ -10,6 +10,10 @@ package com.alignmentsystems.library;
  *	Description		:
  *****************************************************************************/
 
+import java.nio.BufferUnderflowException;
+import java.nio.ByteBuffer;
+import java.time.DateTimeException;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -20,6 +24,7 @@ import com.alignmentsystems.fix44.ExecutionReport;
 import com.alignmentsystems.fix44.NewOrderSingle;
 import com.alignmentsystems.library.annotations.Experimental;
 import com.alignmentsystems.library.constants.Constants;
+import com.alignmentsystems.library.enumerations.Encodings;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 
@@ -31,6 +36,8 @@ import quickfix.SessionID;
  *
  */
 public class AlignmentOrder implements InterfaceOrder{
+	final static Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
+
 	private String symbol = null;
 	private OrderBookSide orderBookSide = null;
 	private Long orderQty = null;
@@ -151,7 +158,7 @@ public class AlignmentOrder implements InterfaceOrder{
 
 	@Override
 	public void execute(ExecutionReport execution) {		
-		
+
 		try {
 			//int countOfExecutions = this.executions.size();
 			Long existingAvgPx = this.avgPx;
@@ -254,5 +261,155 @@ public class AlignmentOrder implements InterfaceOrder{
 	@Override
 	public Long getLeavesQty() {
 		return this.leavesQty;
-	}	
+	}
+
+
+	@Override
+	public AlignmentKafkaSender getBytesAsSBEInSender() {
+
+		ByteBuffer buf = null;
+		final String receivedSymbol = this.symbol;
+		final String orderId = this.orderId.toString();
+
+		try {
+
+			final short messageType = this.alignmentType;
+			final String receivedSender = this.sender;
+			final String receivedTarget = this.target;
+			final char receivedSide = this.orderBookSide.sideCharValue;
+			final char receivedTimeInForce = this.timeInForce;
+			//get mappings...
+			final Long exchangeIdMappedFromSenderCompID = DataMapper.getExchangeIdMappedFromSenderCompID(receivedSender);
+			final Long exchangeIdMappedFromTargetCompID = DataMapper.getExchangeIdMappedFromTargetCompID(receivedTarget);
+			final Long exchangeInstrumentIdMappedFromSymbol = DataMapper.getExchangeIdMappedFromInstrumentId(receivedSymbol);
+			final Short exchangeSideCodeMappedFromSideCode = DataMapper.getExchangeSideCodeMappedFromMemberSideCode(receivedSide);
+			final Short exchangeTimeInForceMappedFromTimeInForce = DataMapper.getMemberTimeInForceMappedToExchangeTimeInForce(receivedTimeInForce);
+
+			final Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
+
+
+			final int bufferLength =
+					Short.BYTES //messageType
+					+
+					Long.BYTES * 2 //ClOrdId 
+					+
+					Long.BYTES * 2 //OrderId
+					+
+					Long.BYTES //exchangeIdMappedFromSenderCompID.BYTES
+					+
+					Long.BYTES //exchangeIdMappedFromTargetCompID.BYTES
+					+
+					Long.BYTES //this.orderQty
+					+
+					Long.BYTES //this.limitPrice
+					+
+					Long.BYTES //exchangeInstrumentIdMappedFromSymbol.BYTES
+					+
+					Long.BYTES //this.ts  getEpochSecond
+					+
+					Integer.BYTES // this.ts getNano()
+					+
+					Short.BYTES //this.SideCode
+					+
+					Short.BYTES //inSeq.getTimeInForce()
+					;
+
+			buf = ByteBuffer.allocate(bufferLength).order(encoding.getByteOrder());
+			buf.putShort(messageType);
+			buf.putLong(this.clOrdId.getLeastSignificantBits());
+			buf.putLong(this.clOrdId.getMostSignificantBits());
+			buf.putLong(this.orderId.getLeastSignificantBits());
+			buf.putLong(this.orderId.getMostSignificantBits());
+			buf.putLong(exchangeIdMappedFromSenderCompID);
+			buf.putLong(exchangeIdMappedFromTargetCompID);
+			buf.putLong(this.orderQty);
+			buf.putLong(this.limitPrice);
+			buf.putLong(exchangeInstrumentIdMappedFromSymbol);
+			buf.putLong(this.ts.toInstant().getEpochSecond());
+			buf.putInt(this.ts.toInstant().getNano());		
+			buf.putLong(exchangeSideCodeMappedFromSideCode);
+			buf.putShort(exchangeTimeInForceMappedFromTimeInForce);
+
+			buf.flip();
+		} catch (Exception e) {
+			//this.log.error(e.getMessage() , e);
+			throw e;
+		}
+
+		AlignmentKafkaSender sender = new AlignmentKafkaSender();
+
+		sender.initialise(buf.array(), receivedSymbol, orderId);
+
+		return sender;
+
+	}
+
+
+	@Override
+	public InterfaceOrder getAlignmentOrderFromBuffer(byte[] message, short msgType) {
+		//			ByteBuffer buf = ByteBuffer.allocate(bufferLength).order(encoding.getByteOrder());
+		//			buf.putShort(messageType);
+		//			buf.putLong(inSeq.getClOrdID().getLeastSignificantBits());
+		//			buf.putLong(inSeq.getClOrdID().getMostSignificantBits());
+		//			buf.putLong(inSeq.getOrderId().getLeastSignificantBits());
+		//			buf.putLong(inSeq.getOrderId().getMostSignificantBits());
+		//			buf.putLong(exchangeIdMappedFromSenderCompID);
+		//			buf.putLong(exchangeIdMappedFromTargetCompID);
+		//			buf.putLong(inSeq.getOrderQty());
+		//			buf.putLong(inSeq.getLimitPrice());
+		//			buf.putLong(exchangeInstrumentIdMappedFromSymbol);
+		//			buf.putLong(inSeq.getTimestamp().toInstant().getEpochSecond());
+		//			buf.putInt(inSeq.getTimestamp().toInstant().getNano());		
+		//			buf.putLong(exchangeSideCodeMappedFromSideCode);
+		//			buf.putShort(exchangeTimeInForceMappedFromTimeInForce);
+
+		//			buf.flip();
+
+		try {		
+
+			ByteBuffer bb = ByteBuffer.wrap(message).order(encoding.getByteOrder());
+			//final short msgType = bb.getShort();	//		buf.putShort(messageType);
+			final Long clOrdIdLeast = bb.getLong();//			buf.putLong(inSeq.getClOrdID().getLeastSignificantBits());
+			final Long clOrdIdMost = bb.getLong();//			buf.putLong(inSeq.getClOrdID().getMostSignificantBits());
+			final Long orderIdLeast = bb.getLong();//			buf.putLong(inSeq.getOrderId().getLeastSignificantBits());
+			final Long orderIdMost = bb.getLong();//			buf.putLong(inSeq.getOrderId().getMostSignificantBits());
+			final Long senderId  = bb.getLong();//			buf.putLong(exchangeIdMappedFromSenderCompID);
+			final Long targetId = bb.getLong();//			buf.putLong(exchangeIdMappedFromTargetCompID);
+			final Long orderQty = bb.getLong();//			buf.putLong(inSeq.getOrderQty());
+			final Long limitPrice = bb.getLong();//			buf.putLong(inSeq.getLimitPrice());
+			final Long instrumentId = bb.getLong();//			buf.putLong(exchangeInstrumentIdMappedFromSymbol);
+			final Long timeStampEpochSeconds = bb.getLong();//			buf.putLong(inSeq.getTimestamp().toInstant().getEpochSecond());
+			final int timeStampNanoseconds = bb.getInt();//			buf.putInt(inSeq.getTimestamp().toInstant().getNano());
+			final Short sideCode = bb.getShort();//			buf.putLong(exchangeSideCodeMappedFromSideCode);
+			final short msgTimeInForce = bb.getShort();//	buf.putShort(exchangeTimeInForceMappedFromTimeInForce);
+			final UUID clOrdId = new UUID(clOrdIdMost, clOrdIdLeast);
+			final UUID orderId = new UUID(orderIdMost, orderIdLeast);
+
+			final String senderCompId = DataMapper.getMemberFIXSenderCompIdMappedFromExchangeId(senderId);
+			final String targetCompId = DataMapper.getMemberFIXTargetCompIdMappedFromExchangeId(targetId);
+			final String instrument = DataMapper.getMemberInstrumentIdMappedFromExchangeInstrumentId(instrumentId);
+			final char sideCodeFIX = DataMapper.getMemberSideCodeMappedFromExchangeSideCode(sideCode);
+			final Instant instant = Instant.ofEpochSecond(timeStampEpochSeconds).plusNanos(timeStampNanoseconds);
+			final OffsetDateTime ts =  OffsetDateTime.ofInstant(instant, Constants.HERE);
+			final OrderBookSide obs = OrderBookSide.getEnumForID(sideCodeFIX);
+			final char tif = DataMapper.getExchangeTimeInForceMappedToMemberTimeInForce(msgTimeInForce);
+
+
+			this.reCreateOrder(instrument , tif, obs , orderQty , limitPrice , ts , senderCompId , targetCompId , orderId , clOrdId);
+			return this;
+		} catch(BufferUnderflowException | DateTimeException e) {
+			throw e;
+		}
+
+	}
+
+	@Override
+	public InterfaceOrder getAlignmentOrderFromBuffer(byte[] message) {
+		ByteBuffer bb = ByteBuffer.wrap(message).order(encoding.getByteOrder());
+		final short msgType = bb.getShort();	//		buf.putShort(messageType
+		return  getAlignmentOrderFromBuffer(bb.array(), msgType);
+	}
+
+
+
 }

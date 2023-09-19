@@ -18,6 +18,7 @@ import java.util.UUID;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import com.alignmentsystems.fix44.ExecutionReport;
+import com.alignmentsystems.library.AlignmentExecutionReport;
 import com.alignmentsystems.library.AlignmentOrder;
 import com.alignmentsystems.library.DataMapper;
 import com.alignmentsystems.library.LibraryOrders;
@@ -50,12 +51,8 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 	private final static Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
 	private LogEncapsulation log = null;
 	private InstanceType instanceType = null;
-	private static BinaryFromToCanonical binaryFromToCanonical = new BinaryFromToCanonical();
-	
-	
-	
-	
-	
+
+
 	public FIXEngineExchange(LogEncapsulation log, InterfaceQueueNonSequenced queueNonSequenced,
 			InstanceType instanceType) {
 		this.log = log;
@@ -294,10 +291,10 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 	public void processMessage(String topicName, ConsumerRecord<String, byte[]> message) throws Exception {
 		// TODO Auto-generated method stub
 		//Here we receive a Kafka Message...
-		
+
 		log.info(CLASSNAME + " received " + topicName);
 		//topicName
-			
+
 		ByteBuffer bb = ByteBuffer.wrap(message.value()).order(encoding.getByteOrder());
 		final short msgType = bb.getShort();	//		buf.putShort(messageType);
 		//When we get to here we know the message type that was used
@@ -306,12 +303,19 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 		ExecutionReport er = null;
 		String sender = null;
 		String target = null;
-		
+		AlignmentExecutionReport aer = new AlignmentExecutionReport();
+
 		if (msgType==DataMapper.EXCHANGEMESSAGETYPEMAPPEDFROMEXECUTIONREPORT) {
-			//it's an execution report.
+
+			er = aer.getFIXExecutionReport(bb, msgType);
+
+		}else if (msgType==DataMapper.EXCHANGEMESSAGETYPEMAPPEDFROMNEWORDERSINGLE) {
+			//it's an order that has been thrown back to generate an ExecutionReport.
 			//rehydrate into a POJO and then send
-			er = BinaryFromToCanonical.getExecutionReportAckFromBuffer(bb, msgType);
-			Session.sendToTarget(er);
+			er = aer.getFIXExecutionReportAckFromOrderBuffer(bb, msgType);	
+
 		}				
+
+		Session.sendToTarget(er);
 	}
 }

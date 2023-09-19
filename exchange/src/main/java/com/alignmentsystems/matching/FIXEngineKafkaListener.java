@@ -42,6 +42,14 @@ public class FIXEngineKafkaListener extends KafkaAbstractSimple implements Runna
 		// TODO Auto-generated constructor stub
 	}
 
+	
+	/**
+	 * 
+	 * @param log
+	 * @return
+	 * @throws FileNotFoundException
+	 * @throws NullPointerException
+	 */
 	public Boolean initialise(LogEncapsulation log) throws FileNotFoundException , NullPointerException{
 		this.log = log;
 
@@ -54,10 +62,20 @@ public class FIXEngineKafkaListener extends KafkaAbstractSimple implements Runna
 		return Boolean.TRUE;			
 	}
 	
+	
+	/**
+	 * 
+	 * @param kafkaConsumer
+	 */
 	public void setKafkaConsumer(KafkaConsumer<String, byte[]> kafkaConsumer) {
 		this.kafkaConsumer = kafkaConsumer;
 	}
 	
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public KafkaConsumer<String, byte[]> getKafkaConsumer() {
 		return kafkaConsumer;
 	}
@@ -85,13 +103,11 @@ public class FIXEngineKafkaListener extends KafkaAbstractSimple implements Runna
 	public void runAlways(String topicName, KafkaMessageHandler callback) throws Exception {
 		
 		List<String> topicNames = List.of(topicName);
-		runAlways(topicNames, callback);
-	
+		runAlways(topicNames, callback);	
 	}
 
 	@Override
 	public void runAlways(List<String> topicNames , KafkaMessageHandler callback) throws Exception {
-		// TODO Auto-generated method stub
 		Properties props;
 		try {
 			props = LibraryFunctions.getProperties(OrderBookKafkaConsumer.class.getClassLoader() , InstanceType.KAFKA.getProperties());

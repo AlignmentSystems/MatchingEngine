@@ -22,6 +22,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import com.alignmentsystems.library.AlignmentExecutionReport;
 import com.alignmentsystems.library.AlignmentMatch;
+import com.alignmentsystems.library.AlignmentOrder;
 import com.alignmentsystems.library.AlignmentOrderComparatorBuy;
 import com.alignmentsystems.library.AlignmentOrderComparatorSell;
 import com.alignmentsystems.library.DataMapper;
@@ -70,7 +71,6 @@ implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, Interfa
 
 	private OffsetDateTime orderBookCreationTime = null;
 	private OffsetDateTime orderBookLastUpdateTime = null;
-	private static BinaryFromToCanonical binaryFromToCanonical = new BinaryFromToCanonical();
 
 
 	@Override
@@ -341,7 +341,10 @@ implements KafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, Interfa
 	@Override
 	public void processMessage(String topicName, ConsumerRecord<String, byte[]> message) throws Exception {
 		// TODO Auto-generated method stub
-		InterfaceOrder io = BinaryFromToCanonical.getAlignmentOrderFromBuffer(message.value());
+		
+		InterfaceOrder io = new AlignmentOrder();
+		io.getAlignmentOrderFromBuffer(message.value());
+		
 
 		if (io.getOrderBookSide()==OrderBookSide.SELL) {
 			this.sell.add(io);
