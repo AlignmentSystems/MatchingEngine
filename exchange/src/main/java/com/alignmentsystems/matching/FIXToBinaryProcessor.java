@@ -8,6 +8,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
+import com.alignmentsystems.library.AlignmentKafkaSender;
+import com.alignmentsystems.library.AlignmentOrder;
 import com.alignmentsystems.library.LibraryFunctions;
 import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.constants.Constants;
@@ -28,7 +30,7 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 	private KafkaProducer<String, byte[]> kafkaProducerB = null;
 	private AtomicBoolean running = new AtomicBoolean(false);
 	private final static int MILLISLEEP = 200;
-	private static BinaryFromToCanonical binaryFromToCanonical = new BinaryFromToCanonical();
+	//private static BinaryFromToCanonical binaryFromToCanonical = new BinaryFromToCanonical();
 
 	public FIXToBinaryProcessor() {
 		// TODO Auto-generated constructor stub
@@ -65,8 +67,9 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 			InterfaceOrder inSeq = inQueue.poll();
 
 			if (inSeq != null) {
-				Sender sender = binaryFromToCanonical.getBufferFromAlignmentOrder(inSeq);
-				this.send(sender.getSymbol(), sender.getOrderId(), sender.getBinaryMessage());
+				
+				AlignmentKafkaSender sender = inSeq.getBytesAsSBEInSender();
+				this.send(sender.getTopic(), sender.getKey(), sender.getBinaryMessage());
 			}
 			try {
 				Thread.currentThread();
@@ -86,6 +89,12 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 		}
 	}
 
+	/**
+	 * 
+	 * @param topicName
+	 * @param key
+	 * @param binaryMessage
+	 */
 	protected void send(String topicName, String key, byte[] binaryMessage) {
 
 		// create the ProducerRecord object which will represent the message to the

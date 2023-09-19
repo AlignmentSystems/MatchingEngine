@@ -10,12 +10,12 @@ package com.alignmentsystems.library.interfaces;
  *	Description		:
  *****************************************************************************/
 
+import java.nio.ByteBuffer;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import com.alignmentsystems.fix44.ExecutionReport;
-
-import quickfix.SessionID;
+import com.alignmentsystems.library.AlignmentKafkaSender;
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
@@ -81,4 +81,9 @@ public interface InterfaceExecutionReport {
 	public Short getOrdStatus();
 	public Short getExecType();
 	public Short getSideCode();
+	public abstract byte[] getBytesAsSBE();
+	public abstract AlignmentKafkaSender getSender();
+	public abstract AlignmentKafkaSender getSenderForTopic(String topic);
+	public abstract ExecutionReport getFIXExecutionReport(ByteBuffer bb , short msgType);
+	public abstract ExecutionReport getFIXExecutionReportAckFromOrderBuffer(ByteBuffer bb , short msgType); 
 }

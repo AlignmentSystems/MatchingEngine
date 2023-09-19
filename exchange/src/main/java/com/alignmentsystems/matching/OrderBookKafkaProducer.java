@@ -20,6 +20,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import com.alignmentsystems.library.AlignmentExecutionReport;
+import com.alignmentsystems.library.AlignmentKafkaSender;
 import com.alignmentsystems.library.LibraryFunctions;
 import com.alignmentsystems.library.LogEncapsulation;
 import com.alignmentsystems.library.enumerations.InstanceType;
@@ -33,7 +34,6 @@ import com.alignmentsystems.library.interfaces.InterfaceOrderBookEvents;
 public class OrderBookKafkaProducer implements InterfaceMatchEvent, InterfaceAddedOrderToOrderBook, InterfaceOrderBookEvents, Runnable {
 	private KafkaProducer<String, byte[]> kafkaProducerB = null;
 	private LogEncapsulation log = null;
-	private static BinaryFromToCanonical binaryFromToCanonical = new BinaryFromToCanonical();
 	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
 	private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
 
@@ -111,13 +111,11 @@ public class OrderBookKafkaProducer implements InterfaceMatchEvent, InterfaceAdd
 
 		log.infoMatchingEvent(OperationEventType.MATCHEVENT, match);
 
-		AlignmentExecutionReport buyRpt = match.getBuyReport(); 
-		AlignmentExecutionReport sellRpt = match.getSellReport(); 
-		final byte[] buy = binaryFromToCanonical.getBufferFromExecutionReport(buyRpt);
-		final byte[] sell = binaryFromToCanonical.getBufferFromExecutionReport(sellRpt);
+		AlignmentKafkaSender senderBuy = match.getBuyReport().getSenderForTopic(TOPIC);
+		AlignmentKafkaSender senderSell = match.getSellReport().getSenderForTopic(TOPIC);
 		
-		this.send(TOPIC , match.getSellOrderId().toString(), buy);
-		this.send(TOPIC , match.getBuyOrderId().toString(), sell);
+		this.send(senderBuy.getTopic() , senderBuy.getKey(), senderBuy.getBinaryMessage());
+		this.send(senderSell.getTopic() , senderSell.getKey(), senderSell.getBinaryMessage());
 	}
 
 	@Override
@@ -127,9 +125,7 @@ public class OrderBookKafkaProducer implements InterfaceMatchEvent, InterfaceAdd
 		final String TOPIC = "ACK";
 
 		//log.infoMatchingEvent(OperationEventType.NEWORDEREVENT, er);
-		
-		byte[] ack = binaryFromToCanonical.getBufferFromExecutionReport(er);
-		this.send(TOPIC, er.getExecID().toString(), ack);		
+		AlignmentKafkaSender senderAck= er.getSenderForTopic(TOPIC);
+		this.send(senderAck.getTopic(), senderAck.getKey(), senderAck.getBinaryMessage());		
 	}
-
 }

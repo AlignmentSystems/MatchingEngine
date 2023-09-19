@@ -16,6 +16,8 @@ import java.util.UUID;
 
 import com.alignmentsystems.fix44.ExecutionReport;
 import com.alignmentsystems.fix44.NewOrderSingle;
+import com.alignmentsystems.library.AlignmentKafkaSender;
+import com.alignmentsystems.library.AlignmentOrder;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
 
 import quickfix.FieldNotFound;
@@ -53,7 +55,10 @@ public interface InterfaceOrder{
 	public long getCumQty();
 	public long getAvgPx();
 	public Long getLeavesQty();
-	
+	public AlignmentKafkaSender getBytesAsSBEInSender();
+	public InterfaceOrder getAlignmentOrderFromBuffer(byte[] message, short msgType);
+	public InterfaceOrder getAlignmentOrderFromBuffer(byte[] message);
+
 	public void reCreateOrder(
 			String symbol
 			, Character timeInForce
