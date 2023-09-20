@@ -75,7 +75,7 @@ public interface InterfacePersistenceClient {
 	 * @param e Exception to log
 	 * @return Was this logged?
 	 */
-	public Boolean error(String toLog, Exception e) throws LogMessageIsNull;
+	public Boolean error(String toLog, Throwable t) throws LogMessageIsNull;
 	/**
 	 * 
 	 * @param toLog The data to add to the log file
@@ -83,7 +83,7 @@ public interface InterfacePersistenceClient {
 	 * @param e Exception to log
 	 * @return Was this logged?
 	 */
-	public Boolean errorSession(String toLog, String methodName, Exception e) throws LogMessageIsNull;
+	public Boolean errorSession(String toLog, String methodName, Throwable t) throws LogMessageIsNull;
 	/**
 	 * 
 	 * @param toLog The data to add to the log file

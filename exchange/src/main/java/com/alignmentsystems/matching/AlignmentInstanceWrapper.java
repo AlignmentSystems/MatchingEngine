@@ -4,7 +4,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.alignmentsystems.fix44.MessageFactory;
 import com.alignmentsystems.library.AlignmentFunctions;
@@ -26,27 +29,27 @@ import quickfix.SocketAcceptor;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class InstanceWrapper implements InterfaceInstanceWrapper {
+public class AlignmentInstanceWrapper implements InterfaceInstanceWrapper {
 	private final String CLASSNAME = this.getClass().getSimpleName();
-	private List<FIXEngineExchange> engines = new ArrayList<FIXEngineExchange>();
+	private List<AlignmentFIXEngineExchange> engines = new ArrayList<AlignmentFIXEngineExchange>();
 	//private ConcurrentLinkedQueue<InterfaceMatch> marketDataQueue = new ConcurrentLinkedQueue<InterfaceMatch>();
 	private InstanceType instanceType;
-	private final AlignmentLogEncapsulation log = new AlignmentLogEncapsulation(InstanceWrapper.class);
+	private final AlignmentLogEncapsulation log = new AlignmentLogEncapsulation(AlignmentInstanceWrapper.class);
 
 
 	@Override
 	public boolean initialise(InstanceType instanceType) {
 
 		this.instanceType = instanceType;
-		
+
 		StringBuilder sb = new StringBuilder();
 
 		sb.append(CLASSNAME).append(" Started instance=").append(this.instanceType.type).append(" Started version=")
-				.append(AlignmentFunctions.getVersion(this.getClass()));
+		.append(AlignmentFunctions.getVersion(this.getClass()));
 
 		Boolean returnValue = Boolean.FALSE;
 		log.info(sb.toString());
-				
+
 		log.showSystemProperties();
 
 		// What do we do here?
@@ -54,8 +57,11 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 		// a FIXMESSAGINGINFRA;
 		// b ORDERBOOK;
 		// Then there is a clear segregation of duties.
-		//FIXMESSAGINGINFRA handles the FIX Connections, the non-sequenced queue, the sequenced queue, the AlignmentDataMapper and the FIXToBinaryProcessor
+		//FIXMESSAGINGINFRA handles the FIX Connections, the non-sequenced queue, the sequenced queue, the AlignmentDataMapper and the AlignmentFIXToBinaryProcessor
 		//
+
+
+
 
 		switch (instanceType) {
 
@@ -69,30 +75,41 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 			returnValue = false;
 			break;
 		}
-		 while (returnValue) {
-//	            try {
-//	                //wait(2000);
-//	            } catch (InterruptedException e) {
-//	                log.error(e.getMessage() , e );
-//	            }
-	        }
-		 return returnValue;
-		
-		
+		while (returnValue) {
+			try {
+				wait(2000);
+			} catch (InterruptedException e) {
+				log.error(e.getMessage() , e );
+			}
+		}
+		return returnValue;
+
+
 	}
 
 	private Boolean initialiseOrderBook(InstanceType instanceType)  {
-		
+		final String METHOD = "initialiseOrderBook";
+
+
+
 		AlignmentPersistenceToFileClient debugger = new AlignmentPersistenceToFileClient();
+
+
 		try {
-			debugger.initialise(InstanceWrapper.class.getClassLoader(), InstanceType.ORDERBOOK.getProperties());
+			debugger.initialise(AlignmentInstanceWrapper.class.getClassLoader(), InstanceType.ORDERBOOK.getProperties());
 			debugger.info("Working...");
 		} catch (IllegalThreadStateException | IOException e) {
 			log.error(e.getMessage(), e);
 			return false;
 		}
-		
-		OrderBookWrapper obw = new OrderBookWrapper();
+
+		AlignmentUEH ueh = new AlignmentUEH(debugger);
+
+		Thread.setDefaultUncaughtExceptionHandler(ueh);
+
+
+
+		AlignmentOrderBookWrapper obw = new AlignmentOrderBookWrapper();
 
 		try {
 			obw.initialise(this.log, debugger);
@@ -100,99 +117,162 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 			log.error(e.getMessage(), e);
 			return false;
 		}
-		
+
 		Thread.currentThread().setName(instanceType.toString());
-		
-		
+
+
 		return true;
 
 	}
 
 	private Boolean initialiseFIXMessagingInfrastructure(InstanceType instanceType)  {
+		final String METHOD = "initialiseFIXMessagingInfrastructure";
+
 		AlignmentPersistenceToFileClient debugger = new AlignmentPersistenceToFileClient();
 		try {
 			debugger.initialise(this.getClass().getClassLoader() , InstanceType.FIXMESSAGINGINFRA.getProperties());
-			debugger.info("Working...");
+			debugger.info(CLASSNAME + "." + METHOD);
 		} catch (IllegalThreadStateException | IOException e) {
 			log.error(e.getMessage(), e);
 			return false;
 		}
 
-		QueueNonSequenced queueNonSequenced = new QueueNonSequenced();
-		Thread queueNonSequencedThread = new Thread(null, queueNonSequenced, QueueNonSequenced.CLASSNAME);
+		AlignmentUEH ueh = new AlignmentUEH(debugger);	
+		Thread.setDefaultUncaughtExceptionHandler(ueh);
+
+
+		AlignmentQueueNonSequenced queueNonSequenced = new AlignmentQueueNonSequenced();
+		Thread threadQueueNonSequenced = new Thread(null, queueNonSequenced, AlignmentQueueNonSequenced.CLASSNAME);
 		queueNonSequenced.initialise(log);
 
-		QueueSequenced queueSequenced = new QueueSequenced();
-		Thread queueSequencedThread = new Thread(null, queueSequenced, QueueSequenced.CLASSNAME);
+		AlignmentQueueSequenced queueSequenced = new AlignmentQueueSequenced();
+		Thread threadQueueSequenced = new Thread(null, queueSequenced, AlignmentQueueSequenced.CLASSNAME);
 		queueSequenced.initialise(queueNonSequenced.getOutputQueue());
 
-		FIXToBinaryProcessor fixToBinaryProcessor = new FIXToBinaryProcessor();
+		AlignmentFIXToBinaryProcessor fixToBinaryProcessor = new AlignmentFIXToBinaryProcessor();
 		try {
 			fixToBinaryProcessor.initialise(queueSequenced.getOutputQueue() , log);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			return false;
 		}
-		
-		Thread fixToBinaryProcessorThread = new Thread(null, fixToBinaryProcessor, FIXToBinaryProcessor.CLASSNAME);
-		
-		
-		Thread.currentThread().setName(instanceType.type );
 
-		fixToBinaryProcessorThread.start();
-		queueSequencedThread.start();
-		queueNonSequencedThread.start();
+		Thread threadFixToBinaryProcessor = new Thread(null, fixToBinaryProcessor, AlignmentFIXToBinaryProcessor.CLASSNAME);
 
-		FIXEngineKafkaListener fixEngineKafkaListener = null;
-		
+
+		AlignmentFIXEngineKafkaConsumer fixEngineKafkaConsumer = null;
+
 		try {
-			fixEngineKafkaListener =  new FIXEngineKafkaListener();
+			fixEngineKafkaConsumer =  new AlignmentFIXEngineKafkaConsumer();
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			return false;
 		}
 		try {
-			fixEngineKafkaListener.initialise(log);
+			fixEngineKafkaConsumer.initialise(log, debugger);
 		} catch (NullPointerException | FileNotFoundException e) {
 			log.error(e.getMessage(), e);
 			return false;
 		}
-		
-		
-		
-		FIXEngineExchange engineExchange = new FIXEngineExchange(log , queueNonSequenced , InstanceType.EXCHANGEFIXACCEPTOR);
-		engines.add(engineExchange);
 
-		String[] acceptors = { InstanceType.EXCHANGEFIXACCEPTOR.getProperties() };
-		log.debug("get" + acceptors[0]);
+		AlignmentFIXEngineKafkaProducer fixEngineKafkaProducer = null;
 
-		final List<String> messagesToSendToFIXEngine =  List.of("fill","ack","rej");
-		
-		
 		try {
-			fixEngineKafkaListener.runAlways(messagesToSendToFIXEngine, engineExchange);
+			fixEngineKafkaProducer =  new AlignmentFIXEngineKafkaProducer();
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			return false;
 		}
+
+		try {
+			fixEngineKafkaProducer.initialise(this.log, debugger);
+		} catch (NullPointerException | FileNotFoundException e) {
+			log.error(e.getMessage(), e);
+			return false;
+		}
+
+		Thread ThreadFixEngineKafkaProducer = new Thread(null, fixEngineKafkaProducer, AlignmentFIXEngineKafkaProducer.CLASSNAME); 
+
+
+		try {
+			debugger.debug("Start threads");
+			Thread.currentThread().setName(instanceType.type );
+
+			threadFixToBinaryProcessor.start();
+			threadQueueSequenced.start();
+			threadQueueNonSequenced.start();
+
+			ThreadFixEngineKafkaProducer.start();
+		}catch (IllegalThreadStateException e) {
+			log.error(e.getMessage(), e);
+			return false;
+
+		}
+
+
+		AlignmentFIXEngineExchange engineExchange = new AlignmentFIXEngineExchange();
+		try {
+			debugger.debug("Initialise FIX engine");
+			engineExchange.initialise(log , debugger , instanceType );
+			engines.add(engineExchange);
+		} catch (FileNotFoundException | NullPointerException e) {
+			log.error(e.getMessage(), e);
+			return false;
+		}
+
+		final String[] acceptors = { InstanceType.EXCHANGEFIXACCEPTOR.getProperties() };
+
 		
-		
-		
+		debugger.debug("get" + acceptors[0]);
+
+
 		Acceptor exchange = null;
 
 		try {
+			debugger.debug("Request start FIX engine");
 			exchange = getExchangeEnvironment(acceptors[0], engineExchange);
-		} catch (NullPointerException e) {
+			exchange.start();
+			debugger.debug("Requested start FIX engine");
+		} catch (NullPointerException | RuntimeError | ConfigError e) {
 			log.error(e.getMessage(), e);
 			System.err.println(e.getMessage());
 			System.exit(FailureConditionConstants.ERROR_EXCHANGE_FIX_PROPERTIES_FILE);
 		}
 
-		AlignmentFunctions.threadStatusCheck(Thread.currentThread(), log);
-		AlignmentFunctions.threadStatusCheck(queueNonSequencedThread, log);
-		AlignmentFunctions.threadStatusCheck(queueSequencedThread, log);
-		AlignmentFunctions.threadStatusCheck(fixToBinaryProcessorThread, log);
 
+		debugger.debug("Request list threads");
+		Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+
+
+		Iterator<Thread> namesIterator = threadSet.iterator();
+		while(namesIterator.hasNext()) {
+			AlignmentFunctions.threadStatusCheck(namesIterator.next(), debugger);
+		}
+
+		final List<String> messagesToBeReceivedByFIXEngine =  List.of("fill","ack","rej");
+
+
+		try {
+			debugger.debug("Start KafkaConsumer");
+			fixEngineKafkaConsumer.runAlways(messagesToBeReceivedByFIXEngine, engineExchange);
+			debugger.debug("Started KafkaConsumer");
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			return false;
+		}
+		AtomicBoolean run = new AtomicBoolean(true);
+		
+		while (run.get()) {
+			try {
+				wait(2000);
+			} catch (InterruptedException e) {
+				log.error(e.getMessage() , e );
+			}
+		}
+		
+		
+		
+		
 		return true;
 	}
 
@@ -203,10 +283,10 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 	 * @return
 	 * @throws NullPointerException
 	 */
-	private static Acceptor getExchangeEnvironment(String configFile, FIXEngineExchange engine)
+	private static Acceptor getExchangeEnvironment(String configFile, AlignmentFIXEngineExchange engine)
 			throws NullPointerException {
 
-		InputStream inputStream = App.class.getClassLoader().getResourceAsStream(configFile);
+		InputStream inputStream = AlignmentApp.class.getClassLoader().getResourceAsStream(configFile);
 
 		if (inputStream == null) {
 			throw new NullPointerException("No valid config file at " + configFile);
@@ -223,7 +303,6 @@ public class InstanceWrapper implements InterfaceInstanceWrapper {
 
 			acceptor = new SocketAcceptor(engine, messageStoreFactory, settings, logFactory, messageFactory);
 
-			acceptor.start();
 
 		} catch (ConfigError e) {
 			System.err.println(e.getMessage());

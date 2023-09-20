@@ -1,6 +1,8 @@
 package com.alignmentsystems.matching;
 
+import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
+import java.util.Properties;
 
 /******************************************************************************
  * 
@@ -16,20 +18,25 @@ import java.nio.ByteBuffer;
 import java.util.UUID;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 import com.alignmentsystems.fix44.ExecutionReport;
-import com.alignmentsystems.library.AlignmentExecutionReport;
-import com.alignmentsystems.library.AlignmentOrder;
 import com.alignmentsystems.library.AlignmentDataMapper;
+import com.alignmentsystems.library.AlignmentExecutionReport;
 import com.alignmentsystems.library.AlignmentFunctions;
+import com.alignmentsystems.library.AlignmentKafkaSender;
 import com.alignmentsystems.library.AlignmentLogEncapsulation;
+import com.alignmentsystems.library.AlignmentOrder;
+import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.enumerations.Encodings;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.enumerations.MessageDirection;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
-import com.alignmentsystems.library.interfaces.InterfaceQueueNonSequenced;
+import com.alignmentsystems.library.interfaces.InterfaceFIXEngine;
 import com.alignmentsystems.library.interfaces.InterfaceKafkaMessageHandler;
+import com.alignmentsystems.library.interfaces.InterfaceOrderSender;
 
 import quickfix.DoNotSend;
 import quickfix.FieldNotFound;
@@ -46,21 +53,47 @@ import quickfix.UnsupportedMessageType;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class FIXEngineExchange extends MessageCracker implements quickfix.Application , InterfaceKafkaMessageHandler{
-	protected final static String CLASSNAME = FIXEngineExchange.class.getSimpleName();
-	private InterfaceQueueNonSequenced queueNonSequenced = null;
+public class AlignmentFIXEngineExchange extends MessageCracker implements InterfaceOrderSender, InterfaceKafkaMessageHandler, InterfaceFIXEngine, quickfix.Application {
+	protected final static String CLASSNAME = AlignmentFIXEngineExchange.class.getSimpleName();
 	private final static Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
 	private AlignmentLogEncapsulation log = null;
 	private InstanceType instanceType = null;
+	private AlignmentPersistenceToFileClient debugger = null;
+	private KafkaProducer<String, byte[]> kafkaProducerB = null;
 
-
-	public FIXEngineExchange(AlignmentLogEncapsulation log, InterfaceQueueNonSequenced queueNonSequenced,
-			InstanceType instanceType) {
+	@Override
+	public boolean initialise(AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger, InstanceType instanceType) throws FileNotFoundException ,NullPointerException{
+		final String METHOD = "initialise";
+		
 		this.log = log;
-
+		this.debugger = debugger;
 		this.instanceType = instanceType;
 
-		this.queueNonSequenced = queueNonSequenced;
+		
+		debugger.debug(CLASSNAME + "." + METHOD);
+
+		AlignmentUEH ueh = new AlignmentUEH(this.debugger);	
+		Thread.setDefaultUncaughtExceptionHandler(ueh);
+
+
+		
+		
+		
+		
+		if (this.kafkaProducerB == null) {
+			Properties props;
+			try {
+				props = AlignmentFunctions.getProperties(AlignmentFIXEngineKafkaProducer.class.getClassLoader(), InstanceType.KAFKA.getProperties());
+			} catch (FileNotFoundException | NullPointerException e) {
+				this.log.error(e.getMessage() , e);
+				throw e;
+			}
+			this.kafkaProducerB = new KafkaProducer<>(props);
+		}
+		
+		
+		
+		return true;
 	}
 
 	/**
@@ -76,11 +109,12 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 	@Override
 	public void onCreate(SessionID sessionId) {
 		// TODO Auto-generated method stub
-		final String METHODNAME = "onCreate".intern();
+		final String METHOD = "onCreate".intern();
 
 		StringBuilder sb = new StringBuilder().append(sessionId.toString());
 
-		log.infoFIXSession(sb.toString(), sessionId, METHODNAME, CLASSNAME, instanceType);
+		debugger.debug(CLASSNAME + "." + METHOD);
+		log.infoFIXSession(sb.toString(), sessionId, METHOD, CLASSNAME, instanceType);
 	}
 
 	/**
@@ -91,11 +125,12 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 	 */
 	@Override
 	public void onLogon(SessionID sessionId) {
-		final String METHODNAME = "onLogon".intern();
+		final String METHOD = "onLogon".intern();
 
 		StringBuilder sb = new StringBuilder().append(sessionId.toString());
+		debugger.debug(CLASSNAME + "." + METHOD);
 
-		log.infoFIXSession(sb.toString(), sessionId, METHODNAME, CLASSNAME, instanceType);
+		log.infoFIXSession(sb.toString(), sessionId, METHOD, CLASSNAME, instanceType);
 	}
 
 	/**
@@ -105,11 +140,12 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 	 */
 	@Override
 	public void onLogout(SessionID sessionId) {
-		final String METHODNAME = "onLogout".intern();
+		final String METHOD = "onLogout".intern();
 
 		StringBuilder sb = new StringBuilder().append(sessionId.toString());
+		debugger.debug(CLASSNAME + "." + METHOD);
 
-		log.infoFIXSession(sb.toString(), sessionId, METHODNAME, CLASSNAME, instanceType);
+		log.infoFIXSession(sb.toString(), sessionId, METHOD, CLASSNAME, instanceType);
 	}
 
 	/**
@@ -121,7 +157,9 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 	 */
 	@Override
 	public void toAdmin(Message message, SessionID sessionId) {
-		final String METHODNAME = "toAdmin".intern();
+		final String METHOD = "toAdmin".intern();
+
+		debugger.debug(CLASSNAME + "." + METHOD);
 
 		Boolean errorEvent = Boolean.FALSE;
 		StringBuilder sb = new StringBuilder();
@@ -131,7 +169,7 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 		try {
 			thisMessageType = message.getHeader().getField(new quickfix.field.MsgType()).getValue();
 		} catch (FieldNotFound e) {
-			sb = new StringBuilder().append(METHODNAME).append(Constants.TAB).append(sessionId.toString())
+			sb = new StringBuilder().append(METHOD).append(Constants.TAB).append(sessionId.toString())
 					.append(Constants.EQUALS).append(e.getMessage());
 			log.error(sb.toString(), e);
 			errorEvent = Boolean.TRUE;
@@ -141,7 +179,7 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 			sb = new StringBuilder().append(sessionId.toString()).append(" MessageType=[").append(thisMessageType)
 					.append("] ").append(MessageDirection.SENT.value).append(" (")
 					.append(message.getClass().getSimpleName()).append(")");
-			log.infoFIXSession(sb.toString(), sessionId, METHODNAME, CLASSNAME, instanceType);
+			log.infoFIXSession(sb.toString(), sessionId, METHOD, CLASSNAME, instanceType);
 		}
 
 	}
@@ -155,9 +193,10 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 	@Override
 	public void fromAdmin(Message message, SessionID sessionId)
 			throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, RejectLogon {
-		final String METHODNAME = "fromAdmin".intern();
+		final String METHOD = "fromAdmin".intern();
 
 		String thisMessageType = null;
+		debugger.debug(CLASSNAME + "." + METHOD);
 
 		try {
 			thisMessageType = message.getHeader().getField(new quickfix.field.MsgType()).getValue();
@@ -166,7 +205,7 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 			throw e;
 		}
 
-		log.infoFIXSession(message.toRawString(), sessionId, METHODNAME, CLASSNAME, instanceType);
+		log.infoFIXSession(message.toRawString(), sessionId, METHOD, CLASSNAME, instanceType);
 
 	}
 
@@ -184,7 +223,9 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 	 */
 	@Override
 	public void toApp(Message message, SessionID sessionId) throws DoNotSend {
-		final String METHODNAME = "toApp".intern();
+		final String METHOD = "toApp".intern();
+		debugger.debug(CLASSNAME + "." + METHOD);
+
 
 	}
 
@@ -206,9 +247,11 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 	public void fromApp(Message message, SessionID sessionId)
 			throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
 		// TODO Auto-generated method stub
-		final String METHODNAME = "fromApp".intern();
+		final String METHOD = "fromApp".intern();
 		String thisMessageType = null;
 		StringBuilder sb = new StringBuilder();
+
+		debugger.debug(CLASSNAME + "." + METHOD);
 
 		try {
 			thisMessageType = message.getHeader().getField(new quickfix.field.MsgType()).getValue();
@@ -217,7 +260,7 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 			throw e;
 		}
 
-		log.infoFIXSession(message.toRawString(), sessionId, MessageDirection.RECEIVED, METHODNAME, FIXEngineExchange.CLASSNAME,
+		log.infoFIXSession(message.toRawString(), sessionId, MessageDirection.RECEIVED, METHOD, AlignmentFIXEngineExchange.CLASSNAME,
 				instanceType);
 
 		try {
@@ -242,31 +285,19 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 	 * @throws UnsupportedMessageType Should not happen...
 	 * @throws IncorrectTagValue      Should not happen...
 	 */
-	public void onMessage(com.alignmentsystems.fix44.NewOrderSingle message, SessionID sessionID)
+	public void onMessage(com.alignmentsystems.fix44.ExecutionReport message, SessionID sessionID)
 			throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
-		final String METHODNAME = "onMessage".intern();
+		final String METHOD = "onMessage".intern();
 
-		OrderBookSide orderBookSide = AlignmentFunctions.getOrderBookSideFromFIXSide(message.getSide());
+		StringBuilder sb = new StringBuilder().append(" Execution Report=(").append(" ExecID=(")
+				.append(message.getExecID()).append(") SessionID=(").append(sessionID.toString()).append(")");
+		log.infoFIXSession(sb.toString(), sessionID, MessageDirection.RECEIVED, METHOD,
+				message.getClass().getSimpleName(), this.instanceType);
 
-		AlignmentOrder ao = new AlignmentOrder();
-
-		ao.setNewOrderSingle(message, sessionID, UUID.randomUUID(), orderBookSide);
-
-		StringBuilder sb = new StringBuilder().append(" OrderID=(").append(ao.getOrderId()).append(" ClOrdID=(")
-				.append(ao.getClOrdID()).append(" Side=(").append(ao.getOrderBookSide().sideReadableValue )
-				.append(") SenderCompId=").append(ao.getSender()).append(" TargetCompId=").append(ao.getTarget())
-				.append(" enqueueing to rawMessageQueue...");
-
-		try {
-			this.queueNonSequenced.addReceivedOrder(ao);
-			log.infoFIXSession(sb.toString(), sessionID, MessageDirection.RECEIVED, METHODNAME,
-					message.getClass().getSimpleName(), instanceType);
-		} catch (NullPointerException e) {
-			log.errorFIXSession(sb.toString(), sessionID, MessageDirection.RECEIVED, METHODNAME,
-					message.getClass().getSimpleName(), instanceType);
-		}
 	}
 
+	
+	
 	/**
 	 * 
 	 * @see <a href=
@@ -277,26 +308,59 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 	 * @throws UnsupportedMessageType Should not happen...
 	 * @throws IncorrectTagValue      Should not happen...
 	 */
-	public void onMessage(com.alignmentsystems.fix44.ExecutionReport message, SessionID sessionID)
+	public void onMessage(com.alignmentsystems.fix44.NewOrderSingle message, SessionID sessionID)
 			throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
-		final String METHODNAME = "onMessage".intern();
+		final String METHOD = "onMessage".intern();
 
-		StringBuilder sb = new StringBuilder().append(" Execution Report=(").append(" ExecID=(")
-				.append(message.getExecID()).append(") SessionID=(").append(sessionID.toString()).append(")");
-		log.infoFIXSession(sb.toString(), sessionID, MessageDirection.RECEIVED, METHODNAME,
-				message.getClass().getSimpleName(), this.instanceType);
+		debugger.debug(CLASSNAME + "." + METHOD + Constants.EQUALS + message.MSGTYPE);
+		
+		OrderBookSide orderBookSide = AlignmentFunctions.getOrderBookSideFromFIXSide(message.getSide());
 
+		AlignmentOrder ao = new AlignmentOrder();
+
+		ao.setNewOrderSingle(message, sessionID, UUID.randomUUID(), orderBookSide);
+
+		StringBuilder sb = new StringBuilder().append(" OrderID=(").append(ao.getOrderId()).append(" ClOrdID=(")
+				.append(ao.getClOrdID()).append(" Side=(").append(ao.getOrderBookSide().sideReadableValue )
+				.append(") SenderCompId=").append(ao.getSender()).append(" TargetCompId=").append(ao.getTarget())
+				.append(" sending to Kafka...");
+		
+		debugger.debug(sb.toString());
+
+		try {
+			debugger.debug("Sending order to Kafka...");
+			AlignmentKafkaSender sender = ao.getBytesAsSBEInSender();
+			this.send(sender);
+			
+			log.infoFIXSession(sb.toString(), sessionID, MessageDirection.RECEIVED, METHOD,
+					message.getClass().getSimpleName(), instanceType);
+		} catch (NullPointerException e) {
+			log.errorFIXSession(sb.toString(), sessionID, MessageDirection.RECEIVED, METHOD,
+					message.getClass().getSimpleName(), instanceType);
+		}
+	}
+
+	
+
+	@Override
+	public void send(AlignmentKafkaSender sender) {
+		final String METHOD = "send".intern();
+
+		ProducerRecord<String, byte[]> producerRecord = new ProducerRecord<>(sender.getTopic(), sender.getKey(), sender.getBinaryMessage());
+
+		debugger.debug(CLASSNAME + "." + METHOD);
+
+		this.kafkaProducerB.send(producerRecord);		
 	}
 
 	@Override
-	public void processMessage(String topicName, ConsumerRecord<String, byte[]> message) throws Exception {
-		// TODO Auto-generated method stub
+	public void processMessage(String topicName, ConsumerRecord<String, byte[]> consumerRecord) throws Exception {
+		final String METHOD = "processMessage".intern();
 		//Here we receive a Kafka Message...
 
-		log.info(CLASSNAME + " received " + topicName);
-		//topicName
+		log.info(CLASSNAME  + "." + METHOD + " received " + topicName);
 
-		ByteBuffer bb = ByteBuffer.wrap(message.value()).order(encoding.getByteOrder());
+		ByteBuffer bb = ByteBuffer.wrap(consumerRecord.value()).order(encoding.getByteOrder());
 		final short msgType = bb.getShort();	//		buf.putShort(messageType);
 		//When we get to here we know the message type that was used
 		//if its an Order then we need to send acknowledgement
@@ -317,6 +381,11 @@ public class FIXEngineExchange extends MessageCracker implements quickfix.Applic
 
 		}				
 
-		Session.sendToTarget(er);
+		Boolean sent = Session.sendToTarget(er);
+		if (sent) {
+			debugger.info(CLASSNAME  + "." + METHOD + " sent on " + topicName);
+		}else {
+			debugger.error(CLASSNAME  + "." + METHOD + " not sent on " + topicName);
+		}
 	}
 }

@@ -7,7 +7,7 @@ package com.alignmentsystems.matching;
  *	Date            :	24th August 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	QueueNonSequenced
+ *	Artefact		:	AlignmentQueueNonSequenced
  *	Description		:
  *****************************************************************************/
 
@@ -23,9 +23,10 @@ import com.alignmentsystems.library.interfaces.InterfaceQueueNonSequenced;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class QueueNonSequenced implements Runnable, InterfaceQueueNonSequenced {
-	protected final static String CLASSNAME = QueueNonSequenced.class.getSimpleName().toString();
+public class AlignmentQueueNonSequenced implements Runnable, InterfaceQueueNonSequenced {
+	protected final static String CLASSNAME = AlignmentQueueNonSequenced.class.getSimpleName().toString();
 	private ConcurrentLinkedQueue<InterfaceOrder> nonSequencedIn;
+	@SuppressWarnings("unused")
 	private AlignmentLogEncapsulation log = null;
 	private final static int MILLISLEEP = 200;
 	private AtomicBoolean running = new AtomicBoolean(false);
@@ -33,6 +34,12 @@ public class QueueNonSequenced implements Runnable, InterfaceQueueNonSequenced {
 
 	@Override
 	public void run() {
+		
+		AlignmentUEH ueh = new AlignmentUEH();
+		
+		Thread.setDefaultUncaughtExceptionHandler(ueh);
+
+		
 		running.set(true);
 
 		while (running.get()) {
@@ -63,9 +70,17 @@ public class QueueNonSequenced implements Runnable, InterfaceQueueNonSequenced {
 
 	@Override
 	public boolean initialise(AlignmentLogEncapsulation log) {
+		final String METHOD = "initialise";
+		
+		this.log = log;
+		
+		
 		if (!initialised.get()) {
-			this.log = log;
+			
 			this.nonSequencedIn = new ConcurrentLinkedQueue<InterfaceOrder> ();
+			
+			log.info(CLASSNAME + "." + METHOD);
+
 			initialised.set(true);
 		}
 		return initialised.get();

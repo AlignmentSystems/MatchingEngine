@@ -29,7 +29,6 @@ import com.alignmentsystems.library.interfaces.InterfacePersistenceServer;
  */
 public class AlignmentPersistenceToFileClient implements InterfacePersistenceClient{
 	private ConcurrentLinkedQueue<String> logQueue = new ConcurrentLinkedQueue<String>();
-	private Boolean runOnce = Boolean.TRUE;
 	private final static int MILLISLEEP = 200;
 	private AtomicBoolean hasExecutedInit = new AtomicBoolean(false);
 	private Thread logger = null;
@@ -306,7 +305,7 @@ public class AlignmentPersistenceToFileClient implements InterfacePersistenceCli
 
 	@Experimental
 	@Override
-	public Boolean error(String toLog, Exception e) throws LogMessageIsNull{
+	public Boolean error(String toLog, Throwable t) throws LogMessageIsNull{
 
 		Boolean returnValue = Boolean.FALSE;
 
@@ -325,15 +324,13 @@ public class AlignmentPersistenceToFileClient implements InterfacePersistenceCli
 			}else {
 
 
-				StackTraceElement[] stackTrace = e.getStackTrace();
+				StackTraceElement[] stackTrace = t.getStackTrace();
 				for (StackTraceElement element : stackTrace) {
 					returnValue = logExecute(new StringBuilder().append(PersistenceRecordType.ERROR.recordType).append(element.toString()).toString());
-					if (!returnValue) {return returnValue;}
 				}
 				returnValue = logExecute(blocker );
-
-				return returnValue;
 			}
+			return returnValue;
 		}
 	}
 
@@ -341,7 +338,7 @@ public class AlignmentPersistenceToFileClient implements InterfacePersistenceCli
 
 	@Override
 	@Experimental
-	public Boolean errorSession(String toLog, String methodName, Exception e) throws LogMessageIsNull {
+	public Boolean errorSession(String toLog, String methodName, Throwable t) throws LogMessageIsNull {
 
 		Boolean returnValue = Boolean.FALSE;
 
@@ -358,7 +355,7 @@ public class AlignmentPersistenceToFileClient implements InterfacePersistenceCli
 				return returnValue;
 			}else {
 
-				StackTraceElement[] stackTrace = e.getStackTrace();
+				StackTraceElement[] stackTrace = t.getStackTrace();
 				for (StackTraceElement element : stackTrace) {
 					returnValue = logExecute(PersistenceRecordType.ERROR.recordType + element.toString());
 					if (!returnValue) {return returnValue;}

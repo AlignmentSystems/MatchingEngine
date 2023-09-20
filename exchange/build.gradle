@@ -1,3 +1,4 @@
+
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'application'
@@ -72,7 +73,7 @@ jar{
 	autoIncrementBuildNumber()
     manifest {
         attributes("Implementation-Title": "Gradle",                   
-                   'Main-Class':'com.alignmentsystems.matching.App',
+                   'Main-Class':'com.alignmentsystems.matching.AlignmentApp',
 					'class-path':'.' ,
 					'Version': classifier + '.' + versionBuild)
     }
@@ -98,5 +99,5 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = 'com.alignmentsystems.matching.App'
+    mainClass = 'com.alignmentsystems.matching.AlignmentApp'
 }

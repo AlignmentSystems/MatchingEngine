@@ -22,8 +22,8 @@ import com.alignmentsystems.library.interfaces.InterfaceOrder;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProcessor {
-	protected final static String CLASSNAME = FIXToBinaryProcessor.class.getSimpleName().toString();
+public class AlignmentFIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProcessor {
+	protected final static String CLASSNAME = AlignmentFIXToBinaryProcessor.class.getSimpleName().toString();
 	private AlignmentLogEncapsulation log = null;
 	private ConcurrentLinkedQueue<InterfaceOrder> inQueue = null;
 	private KafkaProducer<String, byte[]> kafkaProducerB = null;
@@ -31,25 +31,32 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 	private final static int MILLISLEEP = 200;
 	//private static BinaryFromToCanonical binaryFromToCanonical = new BinaryFromToCanonical();
 
-	public FIXToBinaryProcessor() {
+	public AlignmentFIXToBinaryProcessor() {
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public boolean initialise(ConcurrentLinkedQueue<InterfaceOrder> inQueue, AlignmentLogEncapsulation log) throws Exception{
+		final String METHOD = "initialise";
+		
+		
 		this.inQueue = inQueue;
 		this.log = log;
 
 		if (this.kafkaProducerB == null) {
 			Properties props;
 			try {
-				props = AlignmentFunctions.getProperties(FIXToBinaryProcessor.class.getClassLoader(), InstanceType.KAFKA.getProperties());
+				props = AlignmentFunctions.getProperties(AlignmentFIXToBinaryProcessor.class.getClassLoader(), InstanceType.KAFKA.getProperties());
 			} catch (FileNotFoundException | NullPointerException e) {
 				this.log.error(e.getMessage() , e);
 				throw e;
 			}
 			this.kafkaProducerB = new KafkaProducer<>(props);
 		}
+		
+		log.info(CLASSNAME + "." + METHOD);
+
+		
 		return true;
 	}
 
@@ -60,6 +67,12 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 	@Override
 	public void run() {
 		running.set(true);
+		
+		AlignmentUEH ueh = new AlignmentUEH();
+		
+		Thread.setDefaultUncaughtExceptionHandler(ueh);
+
+		
 
 		while (running.get()) {
 
@@ -69,6 +82,7 @@ public class FIXToBinaryProcessor implements Runnable, InterfaceFIXToBinaryProce
 				
 				AlignmentKafkaSender sender = inSeq.getBytesAsSBEInSender();
 				this.send(sender.getTopic(), sender.getKey(), sender.getBinaryMessage());
+				sender = null;
 			}
 			try {
 				Thread.currentThread();

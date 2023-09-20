@@ -7,7 +7,7 @@ package com.alignmentsystems.matching;
  *	Date            :	24th August 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	OrderBook
+ *	Artefact		:	AlignmentOrderBook
  *	Description		:
  *****************************************************************************/
 
@@ -49,9 +49,9 @@ import quickfix.FieldNotFound;
  *         "https://kafka.apache.org/35/javadoc/org/apache/kafka/clients/consumer/package-summary.html">Consumer</a>
  *
  */
-public class OrderBook
+public class AlignmentOrderBook
 implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, InterfaceAddedOrderToOrderBook, InterfaceOrderBookEvents, Runnable {
-	private final static String CLASSNAME = OrderBook.class.getSimpleName();
+	private final static String CLASSNAME = AlignmentOrderBook.class.getSimpleName();
 
 	private final static int buyPriorityQueueSize = 100;
 	private final static int sellPriorityQueueSize = 100;
@@ -77,15 +77,17 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 	@Override
 	public Boolean initialise(String symbol, AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger,
 			InterfaceMatchEvent toAddMatch, InterfaceAddedOrderToOrderBook toAddOrder) {
+		final String METHOD = "initialise";
+		
 		Boolean returnValue = Boolean.FALSE;
 		this.orderBookCreationTime = OffsetDateTime.now(Constants.HERE);
 		this.symbol = symbol;
 		this.log = log;
 		this.debugger = debugger;
-
 		this.addMatchEventListener(toAddMatch);
 		this.addAddedOrderToOrderBookListener(toAddOrder);
 
+		debugger.info(CLASSNAME + "." + METHOD);
 
 		returnValue = Boolean.TRUE;
 

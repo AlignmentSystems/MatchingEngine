@@ -12,9 +12,8 @@ import com.alignmentsystems.library.interfaces.InterfaceOrderBookWrapper;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class OrderBookWrapper implements InterfaceOrderBookWrapper{
-	@SuppressWarnings("unused")
-	private final static String CLASSNAME = OrderBookWrapper.class.getSimpleName();
+public class AlignmentOrderBookWrapper implements InterfaceOrderBookWrapper{
+	public final static String CLASSNAME = AlignmentOrderBookWrapper.class.getSimpleName();
 
 	private Map<String, InterfaceOrderBook> orderBooks = new HashMap<String, InterfaceOrderBook>();
 	private AlignmentLogEncapsulation log = null;
@@ -36,16 +35,21 @@ public class OrderBookWrapper implements InterfaceOrderBookWrapper{
 
 	@Override
 	public boolean initialise(AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger) throws Exception {
+		final String METHOD = "initialise";
+		
 		this.log = log;
 		this.debugger = debugger;
 
+		debugger.info(CLASSNAME + "." + METHOD);
+		
+		
 		final String symbol = "BADGER.W";
 
-		OrderBook orderBook = new OrderBook();
+		AlignmentOrderBook orderBook = new AlignmentOrderBook();
 		
-		OrderBookKafkaProducer obkp = new OrderBookKafkaProducer();
+		AlignmentOrderBookKafkaProducer obkp = new AlignmentOrderBookKafkaProducer();
 		
-		obkp.initialise(log);
+		obkp.initialise(this.log , this.debugger );
 		
 		if(orderBook.initialise(symbol, this.log, this.debugger, obkp, obkp)) {
 
@@ -63,12 +67,12 @@ public class OrderBookWrapper implements InterfaceOrderBookWrapper{
 
 		obThread.start();
 
-		OrderBookKafkaConsumer obkc = null;
+		AlignmentOrderBookKafkaConsumer obkc = null;
 
 		try {
-			obkc = new OrderBookKafkaConsumer();
-			Thread obkThread = new Thread(null, obkc, OrderBookKafkaConsumer.CLASSNAME);
-			obkc.initialise(this.log);			
+			obkc = new AlignmentOrderBookKafkaConsumer();
+			Thread obkThread = new Thread(null, obkc, AlignmentOrderBookKafkaConsumer.CLASSNAME);
+			obkc.initialise(this.log, debugger);			
 			obkThread.start();
 		} catch (Exception e) {
 			//log.error(e.getMessage() ,  e);

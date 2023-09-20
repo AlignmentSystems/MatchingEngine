@@ -6,7 +6,7 @@ package com.alignmentsystems.matching;
  *	Date            :	13th September 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	OrderBookKafkaConsumer
+ *	Artefact		:	AlignmentOrderBookKafkaConsumer
  *	Description		:
  *****************************************************************************/
 
@@ -26,37 +26,49 @@ import org.apache.kafka.common.errors.WakeupException;
 
 import com.alignmentsystems.library.AlignmentFunctions;
 import com.alignmentsystems.library.AlignmentLogEncapsulation;
+import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceKafkaAbstractSimple;
 import com.alignmentsystems.library.interfaces.InterfaceKafkaMessageHandler;
 
-public class OrderBookKafkaConsumer  extends InterfaceKafkaAbstractSimple implements Runnable{
-	public final static String CLASSNAME = OrderBookKafkaConsumer.class.getSimpleName();
+public class AlignmentOrderBookKafkaConsumer  extends InterfaceKafkaAbstractSimple implements Runnable{
+	public final static String CLASSNAME = AlignmentOrderBookKafkaConsumer.class.getSimpleName();
+	
 	private final int TIME_OUT_MS = 5000;
 	private KafkaConsumer<String, byte[]> kafkaConsumer = null;
 	private final AtomicBoolean closed = new AtomicBoolean(false);
 	private AlignmentLogEncapsulation log = null;
+	private AlignmentPersistenceToFileClient debugger = null; 
+
 	private Properties props = null;
 
 
 
-	public OrderBookKafkaConsumer() throws Exception {
+	public AlignmentOrderBookKafkaConsumer() throws Exception {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public Boolean initialise(AlignmentLogEncapsulation log) throws FileNotFoundException , NullPointerException{
+	@Override
+	public boolean initialise(AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger) throws FileNotFoundException , NullPointerException{
+		final String METHOD = "initialise";
+		
+		
 		this.log = log;
+		this.debugger = debugger; 
+		
+		log.info(CLASSNAME + "." + METHOD);
 
+		
 		try {
-			props = AlignmentFunctions.getProperties(OrderBookKafkaConsumer.class.getClassLoader(), InstanceType.KAFKA.getProperties());
-		} catch (FileNotFoundException  |NullPointerException e) {
+			this.props = AlignmentFunctions.getProperties(AlignmentFIXEngineKafkaConsumer.class.getClassLoader(), InstanceType.KAFKA.getProperties());
+		} catch (FileNotFoundException |NullPointerException e) {
 			throw e;
 		}
 
 		return Boolean.TRUE;			
-	}
 
+	}
 	public void setKafkaConsumer(KafkaConsumer<String, byte[]> kafkaConsumer) {
 		this.kafkaConsumer = kafkaConsumer;
 	}
@@ -142,7 +154,7 @@ public class OrderBookKafkaConsumer  extends InterfaceKafkaAbstractSimple implem
 		
 		Properties props;
 		try {
-			props = AlignmentFunctions.getProperties(OrderBookKafkaConsumer.class.getClassLoader() , InstanceType.KAFKA.getProperties());
+			props = AlignmentFunctions.getProperties(AlignmentOrderBookKafkaConsumer.class.getClassLoader() , InstanceType.KAFKA.getProperties());
 		} catch (FileNotFoundException | NullPointerException e) {
 			//log.error(e.getMessage() , e);
 			throw e;
