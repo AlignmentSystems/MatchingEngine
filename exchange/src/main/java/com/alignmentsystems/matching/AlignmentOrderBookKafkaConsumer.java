@@ -136,13 +136,18 @@ public class AlignmentOrderBookKafkaConsumer  extends InterfaceKafkaAbstractSimp
 	
 	}
 
+	private synchronized void waiter() throws IllegalArgumentException , InterruptedException , IllegalMonitorStateException  {
+		wait(2000);
+	} 
+	
+	
 	@Override
 	public void run() {
 		AtomicBoolean run = new AtomicBoolean(true);
 		while (run.get()) {
 			try {
-				wait(2000);
-			} catch (InterruptedException e) {
+				waiter();
+			} catch (IllegalArgumentException | InterruptedException | IllegalMonitorStateException e) {
 				log.error(e.getMessage() , e );
 			}
 		}

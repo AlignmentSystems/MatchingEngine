@@ -26,6 +26,7 @@ public class FailureConditionConstants {
 	
 	private final static int KAFKA_PROPERTIES_BASE_MEMBER = 3666;
 	public final static int KAFKA_ERROR_PROPERTIES_FILE = KAFKA_PROPERTIES_BASE_MEMBER + 1;
+	public final static int KAFKA_NOT_RUNNING = KAFKA_PROPERTIES_BASE_MEMBER + 2;
 	
 	private final static int INSTANCE_WRAPPER_BASE_MEMBER = 4666;
 	public final static int INSTANCE_WRAPPER_INITIALISATION_ERROR = INSTANCE_WRAPPER_BASE_MEMBER + 1;

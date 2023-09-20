@@ -66,7 +66,9 @@ public class AlignmentOrderBookKafkaProducer implements InterfaceKafkaProducer, 
 		this.kafkaProducerB.send(producerRecord);
 	}
 
-
+	private synchronized void waiter() throws IllegalArgumentException , InterruptedException , IllegalMonitorStateException  {
+		wait(2000);
+	}
 
 	@Override
 	public void run() {
@@ -74,7 +76,7 @@ public class AlignmentOrderBookKafkaProducer implements InterfaceKafkaProducer, 
 		while (run.get()) {
 			while (run.get()) {
 				try {
-					wait(2000);
+					waiter();
 				} catch (IllegalArgumentException | InterruptedException | IllegalMonitorStateException e) {
 					log.error(e.getMessage() , e );
 				}

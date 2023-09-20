@@ -6,8 +6,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.KafkaAdminClient;
+import org.apache.kafka.clients.admin.ListTopicsResult;
 
 import com.alignmentsystems.fix44.MessageFactory;
 import com.alignmentsystems.library.AlignmentFunctions;
@@ -140,6 +145,40 @@ public class AlignmentInstanceWrapper implements InterfaceInstanceWrapper {
 		AlignmentUEH ueh = new AlignmentUEH(debugger);	
 		Thread.setDefaultUncaughtExceptionHandler(ueh);
 
+		//check - is Kafka running?
+		Properties props;
+		try {
+			props = AlignmentFunctions.getProperties(AlignmentInstanceWrapper.class.getClassLoader() , InstanceType.KAFKA.getProperties());
+		} catch (FileNotFoundException | NullPointerException e) {
+			log.error(e.getMessage(), e);
+			return false;
+		}
+		
+		try (AdminClient client = KafkaAdminClient.create(props))
+		{
+		    ListTopicsResult topics = client.listTopics();
+		    Set<String> names = topics.names().get();
+		    if (names.isEmpty())
+		    {
+		        // case: if no topic found.
+		    	log.error("No Topics Found");
+				return false;
+		    }		    
+		}
+		catch (Exception e){
+			// Kafka is not available
+			log.error("Kafka is not available".toUpperCase());
+			log.error(e.getMessage() , e);
+			System.err.println(e.getMessage());
+			System.exit(FailureConditionConstants.KAFKA_NOT_RUNNING);		    
+		}
+		
+		 
+		
+		
+		
+		
+		
 
 		AlignmentQueueNonSequenced queueNonSequenced = new AlignmentQueueNonSequenced();
 		Thread threadQueueNonSequenced = new Thread(null, queueNonSequenced, AlignmentQueueNonSequenced.CLASSNAME);
