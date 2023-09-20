@@ -409,7 +409,4 @@ public class AlignmentOrder implements InterfaceOrder{
 		final short msgType = bb.getShort();	//		buf.putShort(messageType
 		return  getAlignmentOrderFromBuffer(bb.array(), msgType);
 	}
-
-
-
 }

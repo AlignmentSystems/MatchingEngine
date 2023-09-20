@@ -10,7 +10,11 @@ package com.alignmentsystems.library.interfaces;
  *	Description		:
  *****************************************************************************/
 
+import java.io.FileNotFoundException;
 import java.util.List;
+
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
+import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
@@ -18,6 +22,10 @@ import java.util.List;
  *
  */
 public abstract class InterfaceKafkaAbstractSimple {
+		
+	public abstract boolean initialise(AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger) throws FileNotFoundException , NullPointerException;
+	
+	
 	/**
 	 * Instantiates a new Abstract class, SimpleKafka.
 	 * <p>

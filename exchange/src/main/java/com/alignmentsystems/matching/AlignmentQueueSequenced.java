@@ -6,7 +6,7 @@ package com.alignmentsystems.matching;
  *	Date            :	31st August 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	QueueSequenced
+ *	Artefact		:	AlignmentQueueSequenced
  *	Description		:	
  *****************************************************************************/
 
@@ -24,8 +24,8 @@ import com.alignmentsystems.library.interfaces.InterfaceQueueSequencedDeduplicat
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class QueueSequenced implements Runnable, InterfaceQueueSequencedDeduplicated {
-	protected final static String CLASSNAME = QueueSequenced.class.getSimpleName().toString();
+public class AlignmentQueueSequenced implements Runnable, InterfaceQueueSequencedDeduplicated {
+	protected final static String CLASSNAME = AlignmentQueueSequenced.class.getSimpleName().toString();
 	private ConcurrentLinkedQueue<InterfaceOrder> inQueue;
 	private ConcurrentLinkedQueue<InterfaceOrder> outQueue;
 	private final int milliSleep = 200;
@@ -37,11 +37,11 @@ public class QueueSequenced implements Runnable, InterfaceQueueSequencedDeduplic
 	private HashSet<String> seen = new HashSet<String>(initialCapacityHashSet, loadFactorHashSet);
 	private List<InterfaceOrder> deDupedOrders = new ArrayList<InterfaceOrder>(arrayListSize);
 
-	public QueueSequenced() {
+	public AlignmentQueueSequenced() {
 		// TODO Auto-generated constructor stub
 	}
 
-	
+
 
 	@Override
 	public void run() {
@@ -94,8 +94,17 @@ public class QueueSequenced implements Runnable, InterfaceQueueSequencedDeduplic
 
 	@Override
 	public boolean initialise(ConcurrentLinkedQueue<InterfaceOrder> inQueue) {
-			this.inQueue = inQueue;
-			this.outQueue = new ConcurrentLinkedQueue<InterfaceOrder>();
-			return true;
-		}
+		final String METHOD = "initialise";
+
+		this.inQueue = inQueue;
+		this.outQueue = new ConcurrentLinkedQueue<InterfaceOrder>();
+		//log.info(CLASSNAME + "." + METHOD);
+		
+		AlignmentUEH ueh = new AlignmentUEH();
+		
+		Thread.setDefaultUncaughtExceptionHandler(ueh);
+		
+
+		return true;
+	}
 }

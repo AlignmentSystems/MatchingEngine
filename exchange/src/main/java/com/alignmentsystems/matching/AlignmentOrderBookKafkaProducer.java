@@ -6,7 +6,7 @@ package com.alignmentsystems.matching;
  *	Date            :	17th September 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	OrderBookKafkaProducer
+ *	Artefact		:	AlignmentOrderBookKafkaProducer
  *	Description		:
  *****************************************************************************/
 
@@ -22,17 +22,20 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import com.alignmentsystems.library.AlignmentKafkaSender;
 import com.alignmentsystems.library.AlignmentFunctions;
 import com.alignmentsystems.library.AlignmentLogEncapsulation;
+import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.enumerations.OperationEventType;
 import com.alignmentsystems.library.interfaces.InterfaceAddedOrderToOrderBook;
 import com.alignmentsystems.library.interfaces.InterfaceExecutionReport;
+import com.alignmentsystems.library.interfaces.InterfaceKafkaProducer;
 import com.alignmentsystems.library.interfaces.InterfaceMatch;
 import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBookEvents;
 
-public class OrderBookKafkaProducer implements InterfaceMatchEvent, InterfaceAddedOrderToOrderBook, InterfaceOrderBookEvents, Runnable {
+public class AlignmentOrderBookKafkaProducer implements InterfaceKafkaProducer, InterfaceMatchEvent, InterfaceAddedOrderToOrderBook, InterfaceOrderBookEvents, Runnable {
 	private KafkaProducer<String, byte[]> kafkaProducerB = null;
 	private AlignmentLogEncapsulation log = null;
+	private AlignmentPersistenceToFileClient debugger = null; 
 	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
 	private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
 
@@ -41,34 +44,11 @@ public class OrderBookKafkaProducer implements InterfaceMatchEvent, InterfaceAdd
 	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd) {
 		this.listenersAddedOrderToOrderBook.add(toAdd);		
 	}
-	
+
 	@Override
 	public void addMatchEventListener(InterfaceMatchEvent toAdd) {
 		this.listenersMatchEvent.add(toAdd);
 	}
-
-	public OrderBookKafkaProducer() {
-		// TODO Auto-generated constructor stub
-	}
-
-
-	public boolean initialise(AlignmentLogEncapsulation log) throws Exception{
-
-		this.log = log;
-
-		if (this.kafkaProducerB == null) {
-			Properties props;
-			try {
-				props = AlignmentFunctions.getProperties(FIXToBinaryProcessor.class.getClassLoader(), InstanceType.KAFKA.getProperties());
-			} catch (FileNotFoundException | NullPointerException e) {
-				this.log.error(e.getMessage() , e);
-				throw e;
-			}
-			this.kafkaProducerB = new KafkaProducer<>(props);
-		}
-		return true;
-	}
-
 
 
 	protected void send(String topicName, String key, byte[] binaryMessage) {
@@ -92,10 +72,12 @@ public class OrderBookKafkaProducer implements InterfaceMatchEvent, InterfaceAdd
 	public void run() {
 		AtomicBoolean run = new AtomicBoolean(true);
 		while (run.get()) {
-			try {
-				wait(2000);
-			} catch (InterruptedException e) {
-				log.error(e.getMessage() , e );
+			while (run.get()) {
+				try {
+					wait(2000);
+				} catch (IllegalArgumentException | InterruptedException | IllegalMonitorStateException e) {
+					log.error(e.getMessage() , e );
+				}
 			}
 		}
 
@@ -112,7 +94,7 @@ public class OrderBookKafkaProducer implements InterfaceMatchEvent, InterfaceAdd
 
 		AlignmentKafkaSender senderBuy = match.getBuyReport().getSenderForTopic(TOPIC);
 		AlignmentKafkaSender senderSell = match.getSellReport().getSenderForTopic(TOPIC);
-		
+
 		this.send(senderBuy.getTopic() , senderBuy.getKey(), senderBuy.getBinaryMessage());
 		this.send(senderSell.getTopic() , senderSell.getKey(), senderSell.getBinaryMessage());
 	}
@@ -125,7 +107,31 @@ public class OrderBookKafkaProducer implements InterfaceMatchEvent, InterfaceAdd
 
 		//log.infoMatchingEvent(OperationEventType.NEWORDEREVENT, er);
 		AlignmentKafkaSender senderAck= er.getSenderForTopic(TOPIC);
-		
+
 		this.send(senderAck.getTopic(), senderAck.getKey(), senderAck.getBinaryMessage());		
+	}
+
+	@Override
+	public boolean initialise(AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger)
+			throws FileNotFoundException, NullPointerException {
+		this.log = log;
+		this.debugger = debugger;
+		AlignmentUEH ueh = new AlignmentUEH(this.debugger);	
+		Thread.setDefaultUncaughtExceptionHandler(ueh);
+
+
+
+		if (this.kafkaProducerB == null) {
+			Properties props;
+			try {
+				props = AlignmentFunctions.getProperties(AlignmentFIXToBinaryProcessor.class.getClassLoader(), InstanceType.KAFKA.getProperties());
+			} catch (FileNotFoundException | NullPointerException e) {
+				this.log.error(e.getMessage() , e);
+				throw e;
+			}
+			this.kafkaProducerB = new KafkaProducer<>(props);
+		}
+		return true;
+
 	}
 }

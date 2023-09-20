@@ -6,7 +6,7 @@ package com.alignmentsystems.matching;
  *	Date            :	24th August 2023
  *	Copyright       :	Alignment Systems Ltd 2023
  *	Project			:	Alignment Matching Toy
- *	Artefact		:	FIXEngineKafkaListener
+ *	Artefact		:	AlignmentFIXEngineKafkaConsumer
  *	Description		:
  *****************************************************************************/
 
@@ -23,6 +23,7 @@ import org.apache.kafka.common.errors.WakeupException;
 
 import com.alignmentsystems.library.AlignmentFunctions;
 import com.alignmentsystems.library.AlignmentLogEncapsulation;
+import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceKafkaAbstractSimple;
 import com.alignmentsystems.library.interfaces.InterfaceKafkaMessageHandler;
@@ -31,39 +32,22 @@ import com.alignmentsystems.library.interfaces.InterfaceKafkaMessageHandler;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class FIXEngineKafkaListener extends InterfaceKafkaAbstractSimple implements Runnable {
-	public final static String CLASSNAME = OrderBookKafkaConsumer.class.getSimpleName();
+public class AlignmentFIXEngineKafkaConsumer extends InterfaceKafkaAbstractSimple implements Runnable {
+	public final static String CLASSNAME = AlignmentFIXEngineKafkaConsumer.class.getSimpleName();
 	private final int TIME_OUT_MS = 5000;
 	private KafkaConsumer<String, byte[]> kafkaConsumer = null;
 	private final AtomicBoolean closed = new AtomicBoolean(false);
 	private AlignmentLogEncapsulation log = null;
+	private AlignmentPersistenceToFileClient debugger = null; 
 	private Properties props = null;
 
-	public FIXEngineKafkaListener() throws Exception {
+	public AlignmentFIXEngineKafkaConsumer() throws Exception {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
 	
-	/**
-	 * 
-	 * @param log
-	 * @return
-	 * @throws FileNotFoundException
-	 * @throws NullPointerException
-	 */
-	public Boolean initialise(AlignmentLogEncapsulation log) throws FileNotFoundException , NullPointerException{
-		this.log = log;
 
-		try {
-			this.props = AlignmentFunctions.getProperties(FIXEngineKafkaListener.class.getClassLoader(), InstanceType.KAFKA.getProperties());
-		} catch (FileNotFoundException  |NullPointerException e) {
-			throw e;
-		}
-
-		return Boolean.TRUE;			
-	}
-	
 	
 	/**
 	 * 
@@ -85,6 +69,10 @@ public class FIXEngineKafkaListener extends InterfaceKafkaAbstractSimple impleme
 	@Override
 	public void run() {
 		AtomicBoolean run = new AtomicBoolean(true);
+		
+		AlignmentUEH ueh = new AlignmentUEH();	
+		Thread.setDefaultUncaughtExceptionHandler(ueh);
+		
 		while (run.get()) {
 			try {
 				wait(2000);
@@ -110,9 +98,9 @@ public class FIXEngineKafkaListener extends InterfaceKafkaAbstractSimple impleme
 
 	@Override
 	public void runAlways(List<String> topicNames , InterfaceKafkaMessageHandler callback) throws Exception {
-		Properties props;
+		
 		try {
-			props = AlignmentFunctions.getProperties(OrderBookKafkaConsumer.class.getClassLoader() , InstanceType.KAFKA.getProperties());
+			this.props = AlignmentFunctions.getProperties(AlignmentFIXEngineKafkaConsumer.class.getClassLoader() , InstanceType.KAFKA.getProperties());
 		} catch (FileNotFoundException | NullPointerException e) {
 			//log.error(e.getMessage() , e);
 			throw e;
@@ -130,6 +118,7 @@ public class FIXEngineKafkaListener extends InterfaceKafkaAbstractSimple impleme
 				}else {
 
 					for (ConsumerRecord<String, byte[]> record : records) {
+						log.info("Records retrieved - execute callback");
 						callback.processMessage(record.topic(), record);
 					}
 				}
@@ -139,5 +128,26 @@ public class FIXEngineKafkaListener extends InterfaceKafkaAbstractSimple impleme
 			if (!closed.get())
 				throw e;
 		}
+	}
+
+
+	@Override
+	public boolean initialise(AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger) throws FileNotFoundException , NullPointerException{
+		final String METHOD = "initialise";
+				 
+		this.log = log;
+		this.debugger = debugger; 
+		
+		log.info(CLASSNAME + "." + METHOD);
+
+		
+		try {
+			this.props = AlignmentFunctions.getProperties(AlignmentFIXEngineKafkaConsumer.class.getClassLoader(), InstanceType.KAFKA.getProperties());
+		} catch (FileNotFoundException |NullPointerException e) {
+			throw e;
+		}
+
+		return Boolean.TRUE;			
+
 	}
 }

@@ -434,6 +434,31 @@ public class AlignmentFunctions {
 		}
 
 	}
+	
+	
+	/**
+	 * 
+	 * @param thread
+	 * @param debugger
+	 */
+	public static void threadStatusCheck(Thread thread, AlignmentPersistenceToFileClient debugger) {
+		String statusMessage  = new StringBuilder()
+				.append(thread.getName())
+				.append(Constants.SPACE)
+				.append(thread.getClass().getSimpleName().toString())
+				.append(" is alive?=")
+				.append(Boolean.toString(thread.isAlive()).toUpperCase())
+				.toString()
+				;
+
+		if (thread.isAlive()){
+			debugger.info(statusMessage);
+		}else {
+			debugger.error(statusMessage);
+		}
+
+		
+	}
 
 
 
@@ -442,7 +467,11 @@ public class AlignmentFunctions {
 
 
 
-
+/**
+ * 
+ * @param classVersionToTest
+ * @return
+ */
 	public final static String getVersionWithTitle(Class<?> classVersionToTest) {
 		final String version = "Version=";
 		final String codeValue = getVersion(classVersionToTest);
@@ -565,9 +594,4 @@ public class AlignmentFunctions {
 		System.out.println("Products derived from this software may not be called \"QuickFIX\", nor may \"QuickFIX\" appear in their name, without prior written permission of quickfixengine.org");
 		System.out.println("THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL QUICKFIXENGINE.ORG OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.");
 	}
-
-
-
-
-
 }

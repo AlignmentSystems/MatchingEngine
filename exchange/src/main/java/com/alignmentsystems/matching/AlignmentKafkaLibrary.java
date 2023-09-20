@@ -23,12 +23,12 @@ import com.alignmentsystems.library.enumerations.InstanceType;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class KafkaLibrary {
+public class AlignmentKafkaLibrary {
 
 	public static JsonObject getMessageLogEntryJSON(String source, String topic, String key, String message)
 			throws Exception {
 
-		String bootstrapServers = AlignmentFunctions.getProperty(KafkaLibrary.class.getClassLoader(), InstanceType.KAFKA.getProperties(),
+		String bootstrapServers = AlignmentFunctions.getProperty(AlignmentKafkaLibrary.class.getClassLoader(), InstanceType.KAFKA.getProperties(),
 				ConfigurationProperties.BOOTSTRAPSERVERS);
 
 		JsonObject model = Json.createObjectBuilder().add("bootstrapServers", bootstrapServers).add("source", source)

@@ -23,6 +23,7 @@ import org.apache.kafka.common.errors.WakeupException;
 
 import com.alignmentsystems.library.AlignmentFunctions;
 import com.alignmentsystems.library.AlignmentLogEncapsulation;
+import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceKafkaAbstractSimple;
 import com.alignmentsystems.library.interfaces.InterfaceKafkaMessageHandler;
@@ -38,33 +39,12 @@ public class MulticastServerKafkaListener extends InterfaceKafkaAbstractSimple i
 	private final AtomicBoolean closed = new AtomicBoolean(false);
 	private AlignmentLogEncapsulation log = null;
 	private Properties props = null;
+	private AlignmentPersistenceToFileClient debugger = null; 
 
 	public MulticastServerKafkaListener() throws Exception {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-
-	
-	/**
-	 * 
-	 * @param log
-	 * @return
-	 * @throws FileNotFoundException
-	 * @throws NullPointerException
-	 */
-	public Boolean initialise(AlignmentLogEncapsulation log) throws FileNotFoundException , NullPointerException{
-		this.log = log;
-
-		try {
-			this.props = AlignmentFunctions.getProperties(MulticastServerKafkaListener.class.getClassLoader(), InstanceType.KAFKA.getProperties());
-		} catch (FileNotFoundException  |NullPointerException e) {
-			throw e;
-		}
-
-		return Boolean.TRUE;			
-	}
-	
-	
 	/**
 	 * 
 	 * @param kafkaConsumer
@@ -139,5 +119,21 @@ public class MulticastServerKafkaListener extends InterfaceKafkaAbstractSimple i
 			if (!closed.get())
 				throw e;
 		}
+	}
+
+
+	@Override
+	public boolean initialise(AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger)
+			throws FileNotFoundException, NullPointerException {
+		this.log = log;
+		this.debugger = debugger;
+
+		try {
+			this.props = AlignmentFunctions.getProperties(MulticastServerKafkaListener.class.getClassLoader(), InstanceType.KAFKA.getProperties());
+		} catch (FileNotFoundException  |NullPointerException e) {
+			throw e;
+		}
+
+		return Boolean.TRUE;
 	}
 }
