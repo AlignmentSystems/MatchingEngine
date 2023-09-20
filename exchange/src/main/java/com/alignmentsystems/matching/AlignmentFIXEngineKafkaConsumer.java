@@ -43,10 +43,7 @@ public class AlignmentFIXEngineKafkaConsumer extends InterfaceKafkaAbstractSimpl
 
 	public AlignmentFIXEngineKafkaConsumer() throws Exception {
 		super();
-		// TODO Auto-generated constructor stub
 	}
-
-	
 
 	
 	/**
@@ -66,6 +63,12 @@ public class AlignmentFIXEngineKafkaConsumer extends InterfaceKafkaAbstractSimpl
 		return kafkaConsumer;
 	}
 	
+	private synchronized void waiter() throws IllegalArgumentException, InterruptedException , IllegalMonitorStateException {
+		wait(2000);
+	} 
+	
+	
+	
 	@Override
 	public void run() {
 		AtomicBoolean run = new AtomicBoolean(true);
@@ -75,8 +78,8 @@ public class AlignmentFIXEngineKafkaConsumer extends InterfaceKafkaAbstractSimpl
 		
 		while (run.get()) {
 			try {
-				wait(2000);
-			} catch (InterruptedException e) {
+				waiter();
+			} catch (IllegalArgumentException | InterruptedException | IllegalMonitorStateException e) {
 				log.error(e.getMessage() , e );
 			}
 		}
