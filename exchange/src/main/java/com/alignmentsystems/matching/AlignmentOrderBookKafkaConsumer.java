@@ -53,11 +53,10 @@ public class AlignmentOrderBookKafkaConsumer  extends InterfaceKafkaAbstractSimp
 	public boolean initialise(AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger) throws FileNotFoundException , NullPointerException{
 		final String METHOD = "initialise";
 		
-		
 		this.log = log;
 		this.debugger = debugger; 
 		
-		log.info(CLASSNAME + "." + METHOD);
+		this.debugger.info(CLASSNAME + "." + METHOD);
 
 		
 		try {
@@ -69,6 +68,7 @@ public class AlignmentOrderBookKafkaConsumer  extends InterfaceKafkaAbstractSimp
 		return Boolean.TRUE;			
 
 	}
+	
 	public void setKafkaConsumer(KafkaConsumer<String, byte[]> kafkaConsumer) {
 		this.kafkaConsumer = kafkaConsumer;
 	}
@@ -186,8 +186,6 @@ public class AlignmentOrderBookKafkaConsumer  extends InterfaceKafkaAbstractSimp
 			// Ignore exception if closing
 			if (!closed.get())
 				throw e;
-		}
-		
+		}	
 	}
-
 }

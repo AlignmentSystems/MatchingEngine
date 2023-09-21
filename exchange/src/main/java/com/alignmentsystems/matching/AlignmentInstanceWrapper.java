@@ -18,7 +18,10 @@ import com.alignmentsystems.fix44.MessageFactory;
 import com.alignmentsystems.library.AlignmentFunctions;
 import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
+import com.alignmentsystems.library.AlignmentUEH;
+import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.constants.FailureConditionConstants;
+import com.alignmentsystems.library.constants.KafkaMessageTopology;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceInstanceWrapper;
 
@@ -132,11 +135,12 @@ public class AlignmentInstanceWrapper implements InterfaceInstanceWrapper {
 
 	private Boolean initialiseFIXMessagingInfrastructure(InstanceType instanceType)  {
 		final String METHOD = "initialiseFIXMessagingInfrastructure";
+		final String ID = CLASSNAME + Constants.FULLSTOP + METHOD;
 
 		AlignmentPersistenceToFileClient debugger = new AlignmentPersistenceToFileClient();
 		try {
 			debugger.initialise(this.getClass().getClassLoader() , InstanceType.FIXMESSAGINGINFRA.getProperties());
-			debugger.info(CLASSNAME + "." + METHOD);
+			debugger.info(ID);
 		} catch (IllegalThreadStateException | IOException e) {
 			log.error(e.getMessage(), e);
 			return false;
@@ -161,13 +165,13 @@ public class AlignmentInstanceWrapper implements InterfaceInstanceWrapper {
 		    if (names.isEmpty())
 		    {
 		        // case: if no topic found.
-		    	log.error("No Topics Found");
+		    	log.error(ID  + ":No Topics Found");
 				return false;
 		    }		    
 		}
 		catch (Exception e){
 			// Kafka is not available
-			log.error("Kafka is not available".toUpperCase());
+			log.error(ID + ":Kafka is not available".toUpperCase());
 			log.error(e.getMessage() , e);
 			System.err.println(e.getMessage());
 			System.exit(FailureConditionConstants.KAFKA_NOT_RUNNING);		    
@@ -234,7 +238,7 @@ public class AlignmentInstanceWrapper implements InterfaceInstanceWrapper {
 
 
 		try {
-			debugger.debug("Start threads");
+			debugger.debug(ID + ":Start threads...");
 			Thread.currentThread().setName(instanceType.type );
 
 			threadFixToBinaryProcessor.start();
@@ -251,7 +255,7 @@ public class AlignmentInstanceWrapper implements InterfaceInstanceWrapper {
 
 		AlignmentFIXEngineExchange engineExchange = new AlignmentFIXEngineExchange();
 		try {
-			debugger.debug("Initialise FIX engine");
+			debugger.debug(ID + ":Initialise FIX engine");
 			engineExchange.initialise(log , debugger , instanceType );
 			engines.add(engineExchange);
 		} catch (FileNotFoundException | NullPointerException e) {
@@ -262,16 +266,16 @@ public class AlignmentInstanceWrapper implements InterfaceInstanceWrapper {
 		final String[] acceptors = { InstanceType.EXCHANGEFIXACCEPTOR.getProperties() };
 
 		
-		debugger.debug("get" + acceptors[0]);
+		debugger.debug(ID + ":Get" + acceptors[0]);
 
 
 		Acceptor exchange = null;
 
 		try {
-			debugger.debug("Request start FIX engine");
+			debugger.debug(ID  + ":Request start FIX engine");
 			exchange = getExchangeEnvironment(acceptors[0], engineExchange);
 			exchange.start();
-			debugger.debug("Requested start FIX engine");
+			debugger.debug(ID  + ":Requested start FIX engine");
 		} catch (NullPointerException | RuntimeError | ConfigError e) {
 			log.error(e.getMessage(), e);
 			System.err.println(e.getMessage());
@@ -279,7 +283,7 @@ public class AlignmentInstanceWrapper implements InterfaceInstanceWrapper {
 		}
 
 
-		debugger.debug("Request list threads");
+		debugger.debug(ID  + ":Request list threads");
 		Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
 
 
@@ -288,13 +292,12 @@ public class AlignmentInstanceWrapper implements InterfaceInstanceWrapper {
 			AlignmentFunctions.threadStatusCheck(namesIterator.next(), debugger);
 		}
 
-		final List<String> messagesToBeReceivedByFIXEngine =  List.of("fill","ack","rej");
-
+		
 
 		try {
-			debugger.debug("Start KafkaConsumer");
-			fixEngineKafkaConsumer.runAlways(messagesToBeReceivedByFIXEngine, engineExchange);
-			debugger.debug("Started KafkaConsumer");
+			debugger.debug(ID  + ":Start KafkaConsumer");
+			fixEngineKafkaConsumer.runAlways(KafkaMessageTopology.MESSAGESTOBERECEIVEDBYEXCHANGEFIXENGINEFROMMATCHINGENGINE, engineExchange);
+			debugger.debug(ID  + ":Started KafkaConsumer");
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			return false;

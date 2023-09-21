@@ -29,6 +29,7 @@ import com.alignmentsystems.library.AlignmentKafkaSender;
 import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.AlignmentOrder;
 import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
+import com.alignmentsystems.library.AlignmentUEH;
 import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.enumerations.Encodings;
 import com.alignmentsystems.library.enumerations.InstanceType;
@@ -329,7 +330,7 @@ public class AlignmentFIXEngineExchange extends MessageCracker implements Interf
 
 		try {
 			debugger.debug("Sending order to Kafka...");
-			AlignmentKafkaSender sender = ao.getBytesAsSBEInSender();
+			AlignmentKafkaSender sender = ao.getBytesForMemberAsSBEInSender();
 			this.send(sender);
 			
 			log.infoFIXSession(sb.toString(), sessionID, MessageDirection.RECEIVED, METHOD,

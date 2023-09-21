@@ -10,8 +10,8 @@ package com.alignmentsystems.library.interfaces;
  *	Description		:
  *****************************************************************************/
 
-import com.alignmentsystems.library.enumerations.EventStatusCategory;
 import com.alignmentsystems.library.enumerations.OperationEventType;
+import com.alignmentsystems.library.enumerations.RecordType;
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
@@ -21,6 +21,6 @@ public interface InterfaceOperationEventInner {
 	public String getEventMethodName();
 	public OperationEventType getOperationEventType();
 	public void setOperationEventType(OperationEventType operationEventType);
-	public EventStatusCategory getEventStatusCategory();
-	public void setEventStatusCategory(EventStatusCategory eventStatusCategory);
+	public RecordType getRecordType();
+	public void setEventStatusCategory(RecordType recordType);
 }

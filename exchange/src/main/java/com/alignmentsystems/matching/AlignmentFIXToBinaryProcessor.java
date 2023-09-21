@@ -11,6 +11,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import com.alignmentsystems.library.AlignmentKafkaSender;
 import com.alignmentsystems.library.AlignmentFunctions;
 import com.alignmentsystems.library.AlignmentLogEncapsulation;
+import com.alignmentsystems.library.AlignmentUEH;
 import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceFIXToBinaryProcessor;
@@ -80,7 +81,7 @@ public class AlignmentFIXToBinaryProcessor implements Runnable, InterfaceFIXToBi
 
 			if (inSeq != null) {
 				
-				AlignmentKafkaSender sender = inSeq.getBytesAsSBEInSender();
+				AlignmentKafkaSender sender = inSeq.getBytesForMemberAsSBEInSender();
 				this.send(sender.getTopic(), sender.getKey(), sender.getBinaryMessage());
 				sender = null;
 			}

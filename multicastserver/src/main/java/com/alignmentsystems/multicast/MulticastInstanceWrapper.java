@@ -10,10 +10,16 @@ package com.alignmentsystems.multicast;
  *	Description		:
  *****************************************************************************/
 
+import java.io.IOException;
+
 import com.alignmentsystems.library.AlignmentFunctions;
 import com.alignmentsystems.library.AlignmentLogEncapsulation;
+import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
+import com.alignmentsystems.library.constants.Constants;
+import com.alignmentsystems.library.constants.KafkaMessageTopology;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceInstanceWrapper;
+import com.alignmentsystems.matching.AlignmentInstanceWrapper;
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
@@ -21,25 +27,46 @@ import com.alignmentsystems.library.interfaces.InterfaceInstanceWrapper;
 public class MulticastInstanceWrapper implements InterfaceInstanceWrapper{
 	private final String CLASSNAME = this.getClass().getSimpleName();
 	private InstanceType instanceType ;
-	private final static String MARKETDATATOPIC = "MDOUT";
 
 	private AlignmentLogEncapsulation log = new AlignmentLogEncapsulation(this.getClass());
 
 	@Override
 	public boolean initialise(InstanceType instanceType) {
-
+		final String METHOD = "initialise";
+		final String ID = CLASSNAME + Constants.FULLSTOP + METHOD;	
 		this.instanceType = instanceType;
+		
+		
+
+		AlignmentPersistenceToFileClient debugger = new AlignmentPersistenceToFileClient();
+
+
+		try {
+			debugger.initialise(MulticastInstanceWrapper.class.getClassLoader(), InstanceType.ORDERBOOK.getProperties());
+			debugger.info("Working...");
+		} catch (IllegalThreadStateException | IOException e) {
+			log.error(e.getMessage(), e);
+			return false;
+		}
+
+		
+		
+		
 		Boolean returnValue = Boolean.FALSE;
 		StringBuilder sb = new StringBuilder();
 
 		sb
-		.append(CLASSNAME)
+		.append(ID)
 		.append(" Started instance=")
 		.append(this.instanceType.type)
 		.append(" Started version=")
-		.append(AlignmentFunctions.getVersion(this.getClass()));
+		.append(AlignmentFunctions.getVersion(this.getClass()))
+		.append(" listening to=")
+		.append(KafkaMessageTopology.MESSAGETOBERECEIVEDBYMULTICASTSERVERFROMMATCHINGENGINE)				
+		;
 
 		log.info(sb.toString());
+		
 		MulticastServerKafkaListener mmkl = null;
 		
 		try {
@@ -56,7 +83,7 @@ public class MulticastInstanceWrapper implements InterfaceInstanceWrapper{
 		Thread multiCastServerThread = new Thread(null , multicast, MulticastServer.CLASSNAME);
 
 		try {
-			mmkl.runAlways(MARKETDATATOPIC, multicast);
+			mmkl.runAlways(KafkaMessageTopology.MESSAGETOBERECEIVEDBYMULTICASTSERVERFROMMATCHINGENGINE , multicast);
 		} catch (Exception e) {
 			log.error(e.getMessage() , e);
 			return false;

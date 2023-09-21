@@ -263,10 +263,16 @@ public class AlignmentOrder implements InterfaceOrder{
 		return this.leavesQty;
 	}
 
+	
+	@Override
+	public AlignmentKafkaSender getBytesForMarketDataAsSBEInSender() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	@Override
-	public AlignmentKafkaSender getBytesAsSBEInSender() {
-
+	public AlignmentKafkaSender getBytesForMemberAsSBEInSender() {
+		
 		ByteBuffer buf = null;
 		final String receivedSymbol = this.symbol;
 		final String orderId = this.orderId.toString();
@@ -409,4 +415,8 @@ public class AlignmentOrder implements InterfaceOrder{
 		final short msgType = bb.getShort();	//		buf.putShort(messageType
 		return  getAlignmentOrderFromBuffer(bb.array(), msgType);
 	}
+
+
+
+	
 }

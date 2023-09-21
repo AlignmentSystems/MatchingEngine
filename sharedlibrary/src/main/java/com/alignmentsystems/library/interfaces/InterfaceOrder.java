@@ -54,7 +54,8 @@ public interface InterfaceOrder{
 	public long getCumQty();
 	public long getAvgPx();
 	public Long getLeavesQty();
-	public AlignmentKafkaSender getBytesAsSBEInSender();
+	public AlignmentKafkaSender getBytesForMemberAsSBEInSender();
+	public AlignmentKafkaSender getBytesForMarketDataAsSBEInSender();
 	public InterfaceOrder getAlignmentOrderFromBuffer(byte[] message, short msgType);
 	public InterfaceOrder getAlignmentOrderFromBuffer(byte[] message);
 
