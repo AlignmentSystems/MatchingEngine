@@ -27,6 +27,7 @@ import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceKafkaAbstractSimple;
 import com.alignmentsystems.library.interfaces.InterfaceKafkaMessageHandler;
+import com.alignmentsystems.library.AlignmentUEH;
 
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
@@ -90,9 +91,9 @@ public class MulticastServerKafkaListener extends InterfaceKafkaAbstractSimple i
 
 	@Override
 	public void runAlways(List<String> topicNames , InterfaceKafkaMessageHandler callback) throws Exception {
-		Properties props;
+		
 		try {
-			props = AlignmentFunctions.getProperties(MulticastServerKafkaListener.class.getClassLoader() , InstanceType.KAFKA.getProperties());
+			this.props = AlignmentFunctions.getProperties(MulticastServerKafkaListener.class.getClassLoader() , InstanceType.KAFKA.getProperties());
 		} catch (FileNotFoundException | NullPointerException e) {
 			//log.error(e.getMessage() , e);
 			throw e;
@@ -123,11 +124,17 @@ public class MulticastServerKafkaListener extends InterfaceKafkaAbstractSimple i
 
 
 	@Override
-	public boolean initialise(AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger)
-			throws FileNotFoundException, NullPointerException {
+	public boolean initialise(AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger) throws FileNotFoundException, NullPointerException {
+		final String METHOD = "initialise";
 		this.log = log;
 		this.debugger = debugger;
 
+		debugger.info(CLASSNAME + "." + METHOD);
+
+		AlignmentUEH ueh = new AlignmentUEH(this.debugger);	
+		
+		Thread.setDefaultUncaughtExceptionHandler(ueh);
+				
 		try {
 			this.props = AlignmentFunctions.getProperties(MulticastServerKafkaListener.class.getClassLoader(), InstanceType.KAFKA.getProperties());
 		} catch (FileNotFoundException  |NullPointerException e) {

@@ -25,19 +25,31 @@ public enum OrderBookSide {
 	public char sideCharValue;
 	
 	
-	
+	/**
+	 * 
+	 * @param sideReadableValue
+	 * @param sideCharValue
+	 */
 	OrderBookSide(String sideReadableValue, char sideCharValue){
 		this.sideReadableValue = sideReadableValue;
 		this.sideCharValue = sideCharValue;
 		
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getSideFIXStringValue() {
 		return String.valueOf(sideCharValue);
 	} 
 	
 	
-	
+	/**
+	 * 
+	 * @param sideCode
+	 * @return
+	 */
 	public static char  getCharForString(String sideCode) {
 		char retVal = OrderBookSide.ERROR.sideCharValue; 
 		for  (OrderBookSide obs : OrderBookSide.values()) {
@@ -51,7 +63,11 @@ public enum OrderBookSide {
 	}
 
 	
-	
+	/**
+	 * 
+	 * @param sideCode
+	 * @return
+	 */
 	public static OrderBookSide getEnumForString(String sideCode) {
 		OrderBookSide retVal = OrderBookSide.ERROR; 
 		for  (OrderBookSide obs : OrderBookSide.values()) {
@@ -64,6 +80,11 @@ public enum OrderBookSide {
 		return retVal;
 	}
 	
+	/**
+	 * 
+	 * @param sideID
+	 * @return
+	 */
 	public static OrderBookSide getEnumForID(char sideID) {
 		OrderBookSide retVal = OrderBookSide.ERROR; 
 		for  (OrderBookSide obs : OrderBookSide.values()) {

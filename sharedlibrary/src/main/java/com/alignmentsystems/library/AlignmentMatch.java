@@ -300,7 +300,8 @@ public class AlignmentMatch implements InterfaceMatch {
 		buy.setExecutionReport(
 				this.buyExecId
 				, this.buyClOrdId
-				, this.buyOrderId				
+				, this.buyOrderId
+				, this.marketDataId
 				, this.buySenderId
 				, this.buyTargetId
 				, this.sellSenderId
@@ -325,7 +326,8 @@ public class AlignmentMatch implements InterfaceMatch {
 		sell.setExecutionReport(
 				this.buyExecId
 				, this.sellClOrdId
-				, this.sellOrderId	
+				, this.sellOrderId
+				, this.marketDataId
 				, this.sellSenderId
 				, this.sellTargetId
 				, this.sellSenderId
@@ -415,12 +417,8 @@ public class AlignmentMatch implements InterfaceMatch {
 	}
 
 
-
-
-
 	@Override
 	public UUID getMarketDataId() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.marketDataId;
 	}
 }

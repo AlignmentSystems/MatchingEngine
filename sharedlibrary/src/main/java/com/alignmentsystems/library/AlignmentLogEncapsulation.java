@@ -25,6 +25,7 @@ import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.enumerations.MessageDirection;
 import com.alignmentsystems.library.enumerations.OperationEventType;
 import com.alignmentsystems.library.interfaces.InterfaceCustomLoggerMessage;
+import com.alignmentsystems.library.interfaces.InterfaceExecutionReport;
 import com.alignmentsystems.library.interfaces.InterfaceMatch;
 
 import quickfix.SessionID;
@@ -235,7 +236,17 @@ public class AlignmentLogEncapsulation implements Logger , InterfaceCustomLogger
 		innerLog.info(sb.toString());
 	}
 
+	@Override
+	public void infoMatchingEvent(OperationEventType operationEventType, InterfaceExecutionReport er) {
+		StringBuilder sb = new StringBuilder()
+				.append(AlignmentFunctions.wrapNameSquareBrackets(operationEventType.value))
+				.append(Constants.TAB)
+				.append(er.toString())
+				;
+		innerLog.info(sb.toString());
+	}
 
+	
 
 	@Override
 	public String getName() {
@@ -544,6 +555,4 @@ public class AlignmentLogEncapsulation implements Logger , InterfaceCustomLogger
 	public void error(Marker marker, String msg, Throwable t) {
 		innerLog.error(marker, msg, t);	
 	}
-
-
 }

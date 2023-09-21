@@ -15,8 +15,6 @@ import java.nio.ByteBuffer;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import com.alignmentsystems.fix44.ExecutionReport;
@@ -34,12 +32,22 @@ import com.alignmentsystems.fix44.field.Side;
 import com.alignmentsystems.fix44.field.TargetCompID;
 import com.alignmentsystems.fix44.field.TimeInForce;
 import com.alignmentsystems.library.constants.Constants;
+import com.alignmentsystems.library.constants.KafkaMessageTopology;
 import com.alignmentsystems.library.enumerations.Encodings;
+import com.alignmentsystems.library.enumerations.ExecutionReportDestination;
 import com.alignmentsystems.library.interfaces.InterfaceExecutionReport;
 
+
+
+
+
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class AlignmentExecutionReport implements InterfaceExecutionReport {
 	public final static Short EXCHANGEMESSAGETYPE = AlignmentDataMapper.EXCHANGEMESSAGETYPEMAPPEDFROMEXECUTIONREPORT;
-	
+
 	private UUID execID = null;
 	private String buySenderId = null; 
 	private String buyTargetId = null;
@@ -53,16 +61,18 @@ public class AlignmentExecutionReport implements InterfaceExecutionReport {
 	private Long averagePrice = null;
 	private UUID clOrdID = null;
 	private UUID orderID = null;
+	private UUID marketDataID = null;
 	private Short ordStatus = null;
 	private Short execType = null;
 	private Short sideCode = null;
-	
-	
+
+
 	@Override
 	public void setExecutionReport(
 			UUID execID 
 			, UUID clOrdID
 			, UUID orderID
+			, UUID marketDataID
 			, String buySenderId
 			, String buyTargetId
 			, String sellSenderId
@@ -80,6 +90,7 @@ public class AlignmentExecutionReport implements InterfaceExecutionReport {
 		this.execID = execID;
 		this.clOrdID = clOrdID;
 		this.orderID = orderID;
+		this.marketDataID = marketDataID;
 		this.buySenderId = buySenderId; 
 		this.buyTargetId = buyTargetId;
 		this.sellSenderId = sellSenderId;
@@ -99,6 +110,12 @@ public class AlignmentExecutionReport implements InterfaceExecutionReport {
 	public UUID getExecID() {
 		return this.execID;
 	}
+
+	@Override
+	public UUID getMarketDataID() {
+		return this.marketDataID;
+	}
+
 
 	@Override
 	public String getBuySenderId() {
@@ -176,91 +193,171 @@ public class AlignmentExecutionReport implements InterfaceExecutionReport {
 	}
 
 
-	
-	
-	
-	
-	@Override
-	public byte[] getBytesAsSBE() {
+
+
+
+
+/**
+ * 
+ * @param destination
+ * @return
+ */
+	private byte[] getBytesAsSBE(ExecutionReportDestination destination) {
 		byte[] returnValue = null;
 		ByteBuffer buf = null;
 		final Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
 
-		final Short msgType = AlignmentDataMapper.EXCHANGEMESSAGETYPEMAPPEDFROMEXECUTIONREPORT;
 
-		final List<String> ls = new ArrayList<String>();
-		try {
-			final int bufferLength =
-					Short.BYTES //messageType
-					+
-					Long.BYTES * 2//ExecID
-					+
-					Long.BYTES * 2//ClOrdID
-					+
-					Long.BYTES * 2//OrderID
-					+
-					Short.BYTES //ExecType
-					+
-					Short.BYTES//Side
-					+
-					Long.BYTES //LeavesQty
-					+
-					Long.BYTES //CumQty
-					+
-					Long.BYTES //AvgPx
-					+
-					Long.BYTES //ExecPrice
-					+
-					Long.BYTES //ExecQty
-					+
-					Long.BYTES //this.ts  getEpochSecond
-					+
-					Integer.BYTES // this.ts getNano()
+		if(destination==ExecutionReportDestination.MEMBER) {
+			final Short msgType = AlignmentDataMapper.EXCHANGEMESSAGETYPEMAPPEDFROMEXECUTIONREPORT;
+			try {
+				final int bufferLength =
+						Short.BYTES //messageType
+						+
+						Long.BYTES * 2//ExecID
+						+
+						Long.BYTES * 2//ClOrdID
+						+
+						Long.BYTES * 2//OrderID
+						+
+						Short.BYTES //ExecType
+						+
+						Short.BYTES//Side
+						+
+						Long.BYTES //LeavesQty
+						+
+						Long.BYTES //CumQty
+						+
+						Long.BYTES //AvgPx
+						+
+						Long.BYTES //ExecPrice
+						+
+						Long.BYTES //ExecQty
+						+
+						Long.BYTES //this.ts  getEpochSecond
+						+
+						Integer.BYTES // this.ts getNano()
 
-					;
-			buf = ByteBuffer.allocate(bufferLength).order(encoding.getByteOrder());
+						;
+				buf = ByteBuffer.allocate(bufferLength).order(encoding.getByteOrder());
 
-			buf.putShort(AlignmentExecutionReport.EXCHANGEMESSAGETYPE);
-			buf.putLong(this.execID.getLeastSignificantBits());
-			buf.putLong(this.execID.getMostSignificantBits());
-			buf.putLong(this.clOrdID.getLeastSignificantBits());
-			buf.putLong(this.clOrdID.getMostSignificantBits());
-			buf.putLong(this.orderID.getLeastSignificantBits());
-			buf.putLong(this.orderID.getMostSignificantBits());
-			buf.putShort(this.execType);
-			buf.putShort(this.ordStatus);
-			buf.putShort(this.sideCode);
-			buf.putLong(this.leavesQuantity);
-			buf.putLong(this.cumQuantity);
-			buf.putLong(this.averagePrice);
-			buf.putLong(this.executionPrice);
-			buf.putLong(this.executionQuantity);
-			buf.putLong(this.timestamp.toInstant().getEpochSecond());
-			buf.putInt(this.timestamp.toInstant().getNano());		
+				buf.putShort(AlignmentExecutionReport.EXCHANGEMESSAGETYPE);
+				buf.putLong(this.execID.getLeastSignificantBits());
+				buf.putLong(this.execID.getMostSignificantBits());
+				buf.putLong(this.clOrdID.getLeastSignificantBits());
+				buf.putLong(this.clOrdID.getMostSignificantBits());
+				buf.putLong(this.orderID.getLeastSignificantBits());
+				buf.putLong(this.orderID.getMostSignificantBits());
+				buf.putShort(this.execType);
+				buf.putShort(this.ordStatus);
+				buf.putShort(this.sideCode);
+				buf.putLong(this.leavesQuantity);
+				buf.putLong(this.cumQuantity);
+				buf.putLong(this.averagePrice);
+				buf.putLong(this.executionPrice);
+				buf.putLong(this.executionQuantity);
+				buf.putLong(this.timestamp.toInstant().getEpochSecond());
+				buf.putInt(this.timestamp.toInstant().getNano());		
 
-			buf.flip();
-		} catch (Exception e) {
-			//this.log.error(e.getMessage() , e);
-			throw e;
+				buf.flip();
+			} catch (Exception e) {
+				//this.log.error(e.getMessage() , e);
+				throw e;
+			}
+
+
+
+		}else if(destination==ExecutionReportDestination.MARKETDATA){
+			try {
+				final int bufferLength =
+						Short.BYTES //messageType
+						+
+						Long.BYTES * 2//marketDataID
+
+						//+
+						//Long.BYTES * 2//ExecID
+						//+
+						//Long.BYTES * 2//ClOrdID
+						//+
+						//Long.BYTES * 2//OrderID
+						+
+						Short.BYTES //ExecType
+						+
+						Short.BYTES//Side
+						//+
+						//Long.BYTES //LeavesQty
+						//+
+						//Long.BYTES //CumQty
+						//+
+						//Long.BYTES //AvgPx
+						+
+						Long.BYTES //ExecPrice
+						+
+						Long.BYTES //ExecQty
+						+
+						Long.BYTES //this.ts  getEpochSecond
+						+
+						Integer.BYTES // this.ts getNano()
+						;
+
+				buf = ByteBuffer.allocate(bufferLength).order(encoding.getByteOrder());
+
+				buf.putShort(AlignmentExecutionReport.EXCHANGEMESSAGETYPE);
+				buf.putLong(this.marketDataID.getLeastSignificantBits());
+				buf.putLong(this.marketDataID.getMostSignificantBits());
+
+				//buf.putLong(this.execID.getLeastSignificantBits());
+				//buf.putLong(this.execID.getMostSignificantBits());
+				//buf.putLong(this.clOrdID.getLeastSignificantBits());
+				//buf.putLong(this.clOrdID.getMostSignificantBits());
+				//buf.putLong(this.orderID.getLeastSignificantBits());
+				//buf.putLong(this.orderID.getMostSignificantBits());
+				buf.putShort(this.execType);
+				//buf.putShort(this.ordStatus);
+				buf.putShort(this.sideCode);
+				//buf.putLong(this.leavesQuantity);
+				//buf.putLong(this.cumQuantity);
+				//buf.putLong(this.averagePrice);
+				buf.putLong(this.executionPrice);
+				buf.putLong(this.executionQuantity);
+				buf.putLong(this.timestamp.toInstant().getEpochSecond());
+				buf.putInt(this.timestamp.toInstant().getNano());		
+
+				buf.flip();
+			} catch (Exception e) {
+				//this.log.error(e.getMessage() , e);
+				throw e;
+			}
 		}
+
+		returnValue=buf.array();
 
 		return returnValue;
 
 	}
 
 	@Override
-	public AlignmentKafkaSender getSender() {
-		final String TOPIC = "DEFAULT";
+	public AlignmentKafkaSender getMarketDataBytesAsSBEInSender() {
+		//What do we do here? Simply put, this is a way for the market data to be generated. 
+		//that means that there is NO sender or Target on the message
+		AlignmentKafkaSender sender = new AlignmentKafkaSender();
+		sender.initialise(this.getBytesAsSBE(ExecutionReportDestination.MARKETDATA), KafkaMessageTopology.MESSAGE_FILL, this.execID.toString());
+		return sender;
+	}
+
+
+	@Override
+	public AlignmentKafkaSender getMemberExecRptAsSBEInSender() {
 
 		AlignmentKafkaSender sender = new AlignmentKafkaSender();
-				sender.initialise(this.getBytesAsSBE(), TOPIC, this.execID.toString());
+		sender.initialise(this.getBytesAsSBE(ExecutionReportDestination.MEMBER), KafkaMessageTopology.MESSAGE_FILL, this.execID.toString());
 		return sender;
 	}
 
 	@Override
-	public AlignmentKafkaSender getSenderForTopic(String topic) {
+	public AlignmentKafkaSender getMemberExecRptForTopicAsSBEInSender(String topic) {
 		AlignmentKafkaSender sender = new AlignmentKafkaSender();
-		sender.initialise(this.getBytesAsSBE(), topic, this.execID.toString());
+		sender.initialise(this.getBytesAsSBE(ExecutionReportDestination.MEMBER), topic, this.execID.toString());
 		return sender;
 	}
 
@@ -319,7 +416,7 @@ public class AlignmentExecutionReport implements InterfaceExecutionReport {
 	public ExecutionReport getFIXExecutionReportAckFromOrderBuffer(ByteBuffer bb, short msgType) {
 		AlignmentOrder ao = new AlignmentOrder();
 		ao.getAlignmentOrderFromBuffer(bb.array(), msgType);
-		
+
 		final Double leaves = 0d;
 		final Double cum = 0d;
 		final Double avg = 0d;
@@ -345,4 +442,6 @@ public class AlignmentExecutionReport implements InterfaceExecutionReport {
 		return er;
 
 	}
+
+
 }

@@ -23,6 +23,8 @@ import com.alignmentsystems.library.AlignmentKafkaSender;
 import com.alignmentsystems.library.AlignmentFunctions;
 import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
+import com.alignmentsystems.library.AlignmentUEH;
+import com.alignmentsystems.library.constants.KafkaMessageTopology;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.enumerations.OperationEventType;
 import com.alignmentsystems.library.interfaces.InterfaceAddedOrderToOrderBook;
@@ -33,6 +35,7 @@ import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBookEvents;
 
 public class AlignmentOrderBookKafkaProducer implements InterfaceKafkaProducer, InterfaceMatchEvent, InterfaceAddedOrderToOrderBook, InterfaceOrderBookEvents, Runnable {
+	public final static String CLASSNAME = AlignmentOrderBookKafkaProducer.class.getSimpleName();
 	private KafkaProducer<String, byte[]> kafkaProducerB = null;
 	private AlignmentLogEncapsulation log = null;
 	private AlignmentPersistenceToFileClient debugger = null; 
@@ -90,43 +93,49 @@ public class AlignmentOrderBookKafkaProducer implements InterfaceKafkaProducer, 
 	public void matchHappened(InterfaceMatch match) {
 		@SuppressWarnings("unused")
 		final String methodName = "matchHappened";
-		final String TOPIC = "FILL";
 
 		log.infoMatchingEvent(OperationEventType.MATCHEVENT, match);
 
-		AlignmentKafkaSender senderBuy = match.getBuyReport().getSenderForTopic(TOPIC);
-		AlignmentKafkaSender senderSell = match.getSellReport().getSenderForTopic(TOPIC);
-
+		AlignmentKafkaSender senderBuy = match.getBuyReport().getMemberExecRptAsSBEInSender();
+		AlignmentKafkaSender senderSell = match.getSellReport().getMemberExecRptAsSBEInSender();
+		AlignmentKafkaSender marketDataOut = match.getMarketDataBytesAsSBEInSender();
+		
 		this.send(senderBuy.getTopic() , senderBuy.getKey(), senderBuy.getBinaryMessage());
 		this.send(senderSell.getTopic() , senderSell.getKey(), senderSell.getBinaryMessage());
+		this.send(marketDataOut.getTopic(), marketDataOut.getKey(), marketDataOut.getBinaryMessage());
+		
+		
 	}
 
 	@Override
 	public void addedOrderToOrderBook(InterfaceExecutionReport er) {
 		@SuppressWarnings("unused")
 		final String methodName = "addedOrderToOrderBook";
-		final String TOPIC = "ACK";
 
-		//log.infoMatchingEvent(OperationEventType.NEWORDEREVENT, er);
-		AlignmentKafkaSender senderAck= er.getSenderForTopic(TOPIC);
+		log.infoMatchingEvent(OperationEventType.NEWORDEREVENT, er);		
+		AlignmentKafkaSender senderAck= er.getMemberExecRptAsSBEInSender();
 
 		this.send(senderAck.getTopic(), senderAck.getKey(), senderAck.getBinaryMessage());		
 	}
 
 	@Override
-	public boolean initialise(AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger)
-			throws FileNotFoundException, NullPointerException {
+	public boolean initialise(AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger) throws FileNotFoundException, NullPointerException {
+		final String METHOD = "initialise";
+
 		this.log = log;
 		this.debugger = debugger;
+		
 		AlignmentUEH ueh = new AlignmentUEH(this.debugger);	
+		
 		Thread.setDefaultUncaughtExceptionHandler(ueh);
-
+		
+		debugger.info(CLASSNAME + "." + METHOD);
 
 
 		if (this.kafkaProducerB == null) {
 			Properties props;
 			try {
-				props = AlignmentFunctions.getProperties(AlignmentFIXToBinaryProcessor.class.getClassLoader(), InstanceType.KAFKA.getProperties());
+				props = AlignmentFunctions.getProperties(AlignmentOrderBookKafkaProducer.class.getClassLoader(), InstanceType.KAFKA.getProperties());
 			} catch (FileNotFoundException | NullPointerException e) {
 				this.log.error(e.getMessage() , e);
 				throw e;
@@ -134,6 +143,5 @@ public class AlignmentOrderBookKafkaProducer implements InterfaceKafkaProducer, 
 			this.kafkaProducerB = new KafkaProducer<>(props);
 		}
 		return true;
-
 	}
 }

@@ -1,4 +1,4 @@
-package com.alignmentsystems.matching;
+package com.alignmentsystems.library;
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -9,8 +9,6 @@ package com.alignmentsystems.matching;
  *	Artefact		:	AlignmentUEH
  *	Description		:	
  *****************************************************************************/
-
-import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 
 public class AlignmentUEH implements Thread.UncaughtExceptionHandler{
 	protected final static String CLASSNAME = AlignmentUEH.class.getSimpleName().toString();

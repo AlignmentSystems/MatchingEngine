@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.alignmentsystems.library.constants.Constants;
-import com.alignmentsystems.library.enumerations.PersistenceRecordType;
+import com.alignmentsystems.library.enumerations.RecordType;
 import com.alignmentsystems.library.enumerations.TimestampUsage;
 import com.alignmentsystems.library.interfaces.InterfacePersistenceServer;
 
@@ -111,7 +111,7 @@ class AlignmentPersistenceToFileServer implements Runnable , InterfacePersistenc
 		}
 		try {
 			StringBuilder sb = new StringBuilder();
-			sb.append(PersistenceRecordType.INFO.recordType)
+			sb.append(RecordType.INFO.recordType)
 			.append(CLASSNAME)
 			.append(" for ")
 			.append(cleanedTag)

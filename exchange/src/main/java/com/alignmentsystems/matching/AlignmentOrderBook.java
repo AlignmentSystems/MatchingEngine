@@ -102,13 +102,11 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 
 	@NotYetImplemented
 	private boolean cancelOrder(InterfaceOrder nos) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@NotYetImplemented
 	private boolean cancelOrder(String orderId) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -203,6 +201,8 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 			case BUY:
 				tradedPrice = Math.min(topOfBuyBookPrice, topOfSellBookPrice);
 				break;
+			default:
+				break;
 			}
 			OffsetDateTime executionTimestamp = OffsetDateTime.now(Constants.HERE);
 
@@ -255,15 +255,11 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 	@NotYetImplemented
 	@Override
 	public void upsertTopOfBook(InterfaceOrder nos) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@NotYetImplemented
 	@Override
 	public void updateLevelsOfDepth() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -321,7 +317,6 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 	@Override
 	@NotYetImplemented
 	public List<String> getOrderBookVisualisation() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -343,7 +338,6 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 
 	@Override
 	public void processMessage(String topicName, ConsumerRecord<String, byte[]> message) throws Exception {
-		// TODO Auto-generated method stub
 		
 		InterfaceOrder io = new AlignmentOrder();
 		io.getAlignmentOrderFromBuffer(message.value());
@@ -390,6 +384,7 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 				null
 				, nos.getClOrdID()
 				, nos.getOrderId()
+				, null
 				, nos.getSender()
 				, nos.getTarget()
 				, null

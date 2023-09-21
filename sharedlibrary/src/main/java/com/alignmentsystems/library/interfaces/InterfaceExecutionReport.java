@@ -46,6 +46,7 @@ public interface InterfaceExecutionReport {
 			UUID execID
 			, UUID clOrdID
 			, UUID orderID
+			, UUID marketDataID
 			, String buySenderId 
 			, String buyTargetId 
 			, String sellSenderId
@@ -68,6 +69,7 @@ public interface InterfaceExecutionReport {
 	public UUID getClOrdID();
 	public UUID getOrderID();
 	public UUID getExecID();
+	public UUID getMarketDataID();
 	public String getBuySenderId(); 
 	public String getBuyTargetId(); 
 	public String getSellSenderId();
@@ -81,9 +83,9 @@ public interface InterfaceExecutionReport {
 	public Short getOrdStatus();
 	public Short getExecType();
 	public Short getSideCode();
-	public abstract byte[] getBytesAsSBE();
-	public abstract AlignmentKafkaSender getSender();
-	public abstract AlignmentKafkaSender getSenderForTopic(String topic);
+	public abstract AlignmentKafkaSender getMarketDataBytesAsSBEInSender();
+	public abstract AlignmentKafkaSender getMemberExecRptAsSBEInSender();
+	public abstract AlignmentKafkaSender getMemberExecRptForTopicAsSBEInSender(String topic);
 	public abstract ExecutionReport getFIXExecutionReport(ByteBuffer bb , short msgType);
 	public abstract ExecutionReport getFIXExecutionReportAckFromOrderBuffer(ByteBuffer bb , short msgType); 
 }

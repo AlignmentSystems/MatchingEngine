@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.alignmentsystems.library.annotations.Experimental;
 import com.alignmentsystems.library.constants.Constants;
-import com.alignmentsystems.library.enumerations.PersistenceRecordType;
+import com.alignmentsystems.library.enumerations.RecordType;
 import com.alignmentsystems.library.exceptions.LogMessageIsNull;
 import com.alignmentsystems.library.interfaces.InterfacePersistenceClient;
 import com.alignmentsystems.library.interfaces.InterfacePersistenceServer;
@@ -217,7 +217,7 @@ public class AlignmentPersistenceToFileClient implements InterfacePersistenceCli
 	 * @return Did this get logged?
 	 */
 	private Boolean infoPrivate(String toLog) {
-		return logExecute(new StringBuilder().append(PersistenceRecordType.INFO.recordType).append(toLog).toString());
+		return logExecute(new StringBuilder().append(RecordType.INFO.recordType).append(toLog).toString());
 	}
 
 
@@ -227,7 +227,7 @@ public class AlignmentPersistenceToFileClient implements InterfacePersistenceCli
 			return false;
 		}else {
 			cleanLogMessage(toLog);
-			return logExecute(new StringBuilder().append(PersistenceRecordType.INFO.recordType).append(toLog).toString());
+			return logExecute(new StringBuilder().append(RecordType.INFO.recordType).append(toLog).toString());
 		}
 
 	}
@@ -240,7 +240,7 @@ public class AlignmentPersistenceToFileClient implements InterfacePersistenceCli
 	 * @param logMessageType An enumeration of the message type - Error, Log, Debug
 	 * @return Boolean Did the write happen?
 	 */
-	private Boolean messageSession(String toLog, String methodName, PersistenceRecordType recordType) {
+	private Boolean messageSession(String toLog, String methodName, RecordType recordType) {
 		if (this.isShuttingDown.get()) {
 			return false;
 		}else {
@@ -265,7 +265,7 @@ public class AlignmentPersistenceToFileClient implements InterfacePersistenceCli
 			return false;
 		}else {	
 			cleanLogMessage(toLog);
-			return messageSession(toLog, methodName, PersistenceRecordType.INFO);
+			return messageSession(toLog, methodName, RecordType.INFO);
 		}
 	}
 
@@ -276,7 +276,7 @@ public class AlignmentPersistenceToFileClient implements InterfacePersistenceCli
 			return false;
 		}else {	
 			cleanLogMessage(toLog);
-			return messageSession(toLog, methodName, PersistenceRecordType.DEBUG);
+			return messageSession(toLog, methodName, RecordType.DEBUG);
 		}
 	}
 
@@ -287,7 +287,7 @@ public class AlignmentPersistenceToFileClient implements InterfacePersistenceCli
 			return false;
 		}else {	
 			cleanLogMessage(toLog);
-			return messageSession(toLog, methodName, PersistenceRecordType.ERROR);
+			return messageSession(toLog, methodName, RecordType.ERROR);
 		}
 	}
 
@@ -297,7 +297,7 @@ public class AlignmentPersistenceToFileClient implements InterfacePersistenceCli
 			return false;
 		}else {
 			cleanLogMessage(toLog);
-			return logExecute(new StringBuilder().append( PersistenceRecordType.ERROR.recordType).append(toLog).toString());
+			return logExecute(new StringBuilder().append( RecordType.ERROR.recordType).append(toLog).toString());
 		}
 	}
 
@@ -314,9 +314,9 @@ public class AlignmentPersistenceToFileClient implements InterfacePersistenceCli
 			return false;
 		}else {
 			cleanLogMessage(toLog);
-			logExecute(new StringBuilder().append(PersistenceRecordType.ERROR.recordType).append(Constants.BLOCKER).toString());
+			logExecute(new StringBuilder().append(RecordType.ERROR.recordType).append(Constants.BLOCKER).toString());
 
-			final String blocker = new StringBuilder().append(PersistenceRecordType.ERROR.recordType).append(toLog).toString();
+			final String blocker = new StringBuilder().append(RecordType.ERROR.recordType).append(toLog).toString();
 			returnValue = logExecute(blocker );
 
 			if (!returnValue) {
@@ -326,7 +326,7 @@ public class AlignmentPersistenceToFileClient implements InterfacePersistenceCli
 
 				StackTraceElement[] stackTrace = t.getStackTrace();
 				for (StackTraceElement element : stackTrace) {
-					returnValue = logExecute(new StringBuilder().append(PersistenceRecordType.ERROR.recordType).append(element.toString()).toString());
+					returnValue = logExecute(new StringBuilder().append(RecordType.ERROR.recordType).append(element.toString()).toString());
 				}
 				returnValue = logExecute(blocker );
 			}
@@ -347,9 +347,9 @@ public class AlignmentPersistenceToFileClient implements InterfacePersistenceCli
 			return false;
 		}else {
 			cleanLogMessage(toLog);
-			logExecute(PersistenceRecordType.ERROR.recordType + AlignmentFunctions.wrapNameBrackets(methodName) +  Constants.BLOCKER);
+			logExecute(RecordType.ERROR.recordType + AlignmentFunctions.wrapNameBrackets(methodName) +  Constants.BLOCKER);
 
-			returnValue = logExecute(PersistenceRecordType.ERROR.recordType + AlignmentFunctions.wrapNameBrackets(methodName) + toLog);
+			returnValue = logExecute(RecordType.ERROR.recordType + AlignmentFunctions.wrapNameBrackets(methodName) + toLog);
 
 			if (!returnValue) {
 				return returnValue;
@@ -357,10 +357,10 @@ public class AlignmentPersistenceToFileClient implements InterfacePersistenceCli
 
 				StackTraceElement[] stackTrace = t.getStackTrace();
 				for (StackTraceElement element : stackTrace) {
-					returnValue = logExecute(PersistenceRecordType.ERROR.recordType + element.toString());
+					returnValue = logExecute(RecordType.ERROR.recordType + element.toString());
 					if (!returnValue) {return returnValue;}
 				}
-				logExecute(PersistenceRecordType.ERROR.recordType + Constants.BLOCKER);
+				logExecute(RecordType.ERROR.recordType + Constants.BLOCKER);
 
 				return returnValue;
 			}
@@ -373,7 +373,7 @@ public class AlignmentPersistenceToFileClient implements InterfacePersistenceCli
 			return false;
 		}else {
 			cleanLogMessage(toLog);
-			return logExecute(PersistenceRecordType.DEBUG.recordType + toLog);
+			return logExecute(RecordType.DEBUG.recordType + toLog);
 		}
 	}
 

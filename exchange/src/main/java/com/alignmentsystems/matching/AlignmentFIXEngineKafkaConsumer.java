@@ -24,6 +24,7 @@ import org.apache.kafka.common.errors.WakeupException;
 import com.alignmentsystems.library.AlignmentFunctions;
 import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
+import com.alignmentsystems.library.AlignmentUEH;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceKafkaAbstractSimple;
 import com.alignmentsystems.library.interfaces.InterfaceKafkaMessageHandler;
