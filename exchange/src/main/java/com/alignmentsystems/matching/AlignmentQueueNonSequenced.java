@@ -33,6 +33,12 @@ public class AlignmentQueueNonSequenced implements Runnable, InterfaceQueueNonSe
 	private AtomicBoolean running = new AtomicBoolean(false);
 	private AtomicBoolean initialised = new AtomicBoolean(false);
 
+	private synchronized void sleeper() throws IllegalArgumentException , InterruptedException , IllegalMonitorStateException  {
+		Thread.currentThread();
+		Thread.sleep(MILLISLEEP);
+	}
+	
+	
 	@Override
 	public void run() {
 		
@@ -46,8 +52,7 @@ public class AlignmentQueueNonSequenced implements Runnable, InterfaceQueueNonSe
 		while (running.get()) {
 
 			try {
-				Thread.currentThread();
-				Thread.sleep(MILLISLEEP);
+				sleeper();
 
 			} catch (InterruptedException e) {
 

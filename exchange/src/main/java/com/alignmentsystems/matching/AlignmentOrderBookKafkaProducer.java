@@ -41,7 +41,7 @@ public class AlignmentOrderBookKafkaProducer implements InterfaceKafkaProducer, 
 	private AlignmentPersistenceToFileClient debugger = null; 
 	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
 	private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
-
+	private final int MILLISLEEP = 2000;
 
 	@Override
 	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd) {
@@ -70,7 +70,7 @@ public class AlignmentOrderBookKafkaProducer implements InterfaceKafkaProducer, 
 	}
 
 	private synchronized void waiter() throws IllegalArgumentException , InterruptedException , IllegalMonitorStateException  {
-		wait(2000);
+		wait(MILLISLEEP);
 	}
 
 	@Override

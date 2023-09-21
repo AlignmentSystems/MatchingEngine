@@ -29,7 +29,7 @@ public class AlignmentQueueSequenced implements Runnable, InterfaceQueueSequence
 	protected final static String CLASSNAME = AlignmentQueueSequenced.class.getSimpleName().toString();
 	private ConcurrentLinkedQueue<InterfaceOrder> inQueue;
 	private ConcurrentLinkedQueue<InterfaceOrder> outQueue;
-	private final int milliSleep = 200;
+	private final int MILLISLEEP = 200;
 	private final int arrayListSize = 100;
 	private final int initialCapacityHashSet = 100;
 	private final float loadFactorHashSet = (float) 0.75;
@@ -70,8 +70,7 @@ public class AlignmentQueueSequenced implements Runnable, InterfaceQueueSequence
 
 			}
 			try {
-				Thread.currentThread();
-				Thread.sleep(milliSleep);
+				sleeper();
 
 			} catch (InterruptedException e) {
 
@@ -87,6 +86,13 @@ public class AlignmentQueueSequenced implements Runnable, InterfaceQueueSequence
 
 		}
 	}
+	
+	private synchronized void sleeper() throws IllegalArgumentException , InterruptedException , IllegalMonitorStateException  {
+		Thread.currentThread();
+		Thread.sleep(MILLISLEEP);
+	}
+	
+	
 
 	@Override
 	public ConcurrentLinkedQueue<InterfaceOrder> getOutputQueue() {

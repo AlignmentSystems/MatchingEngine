@@ -31,6 +31,7 @@ public class AlignmentFIXEngineKafkaProducer implements InterfaceKafkaProducer, 
 	private KafkaProducer<String, byte[]> kafkaProducerB = null;
 	private AlignmentLogEncapsulation log = null;
 	private AlignmentPersistenceToFileClient debugger = null; 
+	private final static int MILLISLEEP = 2000;
 
 
 
@@ -54,7 +55,7 @@ public class AlignmentFIXEngineKafkaProducer implements InterfaceKafkaProducer, 
 	}
 
 	private synchronized void waiter() throws IllegalArgumentException , InterruptedException , IllegalMonitorStateException {
-		wait(2000);
+		wait(MILLISLEEP);
 	} 
 
 	@Override

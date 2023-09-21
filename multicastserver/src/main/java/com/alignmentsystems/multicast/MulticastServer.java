@@ -31,6 +31,7 @@ import com.alignmentsystems.library.AlignmentDataMapper;
 import com.alignmentsystems.library.AlignmentFunctions;
 import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
+import com.alignmentsystems.library.AlignmentUEH;
 import com.alignmentsystems.library.enumerations.ConfigurationProperties;
 import com.alignmentsystems.library.enumerations.Encodings;
 import com.alignmentsystems.library.enumerations.InstanceType;
@@ -44,7 +45,8 @@ import com.alignmentsystems.library.interfaces.InterfaceMulticastServer;
  */
 public class MulticastServer implements InterfaceMulticastServer ,  Runnable , InterfaceKafkaMessageHandler{
 	public final static String CLASSNAME = MulticastServer.class.getSimpleName().toString();
-	final static Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
+	private final static Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
+	private final int MILLISLEEP = 2000;
 
 	private DatagramSocket socket;
 	private InetAddress group;
@@ -84,6 +86,12 @@ public class MulticastServer implements InterfaceMulticastServer ,  Runnable , I
 	private boolean innerInitialise() {
 		boolean returnValue = Boolean.TRUE;
 
+		AlignmentUEH ueh = new AlignmentUEH();
+		
+		Thread.setDefaultUncaughtExceptionHandler(ueh);
+
+		
+		
 		try {
 			socket = getSocket();
 		} catch (SocketException e) {
@@ -119,6 +127,9 @@ public class MulticastServer implements InterfaceMulticastServer ,  Runnable , I
 			, AlignmentPersistenceToFileClient debugger) throws Exception{
 		this.log = log;
 		this.debugger = debugger;
+		
+		
+		
 		try {
 			this.host = AlignmentFunctions.getProperty(MulticastServer.class.getClassLoader() , InstanceType.MULTICASTSERVER.getProperties(), ConfigurationProperties.MULTICASTHOST);
 			this.port = AlignmentFunctions.getPropertyAsInt(MulticastServer.class.getClassLoader() , InstanceType.MULTICASTSERVER.getProperties(), ConfigurationProperties.MULTICASTPORT);
@@ -139,7 +150,7 @@ public class MulticastServer implements InterfaceMulticastServer ,  Runnable , I
 		running.set(true);
 		while (running.get()) {
 			try {
-				wait(2000);
+				waiter();
 			} catch (InterruptedException e) {
 				log.error(e.getMessage() , e );
 			}
@@ -147,6 +158,12 @@ public class MulticastServer implements InterfaceMulticastServer ,  Runnable , I
 
 	}
 
+	private synchronized void waiter() throws IllegalArgumentException , InterruptedException , IllegalMonitorStateException  {
+		this.wait(MILLISLEEP);
+	}	
+	
+	
+	
 	@Override
 	public void processMessage(String topicName, ConsumerRecord<String, byte[]> message) throws Exception {
 		//So,we listen to the Kafka queue to see what's going on.
