@@ -24,4 +24,7 @@ public class KafkaMessageTopology {
 		public final static  List<String> MESSAGESTOBERECEIVEDBYEXCHANGEFIXENGINEFROMMATCHINGENGINE =  List.of(MESSAGE_FILL , MESSAGE_ACK , MESSAGE_REJ);
 		public final static String MESSAGETOBERECEIVEDBYMULTICASTSERVERFROMMATCHINGENGINE = "mdOUT".toUpperCase(Constants.LOCALE);
 
+		public final static  String MESSAGE_RECEIVED_KILL_SWITCH = "ksi".toUpperCase(Constants.LOCALE);
+		public final static  String MESSAGE_RESPONSE_KILL_SWITCH = "kso".toUpperCase(Constants.LOCALE);
+
 }

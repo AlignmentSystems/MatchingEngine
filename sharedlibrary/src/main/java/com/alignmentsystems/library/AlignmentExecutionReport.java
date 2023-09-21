@@ -36,6 +36,7 @@ import com.alignmentsystems.library.constants.KafkaMessageTopology;
 import com.alignmentsystems.library.enumerations.Encodings;
 import com.alignmentsystems.library.enumerations.ExecutionReportDestination;
 import com.alignmentsystems.library.interfaces.InterfaceExecutionReport;
+import com.alignmentsystems.library.interfaces.InterfaceOrder;
 
 
 
@@ -48,6 +49,7 @@ import com.alignmentsystems.library.interfaces.InterfaceExecutionReport;
 public class AlignmentExecutionReport implements InterfaceExecutionReport {
 	public final static Short EXCHANGEMESSAGETYPE = AlignmentDataMapper.EXCHANGEMESSAGETYPEMAPPEDFROMEXECUTIONREPORT;
 
+	private String commentFieldValue = null;
 	private UUID execID = null;
 	private String buySenderId = null; 
 	private String buyTargetId = null;
@@ -443,5 +445,58 @@ public class AlignmentExecutionReport implements InterfaceExecutionReport {
 
 	}
 
+	@Override
+	public InterfaceExecutionReport getExecutionReportForCancelledOrder(InterfaceOrder cancelledOrder, String commentFieldValue) {
+		
+		final UUID execID = UUID.randomUUID();
+		final UUID marketDataID = UUID.randomUUID();
+		final Short side = AlignmentDataMapper.getExchangeSideCodeMappedFromMemberSideCode(cancelledOrder.getOrderBookSide().sideCharValue);
+		String senderBuy = null;
+		String targetBuy = null;
+		String senderSell = null;
+		String targetSell = null;
 
+		//Set the comment field...
+		this.commentFieldValue = commentFieldValue;
+		
+		
+		if (side == AlignmentDataMapper.EXCHANGESIDEBUY) {			
+			senderBuy = cancelledOrder.getSender();
+			targetBuy = cancelledOrder.getTarget();
+		}else {
+			senderSell = cancelledOrder.getSender();
+			targetSell = cancelledOrder.getTarget();
+		}
+		
+		
+		this.setExecutionReport(execID
+				, cancelledOrder.getClOrdID()
+				, cancelledOrder.getOrderId()
+				, marketDataID
+				, senderBuy
+				, targetBuy
+				, senderSell
+				, targetSell
+				, cancelledOrder.getTimestamp()
+				, 0L 
+				, 0L
+				, cancelledOrder.getLeavesQty()
+				, cancelledOrder.getCumQty() 
+				, cancelledOrder.getAvgPx()
+				, AlignmentDataMapper.EXCHANGEORDSTATUSCANCELLED
+				, AlignmentDataMapper.EXCHANGEEXECTYPECANCELLED
+				, side
+				);		
+		return this;
+	}
+
+	@Override
+	public String getCommentFieldValue() {
+		return this.commentFieldValue;
+	}
+
+	@Override
+	public void setCommentFieldValue(String comment) {
+		this.commentFieldValue = comment;
+	}
 }

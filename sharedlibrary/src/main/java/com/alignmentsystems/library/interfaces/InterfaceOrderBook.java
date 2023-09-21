@@ -26,7 +26,7 @@ public interface InterfaceOrderBook {
 			, AlignmentLogEncapsulation log
 			, AlignmentPersistenceToFileClient debugger
 			, InterfaceMatchEvent toAdd
-			, InterfaceAddedOrderToOrderBook toAddOrder
+			, InterfaceOrderBookOrderAdded toAddOrder
 			);
 	public String getThisOrderBookSymbol();
 	public List<InterfaceOrder> getOrdersBySide(OrderBookSide orderBookSide );
@@ -36,4 +36,15 @@ public interface InterfaceOrderBook {
 	public int getOrderCountBySide(OrderBookSide orderBookSide );
 	public void upsertTopOfBook(InterfaceOrder nos);
 	public void updateLevelsOfDepth();	
+	/**
+	 * 
+	 * @param sender
+	 * @param target
+	 */
+	public void killSwitchEngage(Long sender, Long target);
+	/**
+	 * 
+	 * @param killString
+	 */
+	public void killSwitchEngage(String killString);
 }

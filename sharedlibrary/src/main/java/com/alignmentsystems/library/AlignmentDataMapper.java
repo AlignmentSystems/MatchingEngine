@@ -45,10 +45,15 @@ public class AlignmentDataMapper {
 	public final static Short EXCHANGEMESSAGETYPEMAPPEDFROMNEWORDERSINGLE = getExchangeMessageTypeMappedFromMemberMessageType("D");
 	
 	public final static Short EXCHANGEMESSAGETYPEMATCH = Short.MAX_VALUE;
+	public final static Short EXCHANGEMESSAGETYPEKILLSWITCH = Short.MAX_VALUE - 1;
 	
 	public final static Short EXCHANGEORDSTATUSNEW = memberOrdStatusToExchangeOrdStatusMap.get("0".charAt(0));
-	public final static Short EXCHANGEEXECTYPENEW = memberExecTypeToExchangeExecTypeMap.get("0".charAt(0));
+	public final static Short EXCHANGEORDSTATUSCANCELLED = memberOrdStatusToExchangeOrdStatusMap.get("4".charAt(0));
 
+	public final static Short EXCHANGEEXECTYPENEW = memberExecTypeToExchangeExecTypeMap.get("0".charAt(0));
+	public final static Short EXCHANGEEXECTYPECANCELLED = memberExecTypeToExchangeExecTypeMap.get("4".charAt(0));
+
+	
 	public final static Short EXCHANGEORDSTATUSFILLED = memberOrdStatusToExchangeOrdStatusMap.get("2".charAt(0));
 	public final static Short EXCHANGEEXECTYPETRADE = memberExecTypeToExchangeExecTypeMap.get("F".charAt(0));
 

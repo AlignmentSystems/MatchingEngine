@@ -24,29 +24,27 @@ import com.alignmentsystems.library.AlignmentFunctions;
 import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 import com.alignmentsystems.library.AlignmentUEH;
-import com.alignmentsystems.library.constants.KafkaMessageTopology;
+import com.alignmentsystems.library.annotations.NotYetImplemented;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.enumerations.OperationEventType;
-import com.alignmentsystems.library.interfaces.InterfaceAddedOrderToOrderBook;
+import com.alignmentsystems.library.interfaces.InterfaceOrderBookOrderAdded;
+import com.alignmentsystems.library.interfaces.InterfaceOrderBookOrderRemoved;
 import com.alignmentsystems.library.interfaces.InterfaceExecutionReport;
 import com.alignmentsystems.library.interfaces.InterfaceKafkaProducer;
 import com.alignmentsystems.library.interfaces.InterfaceMatch;
 import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBookEvents;
 
-public class AlignmentOrderBookKafkaProducer implements InterfaceKafkaProducer, InterfaceMatchEvent, InterfaceAddedOrderToOrderBook, InterfaceOrderBookEvents, Runnable {
+public class AlignmentOrderBookKafkaProducer implements InterfaceKafkaProducer, InterfaceMatchEvent, InterfaceOrderBookOrderAdded, InterfaceOrderBookOrderRemoved,  InterfaceOrderBookEvents, Runnable {
 	public final static String CLASSNAME = AlignmentOrderBookKafkaProducer.class.getSimpleName();
 	private KafkaProducer<String, byte[]> kafkaProducerB = null;
 	private AlignmentLogEncapsulation log = null;
 	private AlignmentPersistenceToFileClient debugger = null; 
 	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
-	private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
+	private List<InterfaceOrderBookOrderAdded> listenersAddedOrderToOrderBook = new ArrayList<InterfaceOrderBookOrderAdded>();
 	private final int MILLISLEEP = 2000;
 
-	@Override
-	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd) {
-		this.listenersAddedOrderToOrderBook.add(toAdd);		
-	}
+	
 
 	@Override
 	public void addMatchEventListener(InterfaceMatchEvent toAdd) {
@@ -108,7 +106,7 @@ public class AlignmentOrderBookKafkaProducer implements InterfaceKafkaProducer, 
 	}
 
 	@Override
-	public void addedOrderToOrderBook(InterfaceExecutionReport er) {
+	public void orderOrderBookAdded(InterfaceExecutionReport er) {
 		@SuppressWarnings("unused")
 		final String methodName = "addedOrderToOrderBook";
 
@@ -143,5 +141,24 @@ public class AlignmentOrderBookKafkaProducer implements InterfaceKafkaProducer, 
 			this.kafkaProducerB = new KafkaProducer<>(props);
 		}
 		return true;
+	}
+
+	@Override
+	public void addOrderAddedToOrderBookListener(InterfaceOrderBookOrderAdded toAdd) {
+		this.listenersAddedOrderToOrderBook.add(toAdd);		
+	}
+
+	@Override
+	public void addOrderRemovedFromOrderBookListener(InterfaceOrderBookOrderRemoved toRemove) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	@NotYetImplemented
+	public void orderBookOrderRemoved(InterfaceExecutionReport arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

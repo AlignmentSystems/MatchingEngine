@@ -15,6 +15,6 @@ package com.alignmentsystems.library.interfaces;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public interface InterfaceAddedOrderToOrderBook {
-	public void addedOrderToOrderBook(InterfaceExecutionReport er);
+public interface InterfaceOrderBookOrderRemoved {
+	public void orderBookOrderRemoved(InterfaceExecutionReport er);
 }

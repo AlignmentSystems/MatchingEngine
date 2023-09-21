@@ -1,5 +1,4 @@
 package com.alignmentsystems.library.interfaces;
-
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
