@@ -41,10 +41,10 @@ public class MulticastServerKafkaListener extends InterfaceKafkaAbstractSimple i
 	private AlignmentLogEncapsulation log = null;
 	private Properties props = null;
 	private AlignmentPersistenceToFileClient debugger = null; 
+	private final int MILLISLEEP = 2000;
 
 	public MulticastServerKafkaListener() throws Exception {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 	/**
 	 * 
@@ -63,12 +63,17 @@ public class MulticastServerKafkaListener extends InterfaceKafkaAbstractSimple i
 		return kafkaConsumer;
 	}
 	
+	private synchronized void waiter() throws IllegalArgumentException , InterruptedException , IllegalMonitorStateException  {
+		this.wait(MILLISLEEP);
+	}	
+	
+	
 	@Override
 	public void run() {
 		AtomicBoolean run = new AtomicBoolean(true);
 		while (run.get()) {
 			try {
-				wait(2000);
+				waiter();
 			} catch (InterruptedException e) {
 				log.error(e.getMessage() , e );
 			}

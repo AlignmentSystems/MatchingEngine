@@ -35,6 +35,8 @@ public class AlignmentOrderBookKafkaConsumer  extends InterfaceKafkaAbstractSimp
 	public final static String CLASSNAME = AlignmentOrderBookKafkaConsumer.class.getSimpleName();
 	
 	private final int TIME_OUT_MS = 5000;
+	private final int MILLISLEEP = 2000;
+
 	private KafkaConsumer<String, byte[]> kafkaConsumer = null;
 	private final AtomicBoolean closed = new AtomicBoolean(false);
 	private AlignmentLogEncapsulation log = null;
@@ -137,7 +139,7 @@ public class AlignmentOrderBookKafkaConsumer  extends InterfaceKafkaAbstractSimp
 	}
 
 	private synchronized void waiter() throws IllegalArgumentException , InterruptedException , IllegalMonitorStateException  {
-		wait(2000);
+		wait(MILLISLEEP);
 	} 
 	
 	

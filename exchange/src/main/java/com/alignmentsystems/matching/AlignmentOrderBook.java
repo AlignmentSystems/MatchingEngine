@@ -68,7 +68,7 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 	private AtomicBoolean initialised = new AtomicBoolean(false);
 	private String symbol = null;
 	private AlignmentLogEncapsulation log = null;
-	private final int milliSleep = 200;
+	private final int MILLISLEEP = 200;
 
 	private OffsetDateTime orderBookCreationTime = null;
 	private OffsetDateTime orderBookLastUpdateTime = null;
@@ -407,9 +407,7 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 		running.set(true); 
 
 		try { 
-			Thread.currentThread(); 
-			Thread.sleep(milliSleep);
-
+			sleeper();
 		}catch(InterruptedException e){
 
 			running.set(false);
@@ -421,4 +419,12 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 			System.err.println(new StringBuilder() .append(CLASSNAME).append(Constants.SPACE) .append(e.getMessage()) .toString()); 
 		} 
 	}
+	
+	private synchronized void sleeper() throws IllegalArgumentException , InterruptedException , IllegalMonitorStateException  {
+		Thread.currentThread();
+		Thread.sleep(MILLISLEEP);
+	}
+	
+	
+	
 }

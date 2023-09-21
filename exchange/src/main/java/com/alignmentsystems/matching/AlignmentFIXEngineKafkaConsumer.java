@@ -41,7 +41,9 @@ public class AlignmentFIXEngineKafkaConsumer extends InterfaceKafkaAbstractSimpl
 	private AlignmentLogEncapsulation log = null;
 	private AlignmentPersistenceToFileClient debugger = null; 
 	private Properties props = null;
+	private final static int MILLISLEEP = 2000;
 
+	
 	public AlignmentFIXEngineKafkaConsumer() throws Exception {
 		super();
 	}
@@ -65,7 +67,7 @@ public class AlignmentFIXEngineKafkaConsumer extends InterfaceKafkaAbstractSimpl
 	}
 	
 	private synchronized void waiter() throws IllegalArgumentException, InterruptedException , IllegalMonitorStateException {
-		wait(2000);
+		wait(MILLISLEEP);
 	} 
 	
 	

@@ -19,7 +19,6 @@ import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.constants.KafkaMessageTopology;
 import com.alignmentsystems.library.enumerations.InstanceType;
 import com.alignmentsystems.library.interfaces.InterfaceInstanceWrapper;
-import com.alignmentsystems.matching.AlignmentInstanceWrapper;
 /**
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
@@ -27,7 +26,7 @@ import com.alignmentsystems.matching.AlignmentInstanceWrapper;
 public class MulticastInstanceWrapper implements InterfaceInstanceWrapper{
 	private final String CLASSNAME = this.getClass().getSimpleName();
 	private InstanceType instanceType ;
-
+	private final int MILLISLEEP = 2000;
 	private AlignmentLogEncapsulation log = new AlignmentLogEncapsulation(this.getClass());
 
 	@Override
@@ -93,11 +92,15 @@ public class MulticastInstanceWrapper implements InterfaceInstanceWrapper{
 
 		while (returnValue) {
 			try {
-				this.wait(2000);
+				waiter();
 			} catch (InterruptedException e) {
 				log.error(e.getMessage() , e );
 			}
 		}
 		return returnValue;
 	}
+	
+	private synchronized void waiter() throws IllegalArgumentException , InterruptedException , IllegalMonitorStateException  {
+		this.wait(MILLISLEEP);
+	}	
 }

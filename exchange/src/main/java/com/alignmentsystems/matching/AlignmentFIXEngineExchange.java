@@ -1,9 +1,4 @@
 package com.alignmentsystems.matching;
-
-import java.io.FileNotFoundException;
-import java.nio.ByteBuffer;
-import java.util.Properties;
-
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -14,7 +9,9 @@ import java.util.Properties;
  *	Artefact		:	ApplicationFIXEngine
  *	Description		:
  *****************************************************************************/
-
+import java.io.FileNotFoundException;
+import java.nio.ByteBuffer;
+import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;

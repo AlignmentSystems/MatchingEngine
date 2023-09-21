@@ -86,8 +86,7 @@ public class AlignmentFIXToBinaryProcessor implements Runnable, InterfaceFIXToBi
 				sender = null;
 			}
 			try {
-				Thread.currentThread();
-				Thread.sleep(MILLISLEEP);
+				sleeper();
 
 			} catch (InterruptedException e) {
 
@@ -103,6 +102,11 @@ public class AlignmentFIXToBinaryProcessor implements Runnable, InterfaceFIXToBi
 		}
 	}
 
+	private synchronized void sleeper() throws IllegalArgumentException , InterruptedException , IllegalMonitorStateException  {
+		Thread.currentThread();
+		Thread.sleep(MILLISLEEP);
+	}
+	
 	/**
 	 * 
 	 * @param topicName
