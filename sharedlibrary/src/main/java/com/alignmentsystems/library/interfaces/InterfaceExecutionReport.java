@@ -83,9 +83,12 @@ public interface InterfaceExecutionReport {
 	public Short getOrdStatus();
 	public Short getExecType();
 	public Short getSideCode();
+	public String getCommentFieldValue();
+	public void setCommentFieldValue(String comment);
 	public abstract AlignmentKafkaSender getMarketDataBytesAsSBEInSender();
 	public abstract AlignmentKafkaSender getMemberExecRptAsSBEInSender();
 	public abstract AlignmentKafkaSender getMemberExecRptForTopicAsSBEInSender(String topic);
 	public abstract ExecutionReport getFIXExecutionReport(ByteBuffer bb , short msgType);
-	public abstract ExecutionReport getFIXExecutionReportAckFromOrderBuffer(ByteBuffer bb , short msgType); 
+	public abstract ExecutionReport getFIXExecutionReportAckFromOrderBuffer(ByteBuffer bb , short msgType);
+	public abstract InterfaceExecutionReport getExecutionReportForCancelledOrder(InterfaceOrder cancelledOrder, String commentFieldValue);
 }

@@ -23,9 +23,12 @@ import java.util.UUID;
 import com.alignmentsystems.fix44.ExecutionReport;
 import com.alignmentsystems.fix44.NewOrderSingle;
 import com.alignmentsystems.library.annotations.Experimental;
+import com.alignmentsystems.library.annotations.NotYetImplemented;
 import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.enumerations.Encodings;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
+import com.alignmentsystems.library.interfaces.InterfaceExecutionReport;
+import com.alignmentsystems.library.interfaces.InterfaceKillString;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 
 import quickfix.FieldNotFound;
@@ -35,7 +38,7 @@ import quickfix.SessionID;
  * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
  *
  */
-public class AlignmentOrder implements InterfaceOrder{
+public class AlignmentOrder implements InterfaceOrder , InterfaceKillString{
 	final static Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
 
 	private String symbol = null;
@@ -414,6 +417,23 @@ public class AlignmentOrder implements InterfaceOrder{
 		ByteBuffer bb = ByteBuffer.wrap(message).order(encoding.getByteOrder());
 		final short msgType = bb.getShort();	//		buf.putShort(messageType
 		return  getAlignmentOrderFromBuffer(bb.array(), msgType);
+	}
+
+
+
+	@Override
+	public String getOrderBookKillString() {
+		return this.sender + Constants.FULLSTOP + this.target;
+	}
+
+
+
+	@Override
+	@NotYetImplemented
+	public InterfaceExecutionReport getCancelledExecutionReport() {
+		AlignmentExecutionReport aer = new AlignmentExecutionReport();
+		
+		return null;
 	}
 
 

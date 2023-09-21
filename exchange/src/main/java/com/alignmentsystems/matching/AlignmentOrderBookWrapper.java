@@ -19,8 +19,8 @@ public class AlignmentOrderBookWrapper implements InterfaceOrderBookWrapper{
 	private AlignmentLogEncapsulation log = null;
 	private AlignmentPersistenceToFileClient debugger = null;
 	//private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
-	// private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook =
-	// new ArrayList<InterfaceAddedOrderToOrderBook>();
+	// private List<InterfaceOrderBookOrderAdded> listenersAddedOrderToOrderBook =
+	// new ArrayList<InterfaceOrderBookOrderAdded>();
 
 	@Override
 	public String toString() {

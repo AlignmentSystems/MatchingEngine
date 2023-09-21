@@ -58,6 +58,7 @@ public interface InterfaceOrder{
 	public AlignmentKafkaSender getBytesForMarketDataAsSBEInSender();
 	public InterfaceOrder getAlignmentOrderFromBuffer(byte[] message, short msgType);
 	public InterfaceOrder getAlignmentOrderFromBuffer(byte[] message);
+	public InterfaceExecutionReport getCancelledExecutionReport();
 
 	public void reCreateOrder(
 			String symbol

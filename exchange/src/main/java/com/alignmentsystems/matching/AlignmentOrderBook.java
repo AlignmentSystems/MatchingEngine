@@ -1,5 +1,7 @@
 package com.alignmentsystems.matching;
 
+import java.nio.ByteBuffer;
+
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -13,33 +15,40 @@ package com.alignmentsystems.matching;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
+import com.alignmentsystems.library.AlignmentDataMapper;
 import com.alignmentsystems.library.AlignmentExecutionReport;
+import com.alignmentsystems.library.AlignmentFunctions;
+import com.alignmentsystems.library.AlignmentKillMessage;
+import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.AlignmentMatch;
 import com.alignmentsystems.library.AlignmentOrder;
 import com.alignmentsystems.library.AlignmentOrderComparatorBuy;
 import com.alignmentsystems.library.AlignmentOrderComparatorSell;
-import com.alignmentsystems.library.AlignmentDataMapper;
-import com.alignmentsystems.library.AlignmentFunctions;
-import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 import com.alignmentsystems.library.annotations.NotYetImplemented;
 import com.alignmentsystems.library.constants.Constants;
+import com.alignmentsystems.library.enumerations.Encodings;
 import com.alignmentsystems.library.enumerations.OrderBookSide;
-import com.alignmentsystems.library.interfaces.InterfaceAddedOrderToOrderBook;
 import com.alignmentsystems.library.interfaces.InterfaceExecutionReport;
+import com.alignmentsystems.library.interfaces.InterfaceKafkaMessageHandler;
+import com.alignmentsystems.library.interfaces.InterfaceKillString;
 import com.alignmentsystems.library.interfaces.InterfaceMatch;
 import com.alignmentsystems.library.interfaces.InterfaceMatchEvent;
 import com.alignmentsystems.library.interfaces.InterfaceOrder;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBookEvents;
-import com.alignmentsystems.library.interfaces.InterfaceKafkaMessageHandler;
+import com.alignmentsystems.library.interfaces.InterfaceOrderBookOrderAdded;
+import com.alignmentsystems.library.interfaces.InterfaceOrderBookOrderRemoved;
 
 import quickfix.FieldNotFound;
 
@@ -50,8 +59,10 @@ import quickfix.FieldNotFound;
  *
  */
 public class AlignmentOrderBook
-implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, InterfaceAddedOrderToOrderBook, InterfaceOrderBookEvents, Runnable {
+implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent, InterfaceOrderBookOrderAdded, InterfaceOrderBookOrderRemoved, InterfaceOrderBookEvents, Runnable {
 	private final static String CLASSNAME = AlignmentOrderBook.class.getSimpleName();
+	private final Encodings encoding = Encodings.FIXSBELITTLEENDIAN;
+
 
 	private final static int buyPriorityQueueSize = 100;
 	private final static int sellPriorityQueueSize = 100;
@@ -60,10 +71,16 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 	private PriorityQueue<InterfaceOrder> buy = new PriorityQueue<InterfaceOrder>(buyPriorityQueueSize, aboc);
 	private PriorityQueue<InterfaceOrder> sell = new PriorityQueue<InterfaceOrder>(sellPriorityQueueSize, asoc);
 
+	private Map<String, List<InterfaceOrder>> buyMap = new HashMap<String, List<InterfaceOrder>>();
+	private Map<String, List<InterfaceOrder>> sellMap = new HashMap<String, List<InterfaceOrder>>();
+
 	private AlignmentPersistenceToFileClient debugger = null;
 
 	private List<InterfaceMatchEvent> listenersMatchEvent = new ArrayList<InterfaceMatchEvent>();
-	private List<InterfaceAddedOrderToOrderBook> listenersAddedOrderToOrderBook = new ArrayList<InterfaceAddedOrderToOrderBook>();
+	private List<InterfaceOrderBookOrderAdded> listenersOrderBookOrderAdded = new ArrayList<InterfaceOrderBookOrderAdded>();
+	private List<InterfaceOrderBookOrderRemoved> listenersOrderBookOrderRemoved = new ArrayList<InterfaceOrderBookOrderRemoved>();
+
+
 	private AtomicBoolean running = new AtomicBoolean(false);
 	private AtomicBoolean initialised = new AtomicBoolean(false);
 	private String symbol = null;
@@ -76,18 +93,20 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 
 	@Override
 	public Boolean initialise(String symbol, AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger,
-			InterfaceMatchEvent toAddMatch, InterfaceAddedOrderToOrderBook toAddOrder) {
+			InterfaceMatchEvent toAddMatch, InterfaceOrderBookOrderAdded toAddOrder) {
 		final String METHOD = "initialise";
-		
+		final String ID = this.CLASSNAME + Constants.FULLSTOP + METHOD ;
+
 		Boolean returnValue = Boolean.FALSE;
+
 		this.orderBookCreationTime = OffsetDateTime.now(Constants.HERE);
 		this.symbol = symbol;
 		this.log = log;
 		this.debugger = debugger;
 		this.addMatchEventListener(toAddMatch);
-		this.addAddedOrderToOrderBookListener(toAddOrder);
+		this.addOrderAddedToOrderBookListener(toAddOrder);
 
-		debugger.info(CLASSNAME + "." + METHOD);
+		debugger.info(ID);
 
 		returnValue = Boolean.TRUE;
 
@@ -211,7 +230,7 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 			final UUID buyOrderID = topOfBuyBook.getOrderId();
 			final UUID sellOrderID = topOfSellBook.getOrderId();
 			final boolean isEligibleForMarketData = true;
-	
+
 			AlignmentMatch match = new AlignmentMatch(
 					tradedQuantity
 					, tradedPrice
@@ -241,8 +260,9 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 					);
 
 			//tradedQuantity, tradedPrice, aggressor, executionTimestamp, buyClOrdID, sellClOrdID, buyOrderID, sellOrderID, isEligibleForMarketData
-			buy.remove(topOfBuyBook);
-			sell.remove(topOfSellBook);
+			executeTrade(buy, buyMap,topOfBuyBook);
+			executeTrade(sell, sellMap,topOfSellBook);
+			this.orderBookLastUpdateTime = OffsetDateTime.now(Constants.HERE);
 
 			this.matchHappened(match);
 
@@ -251,6 +271,25 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 			// therefore no trade possible...
 		}
 	}
+
+
+	/**
+	 * 
+	 * @param pq
+	 * @param map
+	 * @param traded The traded order to remove from the priority queue and the Order Map
+	 */
+	private void executeTrade(PriorityQueue<InterfaceOrder> pq, Map<String, List<InterfaceOrder>> map, InterfaceOrder traded) {
+		InterfaceKillString iks = (InterfaceKillString) traded;
+		String killThis = iks.getOrderBookKillString();
+
+		List<InterfaceOrder> targetList = map.get(killThis);
+		targetList.remove(traded);
+
+		pq.remove(traded);
+	}
+
+
 
 	@NotYetImplemented
 	@Override
@@ -268,37 +307,26 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 	}
 
 	@Override
-	public void addedOrderToOrderBook(InterfaceExecutionReport toAdd) {
-		for (InterfaceAddedOrderToOrderBook hl : listenersAddedOrderToOrderBook)
-			hl.addedOrderToOrderBook(toAdd);
+	public void orderOrderBookAdded(InterfaceExecutionReport toAdd) {
+		for (InterfaceOrderBookOrderAdded hl : listenersOrderBookOrderAdded)
+			hl.orderOrderBookAdded(toAdd);
 	}
 
 
-	
-
-	@Override
-	public void addAddedOrderToOrderBookListener(InterfaceAddedOrderToOrderBook toAdd) {
-		listenersAddedOrderToOrderBook.add(toAdd);
-	}
 
 	@Override
 	public List<InterfaceOrder> getOrdersBySide(OrderBookSide orderBookSide) {
 		List<InterfaceOrder> list = null;
 
 		if (orderBookSide == OrderBookSide.BUY) {
-			if (buy.size() == 1) {
-				list = new ArrayList<>(buy);
-			} else {
-				list = new ArrayList<>(buy);
-				list.sort(aboc);
-			}
+
+			list = new ArrayList<>(buy);
+			list.sort(aboc);
+
 		} else {
-			if (sell.size() == 1) {
-				list = new ArrayList<>(sell);
-			} else {
-				list = new ArrayList<>(sell);
-				list.sort(asoc);
-			}
+
+			list = new ArrayList<>(sell);
+			list.sort(asoc);
 		}
 
 		return list;
@@ -336,49 +364,91 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 			hl.matchHappened(match);
 	}
 
+
+	/**
+	 * 
+	 * @param pq
+	 * @param map
+	 * @param toAdd The order to add to the priority queue and the Order Map
+	 */
+	private void addOrder (PriorityQueue<InterfaceOrder> pq, Map<String, List<InterfaceOrder>> map, InterfaceOrder toAdd) {
+
+		InterfaceKillString iks = (InterfaceKillString) toAdd;
+		String killString = iks.getOrderBookKillString();			
+
+		if(map.containsKey(killString)) {
+			map.get(killString).add(toAdd);
+		}else {
+			List<InterfaceOrder> targetList = List.of(toAdd);
+			map.put(killString, targetList);
+		}
+		pq.add(toAdd);
+	}	
+
+
+
 	@Override
 	public void processMessage(String topicName, ConsumerRecord<String, byte[]> message) throws Exception {
-		
-		InterfaceOrder io = new AlignmentOrder();
-		io.getAlignmentOrderFromBuffer(message.value());
-		
 
-		if (io.getOrderBookSide()==OrderBookSide.SELL) {
-			this.sell.add(io);
-		}else {
-			this.buy.add(io);
+		//What has been received???
+		//First two bytes are the key...
+		ByteBuffer bb = ByteBuffer.wrap(message.value()).order(encoding.getByteOrder());
+		final short msgType = bb.getShort();	//		buf.putShort(messageType
+
+		if(msgType == AlignmentDataMapper.EXCHANGEMESSAGETYPEMAPPEDFROMNEWORDERSINGLE) {
+			InterfaceOrder io = new AlignmentOrder();
+			io.getAlignmentOrderFromBuffer(message.value());
+
+			if (io.getOrderBookSide()==OrderBookSide.SELL) {
+				addOrder (sell, sellMap, io); 									
+			}else {
+				addOrder (buy, buyMap, io);
+			}
+			this.orderBookLastUpdateTime = OffsetDateTime.now(Constants.HERE);
+
+			//get ExecutionReport from the Order...
+			InterfaceExecutionReport er = getExecutionReportAcknowledgementForOrder(io);
+			this.orderOrderBookAdded(er);	//raise the event out to the listeners...
+
+			//this.orderBookLastUpdateTime = OffsetDateTime.now(Constants.HERE);
+			//		 this.snapShotOrderBook(); 
+			this.runMatch();
+			//		 * 
+
+
+		}else if(msgType == AlignmentDataMapper.EXCHANGEMESSAGETYPEKILLSWITCH) {
+			AlignmentKillMessage akm = new AlignmentKillMessage();
+
+			akm = (AlignmentKillMessage) akm.getKillMessageFromBuffer(message.value());
+
+			String killString = akm.getOrderBookKillString();
+			//We have a kill switch for a particular member connection as defined
+
+			this.killSwitchEngage(killString);
 		}
 
-		//get ExecutionReport from the Order...
-		InterfaceExecutionReport er = getExecutionReportAcknowledgementForOrder(io);
-		this.addedOrderToOrderBook(er);	//raise the event out to the listeners...	
-		
-		
-		this.orderBookLastUpdateTime = OffsetDateTime.now(Constants.HERE);
-		//		 this.snapShotOrderBook(); 
-		this.runMatch();
-		//		 * 
+
 
 	}
 
 	private  static InterfaceExecutionReport getExecutionReportAcknowledgementForOrder(InterfaceOrder nos) throws FieldNotFound {
-//		UUID execID 
-//		, UUID clOrdID
-//		, UUID orderID
-//		, String buySenderId
-//		, String buyTargetId
-//		, String sellSenderId
-//		, String sellTargetId
-//		, OffsetDateTime timestamp
-//		, Long executionQuantity
-//		, Long executionPrice
-//		, Long leavesQuantity
-//		, Long cumQuantity
-//		, Long averagePrice
-//		, Short ordStatus
-//		, Short execType
-//		, Short sideCode
-		
+		//		UUID execID 
+		//		, UUID clOrdID
+		//		, UUID orderID
+		//		, String buySenderId
+		//		, String buyTargetId
+		//		, String sellSenderId
+		//		, String sellTargetId
+		//		, OffsetDateTime timestamp
+		//		, Long executionQuantity
+		//		, Long executionPrice
+		//		, Long leavesQuantity
+		//		, Long cumQuantity
+		//		, Long averagePrice
+		//		, Short ordStatus
+		//		, Short execType
+		//		, Short sideCode
+
 		InterfaceExecutionReport er2 = new AlignmentExecutionReport();
 		er2.setExecutionReport(
 				null
@@ -401,7 +471,7 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 				);
 		return er2;
 	}
-	
+
 	@Override
 	public void run() {
 		running.set(true); 
@@ -419,12 +489,61 @@ implements InterfaceKafkaMessageHandler, InterfaceOrderBook, InterfaceMatchEvent
 			System.err.println(new StringBuilder() .append(CLASSNAME).append(Constants.SPACE) .append(e.getMessage()) .toString()); 
 		} 
 	}
-	
+
 	private synchronized void sleeper() throws IllegalArgumentException , InterruptedException , IllegalMonitorStateException  {
 		Thread.currentThread();
 		Thread.sleep(MILLISLEEP);
 	}
-	
-	
-	
+
+	@Override
+	@NotYetImplemented
+	public void killSwitchEngage(Long sender, Long target) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/**
+	 * 
+	 * @param pq
+	 * @param map
+	 * @param killString
+	 */
+	@NotYetImplemented
+	private void killbySide(PriorityQueue<InterfaceOrder> pq , Map<String, List<InterfaceOrder>> map, String killString) {
+
+		List<InterfaceOrder> killBuyList = map.get(killString);
+
+		for (Iterator<InterfaceOrder> iter = killBuyList.iterator(); iter.hasNext(); ) {
+			InterfaceOrder element = iter.next();
+			pq.remove(element);
+			//add events////
+			orderBookOrderRemoved(element.getCancelledExecutionReport());			
+		}
+		map.remove(killString);
+	}
+
+
+	@Override
+	public void killSwitchEngage(String killString) {
+		killbySide(this.buy, this.buyMap , killString);
+		killbySide(this.sell, this.sellMap , killString);
+	}
+
+	@Override
+	public void addOrderAddedToOrderBookListener(InterfaceOrderBookOrderAdded toAdd) {
+		this.addOrderAddedToOrderBookListener(toAdd);
+
+	}
+
+	@Override
+	public void addOrderRemovedFromOrderBookListener(InterfaceOrderBookOrderRemoved toRemove) {
+		this.addOrderRemovedFromOrderBookListener(toRemove);
+
+	}
+
+	@Override
+	public void orderBookOrderRemoved(InterfaceExecutionReport er) {
+		// TODO Auto-generated method stub
+
+	}
 }
