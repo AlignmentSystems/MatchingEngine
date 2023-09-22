@@ -304,8 +304,8 @@ public class AlignmentMatch implements InterfaceMatch {
 				, this.marketDataId
 				, this.buySenderId
 				, this.buyTargetId
-				, this.sellSenderId
-				, this.sellTargetId
+				, null
+				, null
 				, this.timestamp
 				, this.matchQuantity
 				, this.matchPrice
@@ -328,8 +328,8 @@ public class AlignmentMatch implements InterfaceMatch {
 				, this.sellClOrdId
 				, this.sellOrderId
 				, this.marketDataId
-				, this.sellSenderId
-				, this.sellTargetId
+				, null
+				, null
 				, this.sellSenderId
 				, this.sellTargetId
 				, this.timestamp

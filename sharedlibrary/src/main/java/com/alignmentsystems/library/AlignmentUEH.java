@@ -10,8 +10,13 @@ package com.alignmentsystems.library;
  *	Description		:	
  *****************************************************************************/
 
+
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class AlignmentUEH implements Thread.UncaughtExceptionHandler{
-	protected final static String CLASSNAME = AlignmentUEH.class.getSimpleName().toString();
+	public final static String CLASSNAME = AlignmentUEH.class.getSimpleName().toString();
 
 	private AlignmentPersistenceToFileClient debugger;
 	private Boolean hasDebugger = Boolean.FALSE;

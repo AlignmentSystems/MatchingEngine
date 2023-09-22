@@ -23,7 +23,11 @@ import com.alignmentsystems.library.AlignmentDataMapper;
 import com.alignmentsystems.library.AlignmentExecutionReport;
 import com.alignmentsystems.library.AlignmentFunctions;
 import com.alignmentsystems.library.AlignmentKafkaSender;
+import com.alignmentsystems.library.AlignmentKillDetail;
+import com.alignmentsystems.library.AlignmentKillMessage;
 import com.alignmentsystems.library.AlignmentLogEncapsulation;
+import com.alignmentsystems.library.AlignmentMember;
+import com.alignmentsystems.library.AlignmentMemberCollection;
 import com.alignmentsystems.library.AlignmentOrder;
 import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 import com.alignmentsystems.library.AlignmentUEH;
@@ -58,26 +62,25 @@ public class AlignmentFIXEngineExchange extends MessageCracker implements Interf
 	private InstanceType instanceType = null;
 	private AlignmentPersistenceToFileClient debugger = null;
 	private KafkaProducer<String, byte[]> kafkaProducerB = null;
-
+	private AlignmentMemberCollection members = null;
 	@Override
 	public boolean initialise(AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger, InstanceType instanceType) throws FileNotFoundException ,NullPointerException{
 		final String METHOD = "initialise";
-		
+
 		this.log = log;
 		this.debugger = debugger;
 		this.instanceType = instanceType;
 
-		
+
 		debugger.debug(CLASSNAME + "." + METHOD);
 
 		AlignmentUEH ueh = new AlignmentUEH(this.debugger);	
 		Thread.setDefaultUncaughtExceptionHandler(ueh);
 
 
-		
-		
-		
-		
+		members = new AlignmentMemberCollection(); 
+
+
 		if (this.kafkaProducerB == null) {
 			Properties props;
 			try {
@@ -88,9 +91,9 @@ public class AlignmentFIXEngineExchange extends MessageCracker implements Interf
 			}
 			this.kafkaProducerB = new KafkaProducer<>(props);
 		}
-		
-		
-		
+
+
+
 		return true;
 	}
 
@@ -139,10 +142,27 @@ public class AlignmentFIXEngineExchange extends MessageCracker implements Interf
 	@Override
 	public void onLogout(SessionID sessionId) {
 		final String METHOD = "onLogout".intern();
+		final String ID = CLASSNAME + Constants.FULLSTOP + METHOD;
+		final String loggedOutSenderCompId = sessionId.getSenderCompID();
+		final String loggedOutSenderTargetId = sessionId.getTargetCompID();
+		final Session loggedOutSession = Session.lookupSession(sessionId);
+		final Boolean loggedOutSessionShouldBeLoggedIn = loggedOutSession.isSessionTime();
+		final AlignmentMember member = members.getMember(sessionId.getSenderCompID());
+		final Boolean loggedOutSessionIsConfiguredForCancelOnDisconnect = member.isMemberConnectionCancelOnDisconnect(loggedOutSenderCompId , loggedOutSenderTargetId);
 
-		StringBuilder sb = new StringBuilder().append(sessionId.toString());
-		debugger.debug(CLASSNAME + "." + METHOD);
-
+		
+		
+		if(loggedOutSessionIsConfiguredForCancelOnDisconnect) {
+			if(loggedOutSessionShouldBeLoggedIn) {
+				AlignmentKillDetail akd = new AlignmentKillDetail(loggedOutSenderCompId , loggedOutSenderTargetId);
+				AlignmentKillMessage akm = new AlignmentKillMessage(); 
+				akm.initialise(akd);
+				AlignmentKafkaSender sender = akm.getKillMessageBytesAsSBEInSender();
+				this.send(sender);
+				debugger.debugSession("Execute Cancel-on-disconnect for " + akd.getKillString(), ID);
+			}
+		}
+		StringBuilder sb = new StringBuilder().append(loggedOutSession);
 		log.infoFIXSession(sb.toString(), sessionId, METHOD, CLASSNAME, instanceType);
 	}
 
@@ -294,8 +314,8 @@ public class AlignmentFIXEngineExchange extends MessageCracker implements Interf
 
 	}
 
-	
-	
+
+
 	/**
 	 * 
 	 * @see <a href=
@@ -311,7 +331,7 @@ public class AlignmentFIXEngineExchange extends MessageCracker implements Interf
 		final String METHOD = "onMessage".intern();
 
 		debugger.debug(CLASSNAME + "." + METHOD + Constants.EQUALS + message.MSGTYPE);
-		
+
 		OrderBookSide orderBookSide = AlignmentFunctions.getOrderBookSideFromFIXSide(message.getSide());
 
 		AlignmentOrder ao = new AlignmentOrder();
@@ -322,14 +342,14 @@ public class AlignmentFIXEngineExchange extends MessageCracker implements Interf
 				.append(ao.getClOrdID()).append(" Side=(").append(ao.getOrderBookSide().sideReadableValue )
 				.append(") SenderCompId=").append(ao.getSender()).append(" TargetCompId=").append(ao.getTarget())
 				.append(" sending to Kafka...");
-		
+
 		debugger.debug(sb.toString());
 
 		try {
 			debugger.debug("Sending order to Kafka...");
 			AlignmentKafkaSender sender = ao.getBytesForMemberAsSBEInSender();
 			this.send(sender);
-			
+
 			log.infoFIXSession(sb.toString(), sessionID, MessageDirection.RECEIVED, METHOD,
 					message.getClass().getSimpleName(), instanceType);
 		} catch (NullPointerException e) {
@@ -338,7 +358,7 @@ public class AlignmentFIXEngineExchange extends MessageCracker implements Interf
 		}
 	}
 
-	
+
 
 	@Override
 	public void send(AlignmentKafkaSender sender) {
