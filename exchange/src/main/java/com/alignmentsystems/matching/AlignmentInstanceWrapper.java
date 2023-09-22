@@ -10,12 +10,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.KafkaAdminClient;
-import org.apache.kafka.clients.admin.ListTopicsResult;
-
 import com.alignmentsystems.fix44.MessageFactory;
 import com.alignmentsystems.library.AlignmentFunctions;
+import com.alignmentsystems.library.AlignmentKafkaLibrary;
 import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 import com.alignmentsystems.library.AlignmentUEH;
@@ -158,26 +155,9 @@ public class AlignmentInstanceWrapper implements InterfaceInstanceWrapper {
 			return false;
 		}
 		
-		try (AdminClient client = KafkaAdminClient.create(props))
-		{
-		    ListTopicsResult topics = client.listTopics();
-		    Set<String> names = topics.names().get();
-		    if (names.isEmpty())
-		    {
-		        // case: if no topic found.
-		    	log.error(ID  + ":No Topics Found");
-				return false;
-		    }		    
-		}
-		catch (Exception e){
-			// Kafka is not available
-			log.error(ID + ":Kafka is not available".toUpperCase());
-			log.error(e.getMessage() , e);
-			System.err.println(e.getMessage());
-			System.exit(FailureConditionConstants.KAFKA_NOT_RUNNING);		    
-		}
 		
-		 
+		AlignmentKafkaLibrary akl = new AlignmentKafkaLibrary();
+		akl.isKafkaRunning(props);
 		
 		
 		

@@ -20,6 +20,7 @@ import com.alignmentsystems.library.constants.Constants;
 import com.alignmentsystems.library.constants.KafkaMessageTopology;
 import com.alignmentsystems.library.enumerations.Encodings;
 import com.alignmentsystems.library.enumerations.MessageDirection;
+import com.alignmentsystems.library.interfaces.InterfaceKillDetail;
 import com.alignmentsystems.library.interfaces.InterfaceKillMessage;
 import com.alignmentsystems.library.interfaces.InterfaceKillString;
 
@@ -228,5 +229,16 @@ public class AlignmentKillMessage implements InterfaceKillMessage , InterfaceKil
 		@Override
 		public String getOrderBookKillString() {
 			return this.stringSenderCompId + Constants.FULLSTOP + this.stringTargetCompId;
+		}
+
+		@Override
+		public void initialise(InterfaceKillDetail killDetail) {
+			this.senderCompId = AlignmentDataMapper.getExchangeIdMappedFromSenderCompID(killDetail.getSenderCompId());
+			this.targetCompId = AlignmentDataMapper.getExchangeIdMappedFromTargetCompID(killDetail.getTargetCompId());
+			this.direction = MessageDirection.RECEIVED;
+			this.sentTimestamp = killDetail.getTimestamp();
+			this.receivedTimestamp = OffsetDateTime.now(Constants.HERE);
+			this.stringSenderCompId = killDetail.getSenderCompId();
+			this.stringTargetCompId = killDetail.getTargetCompId();
 		}
 	}

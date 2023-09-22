@@ -1,10 +1,22 @@
 package com.alignmentsystems.matching;
+/******************************************************************************
+ * 
+ *	Author			:	John Greenan 
+ *	Contact			:	sales@alignment-systems.com
+ *	Date            :	22nd September 2023
+ *	Copyright       :	Alignment Systems Ltd 2023
+ *	Project			:	Alignment Matching Toy
+ *	Artefact		:	AlignmentOrderBookWrapper
+ *	Description		:
+ *****************************************************************************/
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
+import com.alignmentsystems.library.constants.KafkaMessageTopology;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBook;
 import com.alignmentsystems.library.interfaces.InterfaceOrderBookWrapper;
 
@@ -82,11 +94,12 @@ public class AlignmentOrderBookWrapper implements InterfaceOrderBookWrapper{
 		//orderBook.addAddedOrderToOrderBookListener(multicast);
 		//orderBook.addMatchEventListener(multicast);
 		
+		List<String> orderBookTopicsToConsume = List.of(
+				KafkaMessageTopology.MESSAGE_RECEIVED_KILL_SWITCH
+				, symbol);
 		
-		
-
 		try {
-			obkc.runAlways(symbol, orderBook);
+			obkc.runAlways(orderBookTopicsToConsume, orderBook);
 		} catch (Exception e) {
 			//log.error(e.getMessage() ,  e);
 			throw e;

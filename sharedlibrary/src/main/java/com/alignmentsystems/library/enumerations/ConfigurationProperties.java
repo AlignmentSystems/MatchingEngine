@@ -23,8 +23,13 @@ public enum ConfigurationProperties {
 	MULTICASTPORT("Port"),
 	BOOTSTRAPSERVERS("bootstrap.servers")	;
 
+
 	public final String targetProperty;
 
+	/**
+	 * 	
+	 * @param requestedProperty
+	 */
 	ConfigurationProperties(String requestedProperty){
 		this.targetProperty = requestedProperty;
 	}

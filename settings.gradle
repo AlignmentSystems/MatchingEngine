@@ -18,4 +18,5 @@ include('exchange')
 include('fixclient')
 include('administrator')
 include('multicastserver')
+include('killswitch')
 

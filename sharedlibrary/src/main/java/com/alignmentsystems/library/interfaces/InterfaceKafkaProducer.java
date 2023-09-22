@@ -13,9 +13,14 @@ package com.alignmentsystems.library.interfaces;
 
 import java.io.FileNotFoundException;
 
+import com.alignmentsystems.library.AlignmentKafkaSender;
 import com.alignmentsystems.library.AlignmentLogEncapsulation;
 import com.alignmentsystems.library.AlignmentPersistenceToFileClient;
 
-public abstract interface InterfaceKafkaProducer {
+public interface InterfaceKafkaProducer {
 	public abstract boolean initialise(AlignmentLogEncapsulation log, AlignmentPersistenceToFileClient debugger) throws FileNotFoundException , NullPointerException;
+	public default void send(AlignmentKafkaSender sender) {
+		this.send(sender.getTopic(), sender.getKey(), sender.getBinaryMessage());
+	}
+	public abstract void send(String topicName, String key, byte[] binaryMessage);
 }

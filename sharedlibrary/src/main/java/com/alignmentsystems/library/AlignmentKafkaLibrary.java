@@ -1,4 +1,7 @@
-package com.alignmentsystems.matching;
+package com.alignmentsystems.library;
+
+import java.util.Properties;
+import java.util.Set;
 
 /******************************************************************************
  * 
@@ -14,7 +17,11 @@ package com.alignmentsystems.matching;
 import javax.json.Json;
 import javax.json.JsonObject;
 
-import com.alignmentsystems.library.AlignmentFunctions;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.KafkaAdminClient;
+import org.apache.kafka.clients.admin.ListTopicsResult;
+
+import com.alignmentsystems.library.constants.FailureConditionConstants;
 import com.alignmentsystems.library.enumerations.ConfigurationProperties;
 import com.alignmentsystems.library.enumerations.InstanceType;
 
@@ -24,6 +31,37 @@ import com.alignmentsystems.library.enumerations.InstanceType;
  *
  */
 public class AlignmentKafkaLibrary {
+
+	/**
+	 * 
+	 * @param props
+	 * @return
+	 */
+	public static Boolean isKafkaRunning(Properties props) {
+
+		try (AdminClient client = KafkaAdminClient.create(props)) {
+			ListTopicsResult topics = client.listTopics();
+			Set<String> names = topics.names().get();
+			if (names.isEmpty()){
+				// case: if no topic found.
+				System.err.println("No Kafka Topics Found");
+				return false;
+			}else {
+				return true;
+			}
+			
+		}
+		catch (Exception e){
+			// Kafka is not available
+			System.err.println("Kafka is not available".toUpperCase());
+			System.err.println(e.getMessage());
+			System.exit(FailureConditionConstants.KAFKA_NOT_RUNNING);		    
+		}
+		return false;
+	}
+
+
+
 
 	public static JsonObject getMessageLogEntryJSON(String source, String topic, String key, String message)
 			throws Exception {
