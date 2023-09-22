@@ -1,8 +1,4 @@
 package com.alignmentsystems.library;
-
-import java.util.Properties;
-import java.util.Set;
-
 /******************************************************************************
  * 
  *	Author			:	John Greenan 
@@ -13,6 +9,9 @@ import java.util.Set;
  *	Artefact		:	LibraryKafka
  *	Description		:
  *****************************************************************************/
+
+import java.util.Properties;
+import java.util.Set;
 
 import javax.json.Json;
 import javax.json.JsonObject;

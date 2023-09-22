@@ -9,10 +9,7 @@ package com.alignmentsystems.library;
  *	Artefact		:	AlignmentKafkaSender
  *	Description		:
  *****************************************************************************/
-/**
- * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
- *
- */
+
 import com.alignmentsystems.library.interfaces.InterfaceKafkaSender;
 
 /**

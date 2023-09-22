@@ -13,22 +13,28 @@ package com.alignmentsystems.library;
 import java.util.HashMap;
 import java.util.List;
 
-public class AlignmentMemberCollection {
 
-	private HashMap<Short, AlignmentMember>  members = new HashMap<Short, AlignmentMember>();
-	private HashMap<String , Short>  memberLookuponMemberId = new HashMap<String , Short>();
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
+public class AlignmentMemberCollection {
+	private HashMap<Long, AlignmentMember>  members = new HashMap<Long, AlignmentMember>();
+	private HashMap<String , Long>  memberLookuponMemberId = new HashMap<String , Long>();
 
 	
 	public AlignmentMemberCollection() {
 		final Boolean memberACancelOnDisconnect  = Boolean.TRUE;
 		final Boolean memberASelfTradeProtection  = Boolean.TRUE;
 		final String memberACompId = "MEMBER_A";
+		final String targetCompId = "EXCHANGE";
+		final String fixVersion = "FIX.4.4";
 		
-		List<AlignmentMemberConnectionDetails>  connectionDetailsMemberA = List.of(new AlignmentMemberConnectionDetails(memberACompId, "EXCHANGE", "FIX.4.4", memberACancelOnDisconnect));
+		List<AlignmentMemberConnectionDetails>  connectionDetailsMemberA = List.of(new AlignmentMemberConnectionDetails(memberACompId, targetCompId , fixVersion, memberACancelOnDisconnect));
 		AlignmentMember memberA = new AlignmentMember(connectionDetailsMemberA, memberASelfTradeProtection);
-		Short memberAShortCode = Short.MAX_VALUE;
-		this.members.put(memberAShortCode , memberA);
-		this.memberLookuponMemberId.put(memberACompId, memberAShortCode);
+		final Long memberALongCode = AlignmentDataMapper.getExchangeIdMappedFromSenderCompID(memberACompId);
+		this.members.put(memberALongCode , memberA);
+		this.memberLookuponMemberId.put(memberACompId, memberALongCode);
 
 		
 		
@@ -36,23 +42,37 @@ public class AlignmentMemberCollection {
 		final Boolean memberBSelfTradeProtection  = Boolean.TRUE;
 		final String memberBCompId = "MEMBER_B";
 		
-		List<AlignmentMemberConnectionDetails>  connectionDetailsMemberB = List.of(new AlignmentMemberConnectionDetails("MEMBER_B", "EXCHANGE", "FIX.4.4", memberACancelOnDisconnect));
-		AlignmentMember memberB = new AlignmentMember(connectionDetailsMemberA, memberASelfTradeProtection);
-		Short memberBShortCode = Short.MAX_VALUE - 1;
-		this.members.put(memberBShortCode , memberB);
-		this.memberLookuponMemberId.put(memberBCompId, memberBShortCode);
+		List<AlignmentMemberConnectionDetails>  connectionDetailsMemberB = List.of(new AlignmentMemberConnectionDetails(memberBCompId, targetCompId , fixVersion , memberBCancelOnDisconnect));
+		AlignmentMember memberB = new AlignmentMember(connectionDetailsMemberB, memberBSelfTradeProtection);
+		Long memberBLongCode = AlignmentDataMapper.getExchangeIdMappedFromSenderCompID(memberACompId);
+		this.members.put(memberBLongCode , memberB);
+		this.memberLookuponMemberId.put(memberBCompId, memberBLongCode);
 	}
 
-	protected HashMap<Short, AlignmentMember> getMembers() {
+	/**
+	 * 
+	 * @return
+	 */
+	public HashMap<Long, AlignmentMember> getMembers() {
 		return members;
 	}
 
-	protected AlignmentMember getMember(Short memberId) {
+	/**
+	 * 
+	 * @param memberId
+	 * @return
+	 */
+	public  AlignmentMember getMember(Long memberId) {
 		return members.get(memberId);
 	}
 
-	protected AlignmentMember getMember(String memberCompId) {
-		Short memberId = memberLookuponMemberId.get(memberCompId);
+	/**
+	 * 
+	 * @param memberCompId
+	 * @return
+	 */
+	public AlignmentMember getMember(String memberCompId) {
+		Long memberId = memberLookuponMemberId.get(memberCompId);
 		return members.get(memberId);
 	}
 }

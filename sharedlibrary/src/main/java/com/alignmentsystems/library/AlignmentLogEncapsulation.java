@@ -154,7 +154,15 @@ public class AlignmentLogEncapsulation implements Logger , InterfaceCustomLogger
 
 
 
-
+/**
+ * 
+ * @param msg
+ * @param sessionId
+ * @param methodName
+ * @param className
+ * @param instanceType
+ * @return
+ */
 	private String getInformation(String msg, SessionID sessionId, String methodName, String className, InstanceType instanceType) {
 		StringBuilder sb = new StringBuilder();
 		sb
@@ -183,6 +191,17 @@ public class AlignmentLogEncapsulation implements Logger , InterfaceCustomLogger
 		innerLog.error(toWrite);
 	}
 
+	
+	/**
+	 * 
+	 * @param msg
+	 * @param sessionId
+	 * @param direction
+	 * @param methodName
+	 * @param className
+	 * @param instanceType
+	 * @return
+	 */
 	private String getInformation(String msg, SessionID sessionId, MessageDirection direction, String methodName, String className, InstanceType instanceType) {
 		StringBuilder sb = new StringBuilder();
 		sb
@@ -219,12 +238,7 @@ public class AlignmentLogEncapsulation implements Logger , InterfaceCustomLogger
 		String toWrite = getInformation(msg, sessionId, direction, methodName, className, instanceType);
 
 		innerLog.error(toWrite);
-
 	}
-
-
-
-
 
 	@Override
 	public void infoMatchingEvent(OperationEventType operationEventType, InterfaceMatch match) {

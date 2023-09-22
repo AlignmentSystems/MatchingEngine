@@ -9,6 +9,11 @@ package com.alignmentsystems.library;
  *	Artefact		:	AlignmentMemberConnectionDetails
  *	Description		:
  *****************************************************************************/
+
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class AlignmentMemberConnectionDetails {
 
 	private String senderCompId = null;
@@ -22,7 +27,7 @@ public class AlignmentMemberConnectionDetails {
 	 * @param fixVersion
 	 * @param cancelOnDisconnect
 	 */
-	protected AlignmentMemberConnectionDetails(String senderCompId, String targetCompId, String fixVersion,
+	public AlignmentMemberConnectionDetails(String senderCompId, String targetCompId, String fixVersion,
 			Boolean cancelOnDisconnect) {
 		super();
 		this.senderCompId = senderCompId;
@@ -31,24 +36,35 @@ public class AlignmentMemberConnectionDetails {
 		this.cancelOnDisconnect = cancelOnDisconnect;
 	}
 
-	protected String getSenderCompId() {
+	/**
+	 * 
+	 * @return
+	 */
+	public String getSenderCompId() {
 		return senderCompId;
 	}
 
-
-	protected String getTargetCompId() {
+	/**
+	 * 
+	 * @return
+	 */
+	public String getTargetCompId() {
 		return targetCompId;
 	}
 
-
-	protected String getFixVersion() {
+	/**
+	 * 
+	 * @return
+	 */
+	public String getFixVersion() {
 		return fixVersion;
 	}
 
-
-	protected Boolean getCancelOnDisconnect() {
+	/**
+	 * 
+	 * @return
+	 */
+	public Boolean getCancelOnDisconnect() {
 		return cancelOnDisconnect;
 	}
-
-
 }

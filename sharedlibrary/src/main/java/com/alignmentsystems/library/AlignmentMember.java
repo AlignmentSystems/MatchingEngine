@@ -11,31 +11,67 @@ package com.alignmentsystems.library;
  *****************************************************************************/
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+
+/**
+ * @author <a href="mailto:sales@alignment-systems.com">John Greenan</a>
+ *
+ */
 public class AlignmentMember {
 	private List<AlignmentMemberConnectionDetails>  connections = new ArrayList<AlignmentMemberConnectionDetails>();
 	private Boolean selfTradeProtection = Boolean.TRUE;
 
-	
+
 	/**
 	 * @param connections
 	 * @param selfTradeProtection
 	 */
-	protected AlignmentMember(List<AlignmentMemberConnectionDetails> connections, Boolean selfTradeProtection) {
+	public AlignmentMember(List<AlignmentMemberConnectionDetails> connections, Boolean selfTradeProtection) {
 		super();
 		this.connections = connections;
 		this.selfTradeProtection = selfTradeProtection;
 	}
-	
-	
-	protected List<AlignmentMemberConnectionDetails> getConnections() {
+
+
+	/**
+	 * 
+	 * @param senderCompId
+	 * @param targetCompId
+	 * @return Default is TRUE
+	 */
+	public Boolean isMemberConnectionCancelOnDisconnect(String senderCompId, String targetCompId) {
+
+		final Boolean defaultReturn = Boolean.TRUE;
+
+		Iterator<AlignmentMemberConnectionDetails> iter = connections.iterator();
+
+		while(iter.hasNext()) {
+			AlignmentMemberConnectionDetails element = iter.next();
+			if(element.getSenderCompId().compareToIgnoreCase(senderCompId)==0) {
+				if(element.getTargetCompId().compareToIgnoreCase(targetCompId)==0) {
+					return element.getCancelOnDisconnect();
+				}
+			}
+		}
+
+		return defaultReturn;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public List<AlignmentMemberConnectionDetails> getConnections() {
 		return connections;
 	}
 
-
-	protected Boolean getSelfTradeProtection() {
+	/**
+	 * 
+	 * @return
+	 */
+	public Boolean getSelfTradeProtection() {
 		return selfTradeProtection;
 	}
-
 }
