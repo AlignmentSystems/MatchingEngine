@@ -23,6 +23,7 @@ import com.alignmentsystems.library.enumerations.MessageDirection;
 public abstract interface InterfaceKillMessage {
 	public void initialise(String senderCompId, String targetCompId, MessageDirection direction , OffsetDateTime sentTimestamp, OffsetDateTime receivedTimestamp );
 	public void initialise(Long senderCompId, Long targetCompId, MessageDirection direction , OffsetDateTime sentTimestamp, OffsetDateTime receivedTimestamp, OffsetDateTime executedTimestamp );
+	public void initialise(InterfaceKillDetail killDetail); 
 	public abstract Long getSender();
 	public abstract Long getTarget();
 	public abstract String getSenderCompId();

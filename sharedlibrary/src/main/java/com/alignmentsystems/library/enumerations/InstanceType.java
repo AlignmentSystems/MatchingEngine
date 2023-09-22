@@ -26,7 +26,8 @@ public enum InstanceType {
 	KAFKA("Kafka" , Boolean.FALSE, Boolean.FALSE),
 	MEMBERA("MemberA" , Boolean.TRUE, Boolean.FALSE),
 	MEMBERB("MemberB" , Boolean.TRUE, Boolean.FALSE),
-	ADMIN("Administrator" , Boolean.TRUE, Boolean.FALSE)
+	ADMIN("Administrator" , Boolean.TRUE, Boolean.FALSE),
+	KILLSWITCH("KillSwitch" , Boolean.TRUE, Boolean.FALSE)
 	;
 
 	public final String type;
@@ -34,17 +35,30 @@ public enum InstanceType {
 	public final Boolean isDefault;
 	private final static String LOG = "Log";
 
+	/**
+	 * 
+	 * @param actor
+	 * @param creatable
+	 * @param isDefault
+	 */
 	InstanceType(String actor, Boolean creatable , Boolean isDefault){
 		this.type = actor;
 		this.creatable = creatable;
 		this.isDefault = isDefault;
 	}
 
-	
+	/**
+	 * 
+	 * @return
+	 */
 	public String getProperties() {
 		return new StringBuilder(this.type).append(Constants.DOTPROPERTIES).toString();
 	};
 
+	/**
+	 * 
+	 * @return
+	 */
 	public String getLoggerProperties() {
 		return new StringBuilder(this.type).append(LOG).append(Constants.DOTPROPERTIES).toString();
 	};

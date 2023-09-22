@@ -45,14 +45,13 @@ public class AlignmentOrderBookKafkaProducer implements InterfaceKafkaProducer, 
 	private final int MILLISLEEP = 2000;
 
 	
-
 	@Override
 	public void addMatchEventListener(InterfaceMatchEvent toAdd) {
 		this.listenersMatchEvent.add(toAdd);
 	}
 
-
-	protected void send(String topicName, String key, byte[] binaryMessage) {
+	@Override
+	public void send(String topicName, String key, byte[] binaryMessage) {
 
 		// create the ProducerRecord object which will represent the message to the
 		// Kafka broker.
