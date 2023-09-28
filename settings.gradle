@@ -19,4 +19,5 @@ include('fixclient')
 include('administrator')
 include('multicastserver')
 include('killswitch')
+include('shaman')
 

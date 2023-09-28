@@ -41,11 +41,11 @@ import com.alignmentsystems.library.enumerations.TimestampUsage;
  */
 public class AlignmentFunctions {
 
-/**
- * 
- * @param side
- * @return
- */
+	/**
+	 * 
+	 * @param side
+	 * @return
+	 */
 	public static OrderBookSide getOrderBookSideFromFIXSide(Side side) {
 		if (side.getObject()==Side.BUY) {
 			return OrderBookSide.BUY;	
@@ -104,6 +104,16 @@ public class AlignmentFunctions {
 	}
 
 
+
+	/**
+	 * 
+	 * @param cl
+	 * @param instanceTypeName
+	 * @param configurationProperties
+	 * @return
+	 * @throws FileNotFoundException
+	 * @throws NullPointerException
+	 */
 	public static int getPropertyAsInt(ClassLoader cl , String instanceTypeName, ConfigurationProperties configurationProperties) throws FileNotFoundException, NullPointerException{
 		String innerValue;
 
@@ -127,8 +137,11 @@ public class AlignmentFunctions {
 
 	/**
 	 * 
-	 * @param actor
+	 * @param cl
+	 * @param instanceTypeName
 	 * @return
+	 * @throws FileNotFoundException
+	 * @throws NullPointerException
 	 */
 	public static Properties getProperties(ClassLoader cl , String instanceTypeName) throws FileNotFoundException , NullPointerException{
 
@@ -434,8 +447,8 @@ public class AlignmentFunctions {
 		}
 
 	}
-	
-	
+
+
 	/**
 	 * 
 	 * @param thread
@@ -457,7 +470,7 @@ public class AlignmentFunctions {
 			debugger.error(statusMessage);
 		}
 
-		
+
 	}
 
 
@@ -467,11 +480,11 @@ public class AlignmentFunctions {
 
 
 
-/**
- * 
- * @param classVersionToTest
- * @return
- */
+	/**
+	 * 
+	 * @param classVersionToTest
+	 * @return
+	 */
 	public final static String getVersionWithTitle(Class<?> classVersionToTest) {
 		final String version = "Version=";
 		final String codeValue = getVersion(classVersionToTest);
@@ -509,7 +522,7 @@ public class AlignmentFunctions {
 		return retVal;
 	}
 
-	
+
 	private final static String LICENSE = "/license";
 
 
@@ -527,7 +540,7 @@ public class AlignmentFunctions {
 				showLicense();
 				System.exit(0);
 			}
-			
+
 			if(item.compareToIgnoreCase("/help")==0) {
 				showHelp();
 				System.exit(0);
@@ -551,6 +564,8 @@ public class AlignmentFunctions {
 					returnValue = InstanceType.MEMBERA;
 				} else if (item.equalsIgnoreCase(InstanceType.MEMBERB.toString())){
 					returnValue = InstanceType.MEMBERB;
+				} else if (item.equalsIgnoreCase(InstanceType.SHAMAN.toString())){
+					returnValue = InstanceType.SHAMAN;
 				}else{
 					//We have an unknown parameter...
 					returnValue = InstanceType.UNKNOWN;

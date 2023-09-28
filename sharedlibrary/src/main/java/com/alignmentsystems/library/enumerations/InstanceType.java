@@ -27,6 +27,7 @@ public enum InstanceType {
 	MEMBERA("MemberA" , Boolean.TRUE, Boolean.FALSE),
 	MEMBERB("MemberB" , Boolean.TRUE, Boolean.FALSE),
 	ADMIN("Administrator" , Boolean.TRUE, Boolean.FALSE),
+	SHAMAN("Shaman" , Boolean.TRUE, Boolean.FALSE),
 	KILLSWITCH("KillSwitch" , Boolean.TRUE, Boolean.FALSE)
 	;
 

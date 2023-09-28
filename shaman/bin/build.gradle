@@ -1,6 +1,7 @@
 plugins {
     // Apply the java-library plugin for API and implementation separation.
-    id 'java-library'    
+    id 'application'
+    id 'java'
     id 'eclipse'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     
@@ -11,11 +12,18 @@ sourceSets {
 		java {
 			srcDir 'src/main/java'
 		}
+	resources{
+      		srcDir 'config'
+   		}
+
 	}
 }
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
+    flatDir {
+    dirs '../sharedlibrary/build/libs'
+    }
 }
 
 
@@ -50,13 +58,13 @@ javadoc{
 	source = sourceSets.main.allJava
 	options.memberLevel = JavadocMemberLevel.PRIVATE
 	options.author = true
-  	title = 'Alignment Systems Matching Engine Toy-API'
+  	title = 'Alignment Systems Matching Engine Toy'
 }
 
 
 //See https://imperceptiblethoughts.com/shadow/configuration/
 shadowJar {
-	archiveBaseName = 'AlignmentMatchingAPI'
+	archiveBaseName = 'AlignmentFIXClient'
 	archiveClassifier = ''
 	}
 
@@ -64,20 +72,21 @@ jar{
 	autoIncrementBuildNumber()
     manifest {
         attributes("Implementation-Title": "Gradle",                   
-                   //'Main-Class':'com.alignmentsystems.matching.App',
+                   'Main-Class':'com.alignmentsystems.matching.App',
 					'class-path':'.' ,
 					'Version': classifier + '.' + versionBuild)
     }
 }
 
 dependencies {
-    implementation("ch.qos.logback:logback-classic:+")
+   implementation("ch.qos.logback:logback-classic:+")
 	implementation('org.quickfixj:quickfixj-core:2.3.1')
 	implementation('org.quickfixj:quickfixj-messages:2.3.1')
 	implementation("ch.qos.logback:logback-core:+")
 	implementation("org.slf4j:slf4j-api:+")
 	implementation("org.apache.kafka:kafka-clients:3.5.0")
 	implementation("javax.json:javax.json-api:+")
+	implementation(':AlignmentMatchingAPI')
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -85,4 +94,9 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(11)
     }
+}
+
+application {
+    // Define the main class for the application.
+    mainClass = 'com.alignmentsystems.matching.App'
 }
