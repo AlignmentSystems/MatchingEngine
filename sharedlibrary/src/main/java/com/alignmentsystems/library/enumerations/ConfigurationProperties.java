@@ -21,8 +21,9 @@ public enum ConfigurationProperties {
 	LOGFILENAMESUFFIX("LogFileNameSuffix"),
 	MULTICASTHOST("Host"),
 	MULTICASTPORT("Port"),
-	BOOTSTRAPSERVERS("bootstrap.servers")	;
-
+	SHAREDMEMORYFILE("SharedMemoryFile"),
+	BOOTSTRAPSERVERS("bootstrap.servers")	
+	;
 
 	public final String targetProperty;
 
@@ -34,4 +35,3 @@ public enum ConfigurationProperties {
 		this.targetProperty = requestedProperty;
 	}
 }
-
