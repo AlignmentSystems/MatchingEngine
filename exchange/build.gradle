@@ -87,6 +87,9 @@ dependencies {
 	implementation("org.slf4j:slf4j-api:+")
 	implementation("org.apache.kafka:kafka-clients:3.5.0")
 	implementation("javax.json:javax.json-api:+")
+	//See https://github.com/hyperledger/fabric-gateway/tree/main/java
+	implementation("org.hyperledger.fabric:fabric-gateway:1.3.0")
+	runtimeOnly 'io.grpc:grpc-netty-shaded:1.56.0'
 	implementation(':AlignmentMatchingAPI')
 }
 
