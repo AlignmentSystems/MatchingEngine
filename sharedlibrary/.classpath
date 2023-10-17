@@ -1,12 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" output="bin/main" path="src/main/java">
+	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
+	<classpathentry kind="output" path="bin/default"/>
+	<classpathentry output="bin/main" kind="src" path="src/main/java">
 		<attributes>
 			<attribute name="gradle_scope" value="main"/>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11/"/>
-	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
-	<classpathentry kind="output" path="bin/default"/>
+	<classpathentry sourcepath="/home/john/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-classic/1.4.11/633da78998a88874bb7d697f055e5f28b40b5d5c/logback-classic-1.4.11-sources.jar" kind="lib" path="/home/john/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-classic/1.4.11/54450c0c783e896a1a6d88c043bd2f1daba1c382/logback-classic-1.4.11.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/home/john/.gradle/caches/modules-2/files-2.1/org.quickfixj/quickfixj-core/2.3.1/8b9272d2576eb1db40cc9888c3111d9e81a7dca4/quickfixj-core-2.3.1-sources.jar" kind="lib" path="/home/john/.gradle/caches/modules-2/files-2.1/org.quickfixj/quickfixj-core/2.3.1/193116a9adde3a0fa52344c41bcd355123a0626c/quickfixj-core-2.3.1.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/home/john/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-core/1.4.11/9899e21389d8b800a9c093c9e43afefe7824dd62/logback-core-1.4.11-sources.jar" kind="lib" path="/home/john/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-core/1.4.11/2f9f280219a9922a74200eaf7138c4c17fb87c0f/logback-core-1.4.11.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/home/john/.gradle/caches/modules-2/files-2.1/org.apache.mina/mina-core/2.1.4/e51891aeb8f6e03f7da43e3af09420b68e6a8529/mina-core-2.1.4-sources.jar" kind="lib" path="/home/john/.gradle/caches/modules-2/files-2.1/org.apache.mina/mina-core/2.1.4/14ded70a3399f70efe960e2c6cd05bde3d3d70fc/mina-core-2.1.4.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/home/john/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/2.0.9/97e46b94d70f47892145e09d685461245584d596/slf4j-api-2.0.9-sources.jar" kind="lib" path="/home/john/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/2.0.9/7cf2726fdcfbc8610f9a71fb3ed639871f315340/slf4j-api-2.0.9.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/home/john/.gradle/caches/modules-2/files-2.1/org.apache.kafka/kafka-clients/3.5.0/d53fbc9a4435a2f97049daff7a9a3f08e8cc97e0/kafka-clients-3.5.0-sources.jar" kind="lib" path="/home/john/.gradle/caches/modules-2/files-2.1/org.apache.kafka/kafka-clients/3.5.0/54e4beeb4dac3892f5c6cc4141019bb29835acc7/kafka-clients-3.5.0.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/home/john/.gradle/caches/modules-2/files-2.1/javax.json/javax.json-api/1.1.4/eb81279e894e71bf034681c5494c60001775bb0/javax.json-api-1.1.4-sources.jar" kind="lib" path="/home/john/.gradle/caches/modules-2/files-2.1/javax.json/javax.json-api/1.1.4/c8efa3cfaeee2b05c2dfd54cba21548a081b1746/javax.json-api-1.1.4.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/home/john/.gradle/caches/modules-2/files-2.1/com.github.luben/zstd-jni/1.5.5-1/89ed42c223d964d3d111e84c18b00d842e5c850e/zstd-jni-1.5.5-1-sources.jar" kind="lib" path="/home/john/.gradle/caches/modules-2/files-2.1/com.github.luben/zstd-jni/1.5.5-1/fda1d6278299af27484e1cc3c79a060e41b7ef7e/zstd-jni-1.5.5-1.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/home/john/.gradle/caches/modules-2/files-2.1/org.lz4/lz4-java/1.8.0/7609c362f37f0c0bd3743bc1976df2daa28ad19e/lz4-java-1.8.0-sources.jar" kind="lib" path="/home/john/.gradle/caches/modules-2/files-2.1/org.lz4/lz4-java/1.8.0/4b986a99445e49ea5fbf5d149c4b63f6ed6c6780/lz4-java-1.8.0.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="/home/john/.gradle/caches/modules-2/files-2.1/org.xerial.snappy/snappy-java/1.1.10.0/9954c9380d46a872e215512b2ba53c43b21fecde/snappy-java-1.1.10.0-sources.jar" kind="lib" path="/home/john/.gradle/caches/modules-2/files-2.1/org.xerial.snappy/snappy-java/1.1.10.0/356b22f323f71e124d1f2556eebe2c776509ea9d/snappy-java-1.1.10.0.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="main,test"/>
+		</attributes>
+	</classpathentry>
 </classpath>
