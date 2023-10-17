@@ -1,4 +1,14 @@
 package com.alignmentsystems.matching;
+/******************************************************************************
+ * 
+ *	Author			:	John Greenan 
+ *	Contact			:	sales@alignment-systems.com
+ *	Date            :	20th September 2023
+ *	Copyright       :	Alignment Systems Ltd 2023
+ *	Project			:	Alignment Matching Toy
+ *	Artefact		:	AlignmentFIXToBinaryProcessor
+ *	Description		:
+ *****************************************************************************/
 
 import java.io.FileNotFoundException;
 import java.util.Properties;
